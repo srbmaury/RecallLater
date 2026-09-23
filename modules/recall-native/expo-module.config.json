@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["RecallNativeModule"]
+  },
+  "android": {
+    "modules": ["com.srbmaury.recalllater.recallnative.RecallNativeModule"]
+  }
+}
