@@ -18,7 +18,7 @@ name: First launch shows the privacy promise, then an empty Today
     visible: Share it now. Deal with it when it matters.
     timeout: 30000
 - assertVisible: We don't scan your photo library
-- assertVisible: Screenshots and PDFs never leave your phone
+- assertVisible: Screenshots and PDFs stay on your phone unless you export a backup
 - tapOn: Get started
 - assertVisible: Nothing needs you today
 - assertVisible: Inbox

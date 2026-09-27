@@ -8,7 +8,7 @@ const PROMISES = [
   "We don't read your messages or email",
   'You choose exactly what you share',
   'Your items are stored on this device, not in the cloud',
-  'Screenshots and PDFs never leave your phone',
+  'Screenshots and PDFs stay on your phone unless you export a backup',
   'Text is read on-device, even offline',
   'AI is optional: it only ever sees text, and only if you choose',
 ];

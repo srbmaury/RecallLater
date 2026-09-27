@@ -1,12 +1,14 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { StyleSheet, View } from 'react-native';
 
+import { AddButton } from '@/components/add-sheet';
+import { announceNextOccurrence } from '@/components/repeat-picker';
 import { ItemRow } from '@/components/item-row';
+import { useSnoozeSheet } from '@/components/snooze-sheet';
 import { TabScreen } from '@/components/screen';
 import { EmptyState, SectionHeader } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useDbQuery } from '@/hooks/use-db-query';
-import { addDays, atTime } from '@/lib/dates';
 import { listToday, listUpcoming } from '@/lib/db/items';
 import { completeItem, snooze } from '@/lib/reminders';
 import type { Item } from '@/lib/types';
@@ -19,12 +21,15 @@ export default function TodayScreen() {
   const { data, reload, db } = useDbQuery(loadToday);
 
   const onDone = async (item: Item) => {
-    await completeItem(db, item.id);
+    const next = await completeItem(db, item.id);
     reload();
+    announceNextOccurrence(next);
   };
-  // "Later" on the Today list means tomorrow morning, not a few hours.
+  const { ask: askLater, element: laterSheet } = useSnoozeSheet();
   const onLater = async (item: Item) => {
-    await snooze(db, item.id, atTime(addDays(new Date(), 1), 9));
+    const until = await askLater(item.title);
+    if (!until) return;
+    await snooze(db, item.id, until);
     reload();
   };
 
@@ -33,6 +38,7 @@ export default function TodayScreen() {
 
   return (
     <TabScreen
+      action={<AddButton />}
       title="Today"
       subtitle={new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}>
       {data && !today.length && !upcoming.length ? (
@@ -60,6 +66,7 @@ export default function TodayScreen() {
           </View>
         </>
       ) : null}
+      {laterSheet}
     </TabScreen>
   );
 }

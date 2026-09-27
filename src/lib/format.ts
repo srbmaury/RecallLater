@@ -1,4 +1,5 @@
 import { formatDay, formatLocalDateTime } from '@/lib/dates';
+import { REPEAT_LABELS } from '@/lib/recurrence';
 import type { ExtractedFields, Item, ItemType, JobStage } from '@/lib/types';
 
 export const TYPE_META: Record<ItemType, { label: string; collection: string; emoji: string }> = {
@@ -78,7 +79,7 @@ export function summarize(item: Pick<Item, 'type' | 'fields' | 'extractedText'>,
         return [f.contact?.phone ?? f.contact?.email ?? f.upi?.payee ?? f.urls?.[0] ?? snippet(item.extractedText)];
     }
   })();
-  return parts.filter(Boolean).join(' · ');
+  return [...parts, f.repeat && `↻ ${REPEAT_LABELS[f.repeat].toLowerCase()}`].filter(Boolean).join(' · ');
 }
 
 type FieldRow = { label: string; value: string };

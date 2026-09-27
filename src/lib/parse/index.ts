@@ -16,6 +16,7 @@ import {
 } from './domains';
 import { findEntities } from './entities';
 import { pairLabelledCells } from './layout';
+import { findRepeat } from './repeat';
 import { normalizeOcr } from './normalize';
 import { findAmounts, findBarePrice, primaryAmount } from './money';
 import { type CalendarSuggestion, type ReminderSuggestion, suggestCalendar, suggestReminder } from './suggest';
@@ -86,6 +87,7 @@ export function analyze({ text, barcodes = [], now = new Date(), type: forcedTyp
     phones: nonEmpty(entities.phones),
     barcodes: nonEmpty(barcodes),
     ...pickDates(type, dates, now, entities.returnWindowDays, normalized),
+    repeat: findRepeat(type, normalized),
     ...qr.fields,
     ...domain.fields,
   });

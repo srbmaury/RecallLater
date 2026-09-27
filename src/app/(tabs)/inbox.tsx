@@ -1,3 +1,4 @@
+import { AddButton } from '@/components/add-sheet';
 import { ItemRow } from '@/components/item-row';
 import { TabList } from '@/components/screen';
 import { EmptyState } from '@/components/ui';
@@ -9,6 +10,7 @@ export default function InboxScreen() {
 
   return (
     <TabList
+      action={<AddButton />}
       title="Inbox"
       subtitle="Everything you've shared, newest first"
       data={data ?? []}

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { ReminderPicker } from '@/components/reminder-picker';
+import { announceNextOccurrence, RepeatPicker } from '@/components/repeat-picker';
 import { ThemedText } from '@/components/themed-text';
 import { FieldEditor } from '@/components/field-editor';
 import { ItemActions } from '@/components/item-actions';
@@ -160,12 +161,13 @@ function ItemDetail({ item, reload, db }: { item: Item; reload: () => void; db: 
                 })()
               }
             />
+            <RepeatPicker fields={item.fields} onChange={saveFields} />
           </>
         ) : null}
 
         <View style={styles.actions}>
           {active ? (
-            <Button label={DONE_LABELS[item.type] ?? 'Mark done'} variant="primary" onPress={run(() => completeItem(db, item.id))} />
+            <Button label={DONE_LABELS[item.type] ?? 'Mark done'} variant="primary" onPress={run(async () => announceNextOccurrence(await completeItem(db, item.id)))} />
           ) : (
             <Button label="Move back to inbox" onPress={run(() => restoreItem(db, item.id))} />
           )}

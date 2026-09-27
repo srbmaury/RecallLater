@@ -1,0 +1,11 @@
+appId: com.srbmaury.recalllater
+name: Settings exports a backup through the share sheet
+---
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Back up to a file…
+- tapOn: Back up to a file…
+- extendedWaitUntil:
+    visible: .*(Share|Save your backup).*
+    timeout: 15000
+- back

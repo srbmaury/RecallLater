@@ -6,12 +6,17 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type HeaderProps = { title: string; subtitle?: string };
+type HeaderProps = { title: string; subtitle?: string; action?: ReactNode };
 
-function Header({ title, subtitle }: HeaderProps) {
+function Header({ title, subtitle, action }: HeaderProps) {
   return (
     <View style={styles.header}>
-      <ThemedText type="title">{title}</ThemedText>
+      <View style={styles.titleRow}>
+        <ThemedText type="title" style={styles.title}>
+          {title}
+        </ThemedText>
+        {action}
+      </View>
       {subtitle ? (
         <ThemedText type="small" themeColor="textSecondary">
           {subtitle}
@@ -79,6 +84,14 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three,
     paddingBottom: Spacing.six * 2,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  title: {
+    flex: 1,
   },
   header: {
     paddingTop: Spacing.three,

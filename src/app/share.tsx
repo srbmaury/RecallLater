@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { clearSharedPayloads, getSharedPayloads } from 'expo-sharing';
+import { SymbolView } from 'expo-symbols';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, BackHandler, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ReminderPicker, type ReminderChoice } from '@/components/reminder-picker';
+import { RepeatPicker } from '@/components/repeat-picker';
 import { ThemedText } from '@/components/themed-text';
 import { FieldEditor } from '@/components/field-editor';
 import { Button, Card, Chip, EmptyState, SectionHeader } from '@/components/ui';
@@ -16,21 +18,28 @@ import { AI_SETTING, type AiMode, aiModeOf, askAi, isAiConfigured } from '@/lib/
 import { type AiExtraction, mergeWithAi } from '@/lib/ai/merge';
 import { textForAi } from '@/lib/ai/redact';
 import { addToCalendar } from '@/lib/calendar';
-import { parseLocalDateTime } from '@/lib/dates';
-import { getSetting, insertItem, setSetting } from '@/lib/db/items';
+import { formatDay, parseLocalDateTime } from '@/lib/dates';
+import { findDuplicate, getItem, getSetting, insertItem, setSetting, updateItem } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
 import { TYPE_META } from '@/lib/format';
 import { type Intake, processPayloads } from '@/lib/intake';
+import { clearPendingPayloads, getPendingPayloads } from '@/lib/pending';
 import { analyze, keyDateOf, type ReminderSuggestion } from '@/lib/parse';
 import { suggestCalendar, suggestReminder } from '@/lib/parse/suggest';
-import { ensureNotificationPermission, scheduleReminders } from '@/lib/reminders';
-import { type ExtractedFields, ITEM_TYPES, type ItemType } from '@/lib/types';
+import { ensureNotificationPermission, refreshDigests, scheduleReminders } from '@/lib/reminders';
+import { type ExtractedFields, type Item, ITEM_TYPES, type ItemType } from '@/lib/types';
+
+function savedWhen(createdAt: number): string {
+  const day = formatDay(new Date(createdAt));
+  return day === 'Today' || day === 'Yesterday' ? day.toLowerCase() : `on ${day}`;
+}
 
 export default function ShareScreen() {
-  const { at } = useLocalSearchParams<{ at?: string }>();
+  const { at, source } = useLocalSearchParams<{ at?: string; source?: string }>();
   const key = at ?? 'initial';
+  // Items from the ＋ Add sheet arrive in the same shape as OS shares.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read the payloads for every new share
-  const payloads = useMemo(() => getSharedPayloads(), [key]);
+  const payloads = useMemo(() => (source === 'add' ? getPendingPayloads() : getSharedPayloads()), [key]);
   const [result, setResult] = useState<{ key: string; intake: Intake | null } | null>(null);
   // Processing copies files, so it must run once per share (not per effect re-run).
   const processedFor = useRef<string | null>(null);
@@ -60,7 +69,10 @@ export default function ShareScreen() {
   if (status === 'empty' || !result?.intake) {
     return (
       <View style={styles.centered}>
-        <EmptyState title="Nothing to add" message="Share a screenshot, PDF, link or text to RecallLater from another app." />
+        <EmptyState
+          title="Nothing to add"
+          message="Share a screenshot, PDF, link or text to RecallLater from another app, or tap ＋ on Today."
+        />
         <Button label="Go to Today" onPress={() => router.replace('/')} />
       </View>
     );
@@ -177,19 +189,50 @@ function Review({ intake }: { intake: Intake }) {
 
   const save = async () => {
     setSaving(true);
-    let savedItem: Awaited<ReturnType<typeof insertItem>> | null = null;
+    const candidate = {
+      type,
+      title: title.trim() || analysis.title,
+      fields,
+      dueAt: keyDateOf(fields) ? parseLocalDateTime(keyDateOf(fields)!).getTime() : null,
+    };
+    const existing = await findDuplicate(db, candidate).catch((error) => {
+      console.warn('Duplicate check failed', error);
+      return null;
+    });
+    if (!existing) return persist(candidate, null);
+    Alert.alert(
+      'Already saved',
+      `You saved “${existing.title}” ${savedWhen(existing.createdAt)}. Update it with these details, or keep both?`,
+      [
+        { text: 'Cancel', style: 'cancel', onPress: () => setSaving(false) },
+        { text: 'Save as new', onPress: () => persist(candidate, null) },
+        { text: 'Update it', onPress: () => persist(candidate, existing) },
+      ],
+      { cancelable: true, onDismiss: () => setSaving(false) },
+    );
+  };
+
+  /** Saves a new item, or folds this share into `existing` (new details, its files added). */
+  const persist = async (candidate: Pick<Item, 'type' | 'title' | 'fields' | 'dueAt'>, existing: Item | null) => {
+    let savedItem: Item | null = null;
     try {
-      savedItem = await insertItem(db, {
-        type,
-        title: title.trim() || analysis.title,
-        sourceType: intake.sourceType,
-        extractedText: intake.text,
-        fields,
-        attachments: intake.attachments,
-        confidence: analysis.confidence,
-        dueAt: keyDateOf(fields) ? parseLocalDateTime(keyDateOf(fields)!).getTime() : null,
-      });
-      if (reminder.fireAt && reminder.mode !== 'none') {
+      if (existing) {
+        await updateItem(db, existing.id, {
+          ...candidate,
+          extractedText: intake.text || existing.extractedText,
+          attachments: [...existing.attachments, ...intake.attachments],
+        });
+        savedItem = await getItem(db, existing.id);
+      } else {
+        savedItem = await insertItem(db, {
+          ...candidate,
+          sourceType: intake.sourceType,
+          extractedText: intake.text,
+          attachments: intake.attachments,
+          confidence: analysis.confidence,
+        });
+      }
+      if (savedItem && reminder.fireAt && reminder.mode !== 'none') {
         const allowed = await ensureNotificationPermission();
         if (allowed) {
           try {
@@ -201,13 +244,14 @@ function Review({ intake }: { intake: Intake }) {
         }
         else Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
       }
-      clearSharedPayloads();
+      refreshDigests(db).catch(console.warn);
+      clearIncoming();
       router.replace('/inbox');
     } catch (error) {
       // If anything fails after the insert, leave the item accessible and avoid a
       // retry creating a duplicate. Any reminder failure is handled above.
       if (savedItem) {
-        clearSharedPayloads();
+        clearIncoming();
         router.replace('/inbox');
         Alert.alert('Saved', 'Your item is in the inbox, but some follow-up step failed.');
         return;
@@ -219,7 +263,7 @@ function Review({ intake }: { intake: Intake }) {
 
   const discard = () => {
     deleteAttachments(intake.attachments);
-    clearSharedPayloads();
+    clearIncoming();
     router.replace('/');
   };
 
@@ -242,7 +286,18 @@ function Review({ intake }: { intake: Intake }) {
       <Stack.Screen
         options={{
           headerBackVisible: false,
-          headerLeft: () => <Button label="Cancel" variant="plain" size="small" onPress={discard} disabled={saving} />,
+          headerLeft: () => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              accessibilityHint="Discards this item"
+              onPress={discard}
+              disabled={saving}
+              hitSlop={12}
+              style={({ pressed }) => [styles.back, { opacity: pressed || saving ? 0.5 : 1 }]}>
+              <SymbolView name={{ ios: 'chevron.left', android: 'arrow_back' }} tintColor={theme.text} size={24} />
+            </Pressable>
+          ),
         }}
       />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -310,6 +365,7 @@ function Review({ intake }: { intake: Intake }) {
 
         <SectionHeader title="Remind me" />
         <ReminderPicker value={reminder} onChange={changeReminder} suggestion={suggestion} />
+        <RepeatPicker fields={fields} onChange={changeFields} />
 
         {calendar ? (
           <Button
@@ -348,11 +404,20 @@ function Review({ intake }: { intake: Intake }) {
   );
 }
 
+/** The item came from the OS share sheet or from the ＋ Add sheet; clear whichever it was. */
+function clearIncoming() {
+  clearSharedPayloads();
+  clearPendingPayloads();
+}
+
 function fromSuggestion(suggestion: ReminderSuggestion | null): ReminderChoice {
   return suggestion ? { mode: suggestion.mode, fireAt: suggestion.fireAt } : { mode: 'none', fireAt: null };
 }
 
 const styles = StyleSheet.create({
+  back: {
+    paddingRight: Spacing.three,
+  },
   flex: {
     flex: 1,
   },

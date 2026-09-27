@@ -179,3 +179,19 @@ describe('QR codes', () => {
     });
   });
 });
+
+describe('repeating items', () => {
+  const repeatOf = (text: string) => analyze({ text, now: NOW }).fields.repeat;
+
+  it('spots things that come back', () => {
+    expect(repeatOf('Pay rent ₹25,000 by 5 Oct')).toBe('monthly');
+    expect(repeatOf('Your Netflix subscription of ₹649 will renew on Oct 2. Pay by Oct 2')).toBe('monthly');
+    expect(repeatOf('Remind me to call mom every week on Sunday')).toBe('weekly');
+    expect(repeatOf('Annual premium of ₹12,400 due on 15 Oct 2026')).toBe('yearly');
+  });
+
+  it('leaves one-off things alone', () => {
+    expect(repeatOf('Electricity Bill\nAmount ₹2,840\nDue Date 28 Sep 2026')).toBeUndefined();
+    expect(repeatOf('Sony WH-1000XM6 ₹29,990 No-cost EMI available https://amazon.in/dp/B0CXYZ1234')).toBeUndefined();
+  });
+});

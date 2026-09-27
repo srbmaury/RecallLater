@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef } from 'react';
 import { AppState, useColorScheme } from 'react-native';
 
+import { LockGate } from '@/components/lock-gate';
 import { getSetting } from '@/lib/db/items';
 import { DatabaseProvider, useDatabase } from '@/lib/db/provider';
 import { handleNotificationResponse, reconcileReminders, setupNotifications } from '@/lib/reminders';
@@ -19,10 +20,12 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="share" options={{ title: 'New item', gestureEnabled: false }} />
+          <Stack.Screen name="add-text" options={{ title: 'Add text' }} />
           <Stack.Screen name="item/[id]" options={{ title: '' }} />
           <Stack.Screen name="collection/[type]" options={{ title: '' }} />
           <Stack.Screen name="welcome" options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }} />
         </Stack>
+        <LockGate />
       </DatabaseProvider>
     </ThemeProvider>
   );
@@ -52,6 +55,11 @@ function Bootstrap() {
       const key = `${response.notification.request.identifier}:${response.actionIdentifier}`;
       if (handled.current.has(key)) return;
       handled.current.add(key);
+      // The morning digest opens Today; item reminders open their item.
+      if (response.notification.request.content.data?.digest) {
+        router.navigate('/');
+        return;
+      }
       const itemId = await handleNotificationResponse(db, response);
       if (itemId) router.push({ pathname: '/item/[id]', params: { id: itemId } });
     };

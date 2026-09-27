@@ -27,6 +27,8 @@ export type LocalDateTime = string;
 
 export type Barcode = { format: string; rawValue: string };
 
+export type Repeat = 'weekly' | 'monthly' | 'yearly';
+
 export type JobStage = 'saved' | 'applied' | 'interview' | 'closed';
 export type Ingredient = { text: string; done: boolean };
 
@@ -41,6 +43,10 @@ export type ExtractedFields = {
   purchasedOn?: LocalDateTime;
   returnBy?: LocalDateTime;
   expiresOn?: LocalDateTime;
+  /** Comes back after it's done: the next occurrence is created with its dates moved on. */
+  repeat?: Repeat;
+  /** Day of the month a monthly/yearly repeat returns to, so 31 Jan → 28 Feb → 31 Mar. */
+  repeatDay?: number;
   from?: string;
   to?: string;
   flightNumber?: string;

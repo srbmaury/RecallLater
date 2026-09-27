@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { endOfDay, overdueCutoff, toLocalDateTime } from '@/lib/dates';
+import { type Candidate, isDuplicate } from '@/lib/duplicates';
 import type { ExtractedFields, Item, ItemStatus, ItemType, ReminderMode, SourceType } from '@/lib/types';
 
 type ItemRow = {
@@ -65,6 +66,14 @@ export async function insertItem(db: SQLiteDatabase, item: NewItem): Promise<Ite
   return (await getItem(db, id))!;
 }
 
+/** An active item that is the same thing as `candidate` (same code, PNR, link, or same bill on the same day). */
+export async function findDuplicate(db: SQLiteDatabase, candidate: Candidate): Promise<Item | null> {
+  const rows = await db.getAllAsync<ItemRow>(
+    `SELECT * FROM items WHERE status = 'active' ORDER BY created_at DESC LIMIT 500`,
+  );
+  return rows.map(toItem).find((item) => isDuplicate(candidate, item)) ?? null;
+}
+
 export async function getItem(db: SQLiteDatabase, id: string): Promise<Item | null> {
   const row = await db.getFirstAsync<ItemRow>('SELECT * FROM items WHERE id = ?', id);
   return row ? toItem(row) : null;
@@ -73,9 +82,11 @@ export async function getItem(db: SQLiteDatabase, id: string): Promise<Item | nu
 export async function updateItem(
   db: SQLiteDatabase,
   id: string,
-  changes: Partial<Pick<Item, 'type' | 'title' | 'fields' | 'dueAt'>>,
+  changes: Partial<Pick<Item, 'type' | 'title' | 'fields' | 'dueAt' | 'extractedText' | 'attachments'>>,
 ): Promise<void> {
   const columns: [string, string | number | null][] = [];
+  if (changes.extractedText !== undefined) columns.push(['extracted_text', changes.extractedText]);
+  if (changes.attachments !== undefined) columns.push(['attachments', JSON.stringify(changes.attachments)]);
   if (changes.type !== undefined) columns.push(['type', changes.type]);
   if (changes.title !== undefined) columns.push(['title', changes.title]);
   if (changes.fields !== undefined) columns.push(['fields', JSON.stringify(changes.fields)]);
@@ -254,6 +265,38 @@ function dateFieldExpression(field: NonNullable<SearchFilters['dateField']>): st
   const values = paths.map((path) => `json_extract(i.fields, ${path})`);
   const coalesced = values.length === 1 ? values[0] : `COALESCE(${values.join(', ')})`;
   return `CASE WHEN ${coalesced} IS NULL THEN NULL WHEN length(${coalesced}) = 10 THEN ${coalesced} || 'T00:00' ELSE ${coalesced} END`;
+}
+
+export async function listAllItems(db: SQLiteDatabase): Promise<Item[]> {
+  const rows = await db.getAllAsync<ItemRow>('SELECT * FROM items ORDER BY created_at');
+  return rows.map(toItem);
+}
+
+/** Inserts an item from a backup as it was, keeping its id and dates. Reminders are scheduled separately. */
+export async function insertRestoredItem(db: SQLiteDatabase, item: Item): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO items (id, type, title, status, source_type, extracted_text, fields, attachments, confidence, due_at,
+       reminder_mode, created_at, updated_at, completed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'none', ?, ?, ?)`,
+    item.id,
+    item.type,
+    item.title,
+    item.status,
+    item.sourceType,
+    item.extractedText ?? '',
+    JSON.stringify(item.fields ?? {}),
+    JSON.stringify(item.attachments ?? []),
+    item.confidence ?? 0,
+    item.dueAt ?? null,
+    item.createdAt ?? Date.now(),
+    item.updatedAt ?? Date.now(),
+    item.completedAt ?? null,
+  );
+}
+
+export async function listSettings(db: SQLiteDatabase): Promise<Record<string, string>> {
+  const rows = await db.getAllAsync<{ key: string; value: string }>('SELECT key, value FROM settings');
+  return Object.fromEntries(rows.map((row) => [row.key, row.value]));
 }
 
 export async function getSetting(db: SQLiteDatabase, key: string): Promise<string | null> {

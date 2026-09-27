@@ -49,6 +49,10 @@ export function addMonths(date: Date, months: number): Date {
   return next;
 }
 
+export function isFuture(date: Date): boolean {
+  return date.getTime() > Date.now();
+}
+
 export function atTime(date: Date, hours: number, minutes = 0): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes);
 }

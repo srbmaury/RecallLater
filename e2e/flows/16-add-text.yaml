@@ -1,0 +1,31 @@
+appId: com.srbmaury.recalllater
+name: The ＋ button adds typed text through the same review as a share
+---
+- launchApp:
+    stopApp: false
+# The previous flow may leave an item screen open; go back to the tabs.
+- repeat:
+    while:
+      notVisible: Collections
+    times: 3
+    commands:
+      - back
+- extendedWaitUntil:
+    visible: Collections
+    timeout: 30000
+- tapOn: Today
+- tapOn: Add
+- tapOn: Type or paste text
+- inputText: Pay rent by 5th October
+- tapOn: Continue
+- extendedWaitUntil:
+    visible: Save
+    timeout: 30000
+- assertVisible: (?i).*rent.*
+# The back arrow discards; nothing is saved.
+- tapOn: Back
+- extendedWaitUntil:
+    visible: Collections
+    timeout: 10000
+- tapOn: Inbox
+- assertNotVisible: (?i).*pay rent.*

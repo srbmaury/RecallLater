@@ -95,4 +95,26 @@ flow 14-share-job
 open_downloads
 flow 15-share-wifi-qr
 
+# In-app ＋ Add. The dev client's floating gear sits over the ＋ button (dev builds
+# only), so drag it out of the way first.
+"$ADB" shell input swipe 970 238 970 1300 800
+flow 16-add-text
+
+# The same coupon again is recognised by its code.
+share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2026"
+flow 17-share-duplicate
+
+share_text "Pay rent ₹25,000 by 5 Oct"
+flow 18-recurring
+
+# Backup: export, hand the file to Downloads as a person would, wipe, restore.
+flow 19-backup
+mkdir -p "$DIR/out"
+# The app keeps only its newest export in the cache.
+"$ADB" exec-out run-as "$APP" sh -c 'cat cache/*.recalllater' > "$DIR/out/backup.recalllater"
+"$ADB" push "$DIR/out/backup.recalllater" /sdcard/Download/RecallLater-e2e.recalllater >/dev/null
+"$ADB" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+  -d file:///sdcard/Download/RecallLater-e2e.recalllater >/dev/null
+flow 20-restore
+
 step "all flows passed"

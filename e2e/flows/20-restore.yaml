@@ -1,0 +1,27 @@
+appId: com.srbmaury.recalllater
+name: Delete everything, then restore it from the backup file
+---
+- scrollUntilVisible:
+    element: Delete all data
+- tapOn: Delete all data
+- tapOn: DELETE
+- extendedWaitUntil:
+    visible: Today
+    timeout: 10000
+- tapOn: Settings
+- scrollUntilVisible:
+    element: 0 items stored on this device.
+- tapOn: Restore from a backup…
+- tapOn:
+    id: com.google.android.documentsui:id/option_menu_search
+- inputText: RecallLater
+- pressKey: Enter
+- tapOn: RecallLater-e2e.recalllater
+- extendedWaitUntil:
+    visible: Restored
+    timeout: 20000
+- assertVisible: .*items added\.
+- tapOn: OK
+- tapOn: Inbox
+- assertVisible: Swiggy · ₹200 OFF
+- assertVisible: .*↻ every month.*

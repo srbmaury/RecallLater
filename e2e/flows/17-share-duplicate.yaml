@@ -1,0 +1,16 @@
+appId: com.srbmaury.recalllater
+name: Sharing the same coupon again offers to update the saved one
+---
+- extendedWaitUntil:
+    visible: Swiggy · ₹200 OFF
+    timeout: 30000
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Already saved
+    timeout: 10000
+- assertVisible: .*You saved “Swiggy · ₹200 OFF” today.*
+- tapOn: UPDATE IT
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- assertVisible: Swiggy · ₹200 OFF

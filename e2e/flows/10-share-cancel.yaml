@@ -4,7 +4,7 @@ name: Cancelling a share saves nothing
 - extendedWaitUntil:
     visible: Buy milk
     timeout: 30000
-- tapOn: Cancel
+- tapOn: Back
 - assertVisible: Today
 - tapOn: Inbox
 - assertNotVisible: Buy milk
