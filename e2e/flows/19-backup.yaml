@@ -1,6 +1,13 @@
 appId: com.srbmaury.recalllater
 name: Settings exports a backup through the share sheet
 ---
+# Flow 18 ends on an item screen; go back to the tabs.
+- repeat:
+    while:
+      notVisible: Collections
+    times: 3
+    commands:
+      - back
 - tapOn: Settings
 - scrollUntilVisible:
     element: Back up to a file…

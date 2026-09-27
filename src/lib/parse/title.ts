@@ -113,7 +113,8 @@ function firstMeaningfulLine(text: string): string | undefined {
     const line = raw.replace(/\s+/g, ' ').trim();
     if (line.length < 4 || NOISE_LINE.test(line)) continue;
     // Skip status bars, bare dates/amounts/codes and links.
-    if (!/[a-z]{3}/i.test(line) || /^https?:\/\/|^www\./i.test(line)) continue;
+    // Three letters in any script: Hindi letters carry their vowel signs as combining marks.
+    if (!/(?:\p{L}\p{M}*){3}/u.test(line) || /^https?:\/\/|^www\./i.test(line)) continue;
     if (/^[\d\s:.,/₹$%+-]+[a-z]{0,3}$/i.test(line)) continue;
     return truncate(line);
   }
@@ -122,6 +123,8 @@ function firstMeaningfulLine(text: string): string | undefined {
 
 function withSuffix(line: string | undefined, suffix: string, fallback: string): string {
   if (!line || line.length > 30) return fallback;
+  // "बिजली बिल" already says what it is; don't append an English word to Hindi.
+  if (/[\u0900-\u097F]/.test(line)) return line;
   return new RegExp(`\\b${suffix}\\b`, 'i').test(line) ? line : `${line} ${suffix}`;
 }
 

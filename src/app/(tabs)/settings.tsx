@@ -16,7 +16,7 @@ import { exportBackup, importBackup } from '@/lib/backup-file';
 import { getSetting, setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
 import { DIGEST_SETTING, digestTimeOf } from '@/lib/digest';
-import { ensureNotificationPermission, fireNewestSoon, refreshDigests } from '@/lib/reminders';
+import { ensureNotificationPermission, fireNewestSoon, refreshSummaries } from '@/lib/reminders';
 
 const DIGEST_TIMES: { value: string | null; label: string }[] = [
   { value: null, label: 'Off' },
@@ -71,6 +71,8 @@ export default function SettingsScreen() {
     if (!(await unlock())) return;
     setLocked(!locked);
     await setSetting(db, LOCK_SETTING, locked ? 'off' : 'on');
+    // The widget hides item titles while the app is locked.
+    await refreshSummaries(db);
   };
 
   const backUp = async () => {
@@ -201,7 +203,7 @@ export default function SettingsScreen() {
               }
               setDigestTime(option.value);
               await setSetting(db, DIGEST_SETTING, option.value ?? 'off');
-              await refreshDigests(db);
+              await refreshSummaries(db);
             }}
           />
         ))}

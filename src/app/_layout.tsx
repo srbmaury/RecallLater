@@ -7,7 +7,7 @@ import { AppState, useColorScheme } from 'react-native';
 import { LockGate } from '@/components/lock-gate';
 import { getSetting } from '@/lib/db/items';
 import { DatabaseProvider, useDatabase } from '@/lib/db/provider';
-import { handleNotificationResponse, reconcileReminders, setupNotifications } from '@/lib/reminders';
+import { handleNotificationResponse, reconcileReminders, refreshSummaries, setupNotifications } from '@/lib/reminders';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -74,6 +74,8 @@ function Bootstrap() {
     });
     const appState = AppState.addEventListener('change', (state) => {
       if (state === 'active') reconcileReminders(db).catch(console.warn);
+      // Edits and deletes don't each refresh the widget; leaving the app catches them all.
+      if (state === 'background') refreshSummaries(db).catch(console.warn);
     });
     return () => {
       responses.remove();

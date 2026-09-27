@@ -43,7 +43,7 @@ step "reset app and fixtures"
 "$ADB" shell pm clear "$APP" >/dev/null
 "$ADB" shell pm grant "$APP" android.permission.POST_NOTIFICATIONS
 "$ADB" reverse "tcp:${METRO_PORT}" "tcp:${METRO_PORT}" >/dev/null
-for fixture in e2e-bill.jpg e2e-ticket.pdf e2e-color-bill.png e2e-boarding-pass.png e2e-wifi-qr.png; do
+for fixture in e2e-bill.jpg e2e-ticket.pdf e2e-color-bill.png e2e-boarding-pass.png e2e-wifi-qr.png e2e-hindi-bill.png e2e-mixed-bill.png; do
   "$ADB" push "$DIR/fixtures/$fixture" "/sdcard/Download/$fixture" >/dev/null
   "$ADB" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
     -d "file:///sdcard/Download/$fixture" >/dev/null
@@ -116,5 +116,11 @@ mkdir -p "$DIR/out"
 "$ADB" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
   -d file:///sdcard/Download/RecallLater-e2e.recalllater >/dev/null
 flow 20-restore
+
+# Hindi and mixed Hindi–English, read on-device.
+open_downloads
+flow 21-share-hindi-bill
+open_downloads
+flow 22-share-mixed-bill
 
 step "all flows passed"

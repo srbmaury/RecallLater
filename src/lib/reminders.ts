@@ -7,6 +7,7 @@ import { addDays, atTime, parseLocalDateTime, startOfDay } from '@/lib/dates';
 import { archiveExpiredCoupons, getItem, getSetting, insertItem, setSetting, setStatus, updateItem } from '@/lib/db/items';
 import { buildDigest, DIGEST_DAYS, DIGEST_SETTING, digestTimeOf } from '@/lib/digest';
 import { summarize } from '@/lib/format';
+import { updateTodayWidget } from '@/widgets/today';
 import { keyDateOf } from '@/lib/parse';
 import { suggestReminder } from '@/lib/parse/suggest';
 import { nextOccurrence } from '@/lib/recurrence';
@@ -113,7 +114,7 @@ export async function completeItem(db: SQLiteDatabase, itemId: string, now = new
     console.warn('Could not create the next occurrence', error);
     return null;
   });
-  refreshDigests(db).catch(console.warn);
+  refreshSummaries(db).catch(console.warn);
   return next;
 }
 
@@ -143,16 +144,17 @@ async function createNextOccurrence(db: SQLiteDatabase, item: Item, now: Date): 
 export async function archiveItem(db: SQLiteDatabase, itemId: string): Promise<void> {
   await cancelReminders(db, itemId);
   await setStatus(db, itemId, 'archived');
-  refreshDigests(db).catch(console.warn);
+  refreshSummaries(db).catch(console.warn);
 }
 
 const DIGEST_IDS = 'morning_digest_ids';
 
 /**
- * Re-queues the morning digest for the next week from what's in the database now.
- * Previous digests are always cancelled first, so a changed day never shows stale news.
+ * Refreshes everything that summarises the day outside the app: re-queues the morning
+ * digest for the next week (cancelling previous ones, so a changed day never shows stale
+ * news) and redraws the home-screen widget.
  */
-export async function refreshDigests(db: SQLiteDatabase, now = new Date()): Promise<void> {
+export async function refreshSummaries(db: SQLiteDatabase, now = new Date()): Promise<void> {
   const previous = JSON.parse((await getSetting(db, DIGEST_IDS)) ?? '[]') as string[];
   await Promise.all(previous.map((id) => Notifications.cancelScheduledNotificationAsync(id).catch(() => {})));
 
@@ -178,6 +180,7 @@ export async function refreshDigests(db: SQLiteDatabase, now = new Date()): Prom
     }
   }
   await setSetting(db, DIGEST_IDS, JSON.stringify(ids));
+  await updateTodayWidget(db).catch(console.warn);
 }
 
 /** Pushes the item's reminders to `until`, keeping its mode. */
@@ -185,7 +188,7 @@ export async function snooze(db: SQLiteDatabase, itemId: string, until: Date): P
   const item = await getItem(db, itemId);
   if (!item || item.status !== 'active') return;
   await scheduleReminders(db, item, item.reminderMode === 'none' ? 'once' : item.reminderMode, until);
-  refreshDigests(db).catch(console.warn);
+  refreshSummaries(db).catch(console.warn);
 }
 
 /**
@@ -224,7 +227,7 @@ export async function reconcileReminders(db: SQLiteDatabase, now = Date.now()): 
     await queue(db, item, times);
   }
   await refreshNextReminder(db);
-  await refreshDigests(db, new Date(now));
+  await refreshSummaries(db, new Date(now));
 }
 
 /** Development / E2E aid: re-queues the newest active item's reminder a few seconds from now. */

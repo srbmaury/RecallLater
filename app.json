@@ -27,7 +27,6 @@
         "android.permission.WRITE_CALENDAR",
         "com.google.android.c2dm.permission.RECEIVE",
         "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
-        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -97,8 +96,26 @@
         "expo-image-picker",
         {
           "photosPermission": false,
-          "cameraPermission": false,
+          "cameraPermission": "RecallLater uses the camera only when you tap Take a photo, to capture a bill, ticket or receipt.",
           "microphonePermission": false
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Today",
+              "label": "RecallLater · Today",
+              "description": "What’s due today and overdue",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 3,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            }
+          ]
         }
       ]
     ],

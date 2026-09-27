@@ -13,7 +13,7 @@ let opening: Promise<SQLiteDatabase> | null = null;
  * closing a connection aborts natively on Android with expo-sqlite 57, so nothing
  * in the app may close one (this includes `withExclusiveTransactionAsync`).
  */
-function getDatabase(): Promise<SQLiteDatabase> {
+export function getDatabase(): Promise<SQLiteDatabase> {
   opening ??= openDatabaseAsync(DATABASE_NAME)
     .then(async (db) => {
       await migrate(db);

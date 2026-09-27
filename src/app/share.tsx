@@ -26,7 +26,7 @@ import { type Intake, processPayloads } from '@/lib/intake';
 import { clearPendingPayloads, getPendingPayloads } from '@/lib/pending';
 import { analyze, keyDateOf, type ReminderSuggestion } from '@/lib/parse';
 import { suggestCalendar, suggestReminder } from '@/lib/parse/suggest';
-import { ensureNotificationPermission, refreshDigests, scheduleReminders } from '@/lib/reminders';
+import { ensureNotificationPermission, refreshSummaries, scheduleReminders } from '@/lib/reminders';
 import { type ExtractedFields, type Item, ITEM_TYPES, type ItemType } from '@/lib/types';
 
 function savedWhen(createdAt: number): string {
@@ -244,7 +244,7 @@ function Review({ intake }: { intake: Intake }) {
         }
         else Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
       }
-      refreshDigests(db).catch(console.warn);
+      refreshSummaries(db).catch(console.warn);
       clearIncoming();
       router.replace('/inbox');
     } catch (error) {

@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import type { SharePayload } from 'expo-sharing';
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -21,6 +21,7 @@ function review(payloads: SharePayload[]) {
 /**
  * Adds something from inside the app. Both pickers are the operating system's own:
  * the app sees only what the user picks and needs no photo or storage permission.
+ * Taking a photo is the one exception: it asks for the camera, and only when tapped.
  */
 async function pickPhotos() {
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -29,6 +30,24 @@ async function pickPhotos() {
     selectionLimit: 5,
     quality: 1,
   });
+  if (result.canceled) return;
+  review(result.assets.map((asset) => ({ value: asset.uri, shareType: 'image', mimeType: asset.mimeType ?? 'image/jpeg' })));
+}
+
+/** The only place the camera is used, and the only time its permission is asked for. */
+async function takePhoto() {
+  const permission = await ImagePicker.requestCameraPermissionsAsync();
+  if (!permission.granted) {
+    if (!permission.canAskAgain) {
+      Alert.alert('Camera is off', 'Allow camera access for RecallLater in your phone’s settings to take photos.', [
+        { text: 'Not now', style: 'cancel' },
+        { text: 'Open settings', onPress: () => Linking.openSettings() },
+      ]);
+    }
+    return;
+  }
+  // The photo goes to the app's own cache, not the photo library.
+  const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
   if (result.canceled) return;
   review(result.assets.map((asset) => ({ value: asset.uri, shareType: 'image', mimeType: asset.mimeType ?? 'image/jpeg' })));
 }
@@ -50,6 +69,7 @@ async function pickFiles() {
 }
 
 const OPTIONS = [
+  { key: 'camera', label: 'Take a photo', detail: 'A paper bill, ticket or receipt', ios: 'camera', android: 'photo_camera', run: takePhoto },
   { key: 'photo', label: 'Photo or screenshot', detail: 'Pick from your photos', ios: 'photo', android: 'image', run: pickPhotos },
   { key: 'file', label: 'PDF or file', detail: 'Tickets, bills, invoices', ios: 'doc', android: 'description', run: pickFiles },
   { key: 'text', label: 'Type or paste text', detail: 'A message, a note, a link', ios: 'text.cursor', android: 'edit_note', run: async () => router.push('/add-text') },

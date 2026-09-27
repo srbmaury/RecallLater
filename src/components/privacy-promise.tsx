@@ -5,6 +5,7 @@ import { Spacing } from '@/constants/theme';
 
 const PROMISES = [
   "We don't scan your photo library",
+  'The camera opens only when you tap Take a photo',
   "We don't read your messages or email",
   'You choose exactly what you share',
   'Your items are stored on this device, not in the cloud',

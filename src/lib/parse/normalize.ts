@@ -1,10 +1,12 @@
+import { fromDevanagari } from './hindi';
+
 /**
  * Repairs the mistakes on-device OCR reliably makes on phone screenshots and printed
  * documents, before any parsing. Each rule is narrow on purpose: it only fires where
  * the misread can't reasonably be anything else.
  */
 export function normalizeOcr(text: string): string {
-  let lines = text.split('\n');
+  let lines = fromDevanagari(text).split('\n');
   // The phone's status bar ("9:41   Wi-Fi 87%", or "941" with the colon lost) heads most screenshots.
   while (lines.length && isStatusBar(lines[0])) lines.shift();
   // Button labels are app chrome, not content ("ADD TO CART", "COPY CODE", "SAVE RECIPE").

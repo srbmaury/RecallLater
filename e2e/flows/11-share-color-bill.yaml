@@ -2,8 +2,11 @@ appId: com.srbmaury.recalllater
 name: A coloured bill with a header grid and charges table is read correctly
 ---
 - extendedWaitUntil:
-    visible: e2e-color-bill.png
+    visible: Downloads
     timeout: 15000
+# Newest files are listed first, so older fixtures can be below the fold.
+- scrollUntilVisible:
+    element: e2e-color-bill.png
 - longPressOn: e2e-color-bill.png
 - tapOn: Share
 - tapOn: RecallLater
@@ -15,6 +18,11 @@ name: A coloured bill with a header grid and charges table is read correctly
 - assertVisible: Billed on
 - assertVisible: Until done
 - tapOn: Save
+# The same bill as flow 04 (same amount and due date): duplicate detection asks first.
+- extendedWaitUntil:
+    visible: Already saved
+    timeout: 10000
+- tapOn: SAVE AS NEW
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

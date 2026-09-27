@@ -8,7 +8,9 @@ import android.net.Uri
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.exception.Exceptions
@@ -16,6 +18,8 @@ import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
@@ -25,6 +29,7 @@ class RecallNativeModule : Module() {
     get() = appContext.reactContext ?: throw Exceptions.ReactContextLost()
 
   private val textRecognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
+  private val devanagariRecognizer by lazy { TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build()) }
   private val barcodeScanner by lazy { BarcodeScanning.getClient() }
 
   override fun definition() = ModuleDefinition {
@@ -52,13 +57,21 @@ class RecallNativeModule : Module() {
     }
   }
 
-  private suspend fun recognizeLines(image: InputImage): List<String> {
-    val result = textRecognizer.process(image).await()
-    val fragments = result.textBlocks.flatMap { it.lines }.mapNotNull { line ->
-      line.boundingBox?.let { TextFragment(line.text, it.left, it.top, it.bottom) }
-    }
-    return groupIntoLines(fragments)
+  // Both models run on every image. The Devanagari model also reads English, but less
+  // reliably ("ACCount", Bengali digits), so each line comes from the model that suits it:
+  // Hindi lines from the Devanagari reading, everything else from the Latin one.
+  private suspend fun recognizeLines(image: InputImage): List<String> = coroutineScope {
+    val latin = async { fragmentsOf(textRecognizer.process(image).await()) }
+    val devanagari = async { fragmentsOf(devanagariRecognizer.process(image).await()) }
+    val hindi = devanagari.await().filter { it.devanagariChars >= MIN_DEVANAGARI_CHARS }
+    val english = latin.await().filter { fragment -> hindi.none { it.overlaps(fragment) } }
+    groupIntoLines(hindi + english)
   }
+
+  private fun fragmentsOf(result: Text): List<TextFragment> =
+    result.textBlocks.flatMap { it.lines }.mapNotNull { line ->
+      line.boundingBox?.let { TextFragment(line.text, it.left, it.right, it.top, it.bottom) }
+    }
 
   // Android's PdfRenderer exposes no text layer on older API levels, so every page is OCR'd.
   private suspend fun extractPdfText(uri: Uri, maxPages: Int): Map<String, Any> {
@@ -100,14 +113,22 @@ class RecallNativeModule : Module() {
   }
 }
 
-private data class TextFragment(val text: String, val minX: Int, val minY: Int, val maxY: Int) {
+private data class TextFragment(val text: String, val minX: Int, val maxX: Int, val minY: Int, val maxY: Int) {
   val midY: Int get() = (minY + maxY) / 2
+  val devanagariChars: Int get() = text.count { it in '\u0900'..'\u097F' }
+
+  /** Two readings of the same words: on the same row and sharing some width. */
+  fun overlaps(other: TextFragment): Boolean =
+    other.midY in minY..maxY && minOf(maxX, other.maxX) > maxOf(minX, other.minX)
 }
 
 /**
  * Joins fragments that sit on the same visual row into one line, cells separated by
  * tabs, so the parser can pair a row of labels with the row of values below it.
  */
+/** A stray glyph misread as Devanagari shouldn't replace an English line with the Hindi reading. */
+private const val MIN_DEVANAGARI_CHARS = 4
+
 private fun groupIntoLines(fragments: List<TextFragment>): List<String> {
   val rows = mutableListOf<MutableList<TextFragment>>()
   for (fragment in fragments.sortedBy { it.midY }) {

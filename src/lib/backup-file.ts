@@ -8,7 +8,7 @@ import { attachmentFile } from '@/lib/attachments';
 import { BACKUP_EXTENSION, buildBackup, itemsToRestore, parseBackup, resumeReminderAt } from '@/lib/backup';
 import { toDateKey } from '@/lib/dates';
 import { getItem, insertRestoredItem, listAllItems, listSettings, setSetting } from '@/lib/db/items';
-import { refreshDigests, scheduleReminders } from '@/lib/reminders';
+import { refreshSummaries, scheduleReminders } from '@/lib/reminders';
 
 /**
  * Writes everything to one file and opens the share sheet, so the person decides where
@@ -71,7 +71,7 @@ export async function importBackup(db: SQLiteDatabase, now = new Date()): Promis
         if (restored) await scheduleReminders(db, restored, item.reminderMode, fireAt).catch(console.warn);
       }
     }
-    await refreshDigests(db, now);
+    await refreshSummaries(db, now);
     return { added: toAdd.length, skipped: backup.items.length - toAdd.length };
   } finally {
     if (source.exists) source.delete();
