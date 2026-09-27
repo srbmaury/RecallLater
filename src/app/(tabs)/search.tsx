@@ -42,6 +42,7 @@ export default function SearchScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
+            accessibilityLabel="Search items"
             placeholder="sony, bills, due this week…"
             placeholderTextColor={theme.textSecondary}
             autoCorrect={false}

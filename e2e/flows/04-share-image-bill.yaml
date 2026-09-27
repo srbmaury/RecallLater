@@ -1,0 +1,22 @@
+appId: com.srbmaury.recalllater
+name: A bill screenshot shared from Files is read on-device
+---
+# Starts in the Files app, opened on Downloads by run.sh.
+- extendedWaitUntil:
+    visible: e2e-bill.jpg
+    timeout: 15000
+- longPressOn: e2e-bill.jpg
+- tapOn: Share
+- tapOn: RecallLater
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- assertVisible: "2840"
+- assertVisible: Billed on
+- assertVisible: .*7:00.PM.*
+- assertVisible: Until done
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- assertVisible: Electricity Bill

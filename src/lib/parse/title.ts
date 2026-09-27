@@ -1,6 +1,7 @@
 import type { ExtractedFields, ItemType } from '@/lib/types';
 
-import { hostOf } from './classify';
+import { labelledValue } from './layout';
+import { hostOf } from './url';
 
 const BILL_KINDS: [RegExp, string][] = [
   [/electricity|\bpower\b|bescom|msedcl|tneb|tata power|adani electricity|bses/i, 'Electricity Bill'],
@@ -14,11 +15,11 @@ const BILL_KINDS: [RegExp, string][] = [
 ];
 
 const NOISE_LINE =
-  /^(?:tax invoice|invoice|receipt|bill of supply|original for recipient|boarding pass|e-?ticket|order summary|messages?|chats?|whatsapp|today|yesterday)$/i;
+  /^(?:tax invoice|invoice|receipt|bill of supply|original for recipient|boarding pass|e-?ticket|order summary|order confirmed|(?:event|message|recipe|job|order|coupon|restaurant|bill|receipt) document|synthetic recallLater test document|limited warranty certificate|warranty certificate|warranty registration summary|details|shared location|messages?|chats?|whatsapp|instagram|facebook|tiktok|youtube|amazon|flipkart|myntra|today|yesterday)$/i;
 
 const MAX_TITLE = 60;
 
-export function buildTitle(type: ItemType, text: string, fields: ExtractedFields): string {
+export function buildTitle(type: ItemType, text: string, fields: ExtractedFields, domainTitle?: string): string {
   switch (type) {
     case 'bill':
       return BILL_KINDS.find(([pattern]) => pattern.test(text))?.[1] ?? withSuffix(firstMeaningfulLine(text), 'bill', 'Bill');
@@ -31,20 +32,47 @@ export function buildTitle(type: ItemType, text: string, fields: ExtractedFields
       return taskTitle(text) ?? 'Follow up';
     case 'purchase':
     case 'receipt':
-      return titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? (type === 'receipt' ? 'Receipt' : 'Saved product');
+      return (type === 'receipt' ? labelledValue(text, ['product', 'item']) ?? text.match(/(?:limited )?warranty certificate\s*\n([^\n]+)/i)?.[1]?.trim() ?? titleFromOrder(text) : undefined) ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? (type === 'receipt' ? 'Receipt' : 'Saved product');
     case 'event':
-      return firstMeaningfulLine(text) ?? 'Event';
+      return labelledValue(text, ['event name', 'event']) ?? firstMeaningfulLine(text) ?? 'Event';
+    case 'job':
+      return domainTitle ?? firstMeaningfulLine(text) ?? 'Job';
+    case 'coupon':
+      return domainTitle ?? (fields.couponCode ? `Code ${fields.couponCode}` : undefined) ?? firstMeaningfulLine(text) ?? 'Coupon';
+    case 'place':
+    case 'book':
+    case 'watch':
+      return domainTitle ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? TYPE_FALLBACK[type];
+    case 'recipe':
+      return domainTitle ?? firstMeaningfulLine(text) ?? 'Recipe';
     case 'generic':
-      return titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? 'Saved item';
+      return domainTitle ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? 'Saved item';
   }
 }
+
+function titleFromOrder(text: string): string | undefined {
+  const lines = text.split('\n').map((line) => line.trim()).filter(Boolean);
+  const orderLine = lines.findIndex((line) => /^order\s*(?:#|id\b|no\b|number\b)/i.test(line));
+  if (orderLine < 0) return undefined;
+  const candidate = lines.slice(orderLine + 1).find((line) =>
+    line.length >= 4 && /[a-z]{3}/i.test(line) && !/^(?:delivered|return|view order|order confirmed|https?:)/i.test(line) &&
+    !/^[\d₹$.,%\s/-]+$/.test(line),
+  );
+  if (!candidate) return undefined;
+  const next = lines[lines.indexOf(candidate) + 1];
+  const detail = next && /^(?:\d{1,3}\s*[x×]\s*\d{1,3}|\d{1,4}\s?(?:gb|tb|mm|cm|inch(?:es)?))$/i.test(next) ? ` ${next}` : '';
+  return `${candidate}${detail}`;
+}
+
+const TYPE_FALLBACK = { place: 'Place', book: 'Book', watch: 'To watch' };
 
 /**
  * Turns an ask into a to-do: "Can you send me the updated deck before we speak
  * on Friday?" becomes "Send updated deck".
  */
 export function taskTitle(text: string): string | undefined {
-  const sentences = text.split(/(?<=[.?!])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
+  const taskText = labelledValue(text, 'task') ?? text;
+  const sentences = taskText.split(/(?<=[.?!])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
   const ask =
     sentences.find((s) => /\b(?:can|could|would|will) you\b|\bplease\b|\bpls\b|remind me|don'?t forget|remember to|need to/i.test(s)) ??
     sentences[0];
@@ -80,7 +108,7 @@ export function titleFromUrl(url: string | undefined): string | undefined {
   return truncate(words.map(capitalize).join(' '));
 }
 
-export function firstMeaningfulLine(text: string): string | undefined {
+function firstMeaningfulLine(text: string): string | undefined {
   for (const raw of text.split('\n')) {
     const line = raw.replace(/\s+/g, ' ').trim();
     if (line.length < 4 || NOISE_LINE.test(line)) continue;

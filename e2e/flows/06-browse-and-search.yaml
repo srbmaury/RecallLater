@@ -1,0 +1,29 @@
+appId: com.srbmaury.recalllater
+name: Today, Collections and Search show saved items
+---
+# run.sh relaunches the app before this flow; wait for it to be back on screen.
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: Collections
+    timeout: 30000
+- tapOn: Today
+- assertVisible: Next 7 days
+- assertVisible: Electricity Bill
+- assertVisible: Send updated deck
+
+- tapOn: Collections
+- tapOn: Trips
+- assertVisible: DEL → BLR
+- assertNotVisible: Electricity Bill
+- back
+
+- tapOn: Search
+- tapOn: bills
+- assertVisible: Electricity Bill
+- assertNotVisible: Send updated deck
+- tapOn: bills
+- eraseText
+- inputText: sony
+- assertVisible: Sony WH 1000XM6 Wireless Headphones
+- hideKeyboard

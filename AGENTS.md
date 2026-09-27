@@ -48,3 +48,5 @@ Docs: https://docs.expo.dev/eas/index.md
 - Parser changes need a test in `src/lib/parse/__tests__`. Tests pin `now` to Wed 23 Sep 2026.
 - Native code for OCR/PDF/QR lives in `modules/recall-native` (Swift + Kotlin). Rebuild the dev client after changing it.
 - Android builds use JDK 21: `JAVA_HOME=/opt/homebrew/opt/openjdk@21` on this machine (the default `java` is JDK 26).
+- AI is optional and text-only: never send images, always go through `textForAi()` (clean-up + redaction), and validate answers with `fieldsFromAi()`. The OpenAI key stays in `.env.local` / the proxy; never reference it from app code or use `EXPO_PUBLIC_` for secrets.
+- `dataset.test.ts` is the accuracy report. Don't tune against the `100-set held-out` group.

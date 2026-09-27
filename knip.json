@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["e2e/*.mjs", "server/*.mjs"],
+  "ignoreDependencies": [
+    "@expo/ui",
+    "expo-font",
+    "expo-glass-effect",
+    "expo-symbols",
+    "react-native-worklets",
+    "expo-updates"
+  ]
+}

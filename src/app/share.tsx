@@ -1,25 +1,30 @@
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { clearSharedPayloads, getSharedPayloads } from 'expo-sharing';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ReminderPicker, type ReminderChoice } from '@/components/reminder-picker';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Card, Chip, EmptyState, FieldList, SectionHeader } from '@/components/ui';
+import { FieldEditor } from '@/components/field-editor';
+import { Button, Card, Chip, EmptyState, SectionHeader } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { attachmentFile, deleteAttachments, isPdf } from '@/lib/attachments';
+import { AI_SETTING, type AiMode, aiModeOf, askAi, isAiConfigured } from '@/lib/ai/client';
+import { type AiExtraction, mergeWithAi } from '@/lib/ai/merge';
+import { textForAi } from '@/lib/ai/redact';
 import { addToCalendar } from '@/lib/calendar';
 import { parseLocalDateTime } from '@/lib/dates';
-import { insertItem } from '@/lib/db/items';
+import { getSetting, insertItem, setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
-import { fieldRows, TYPE_META } from '@/lib/format';
+import { TYPE_META } from '@/lib/format';
 import { type Intake, processPayloads } from '@/lib/intake';
-import { analyze, type ReminderSuggestion } from '@/lib/parse';
+import { analyze, keyDateOf, type ReminderSuggestion } from '@/lib/parse';
+import { suggestCalendar, suggestReminder } from '@/lib/parse/suggest';
 import { ensureNotificationPermission, scheduleReminders } from '@/lib/reminders';
-import { ITEM_TYPES, type ItemType } from '@/lib/types';
+import { type ExtractedFields, ITEM_TYPES, type ItemType } from '@/lib/types';
 
 export default function ShareScreen() {
   const { at } = useLocalSearchParams<{ at?: string }>();
@@ -77,39 +82,136 @@ function Review({ intake }: { intake: Intake }) {
   const [title, setTitle] = useState(initial.title);
   const [titleEdited, setTitleEdited] = useState(false);
   const [reminder, setReminder] = useState<ReminderChoice>(fromSuggestion(initial.reminder));
+  const [reminderTouched, setReminderTouched] = useState(false);
+  // The user's corrections to what was extracted; reset when the type changes.
+  const [fieldEdits, setFieldEdits] = useState<ExtractedFields | null>(null);
+  const fields = fieldEdits ?? analysis.fields;
+  const suggestion = fieldEdits ? suggestReminder(type, fields, now) : analysis.reminder;
+  const calendar = fieldEdits ? suggestCalendar(type, title.trim() || analysis.title, fields) : analysis.calendar;
   const [saving, setSaving] = useState(false);
   const [showText, setShowText] = useState(false);
+
+  // AI understanding (opt-in). `before` lets the user undo what the AI changed.
+  type Snapshot = { type: ItemType; title: string; fieldEdits: ExtractedFields | null; reminder: ReminderChoice };
+  const [ai, setAi] = useState<{ status: 'idle' | 'asking' | 'applied' | 'failed'; before?: Snapshot }>({ status: 'idle' });
+  const [aiMode, setAiMode] = useState<AiMode | null>(null);
+  const aiAlways = aiMode === 'always';
+  const autoAsked = useRef(false);
+  const canAskAi = isAiConfigured() && intake.text.trim() !== '';
+
+  const applyAi = (extraction: AiExtraction) => {
+    const merged = mergeWithAi({ text: intake.text, barcodes: intake.barcodes, now }, extraction);
+    setAi({ status: 'applied', before: { type, title, fieldEdits, reminder } });
+    setType(merged.type);
+    setFieldEdits(merged.fields);
+    if (!titleEdited) setTitle(merged.title);
+    if (!reminderTouched) setReminder(fromSuggestion(merged.reminder));
+  };
+
+  const undoAi = () => {
+    const before = ai.before;
+    if (!before) return;
+    setType(before.type);
+    setTitle(before.title);
+    setFieldEdits(before.fieldEdits);
+    setReminder(before.reminder);
+    setAi({ status: 'idle' });
+  };
+
+  const requestAi = () => {
+    setAi({ status: 'asking' });
+    askAi(intake.text, now).then(applyAi, () => setAi({ status: 'failed' }));
+  };
+
+  useEffect(() => {
+    getSetting(db, AI_SETTING).then((value) => setAiMode(aiModeOf(value)));
+  }, [db]);
+
+  // With AI switched on in Settings, ask once for every share.
+  useEffect(() => {
+    if (!aiAlways || autoAsked.current || !canAskAi) return;
+    autoAsked.current = true;
+    askAi(intake.text, now).then(applyAi, () => setAi({ status: 'failed' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once when the setting is known
+  }, [aiAlways]);
+
+  const confirmAi = () => {
+    const sent = textForAi(intake.text);
+    Alert.alert(
+      'Improve with AI?',
+      `Only this text is sent, never the image. Phone numbers, emails and account numbers are removed first.\n\n${sent.length > 600 ? `${sent.slice(0, 600)}…` : sent}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Send once', onPress: requestAi },
+        {
+          text: 'Always',
+          onPress: () => {
+            autoAsked.current = true;
+            setAiMode('always');
+            setSetting(db, AI_SETTING, 'always').catch(console.warn);
+            requestAi();
+          },
+        },
+      ],
+    );
+  };
 
   const changeType = (next: ItemType) => {
     const updated = analyze({ text: intake.text, barcodes: intake.barcodes, now, type: next });
     setType(next);
+    setFieldEdits(null);
     if (!titleEdited) setTitle(updated.title);
     setReminder(fromSuggestion(updated.reminder));
+    setReminderTouched(false);
+  };
+
+  const changeFields = (next: ExtractedFields) => {
+    setFieldEdits(next);
+    if (!reminderTouched) setReminder(fromSuggestion(suggestReminder(type, next, now)));
+  };
+
+  const changeReminder = (next: ReminderChoice) => {
+    setReminder(next);
+    setReminderTouched(true);
   };
 
   const save = async () => {
     setSaving(true);
+    let savedItem: Awaited<ReturnType<typeof insertItem>> | null = null;
     try {
-      const item = await insertItem(db, {
+      savedItem = await insertItem(db, {
         type,
         title: title.trim() || analysis.title,
         sourceType: intake.sourceType,
         extractedText: intake.text,
-        fields: analysis.fields,
+        fields,
         attachments: intake.attachments,
         confidence: analysis.confidence,
-        dueAt: analysis.keyDate ? parseLocalDateTime(analysis.keyDate).getTime() : null,
+        dueAt: keyDateOf(fields) ? parseLocalDateTime(keyDateOf(fields)!).getTime() : null,
       });
       if (reminder.fireAt && reminder.mode !== 'none') {
         const allowed = await ensureNotificationPermission();
-        await scheduleReminders(db, item, reminder.mode, reminder.fireAt);
-        if (!allowed) {
-          Alert.alert('Notifications are off', 'Saved, but the reminder can’t reach you until notifications are turned on in Settings.');
+        if (allowed) {
+          try {
+            await scheduleReminders(db, savedItem, reminder.mode, reminder.fireAt);
+          } catch (error) {
+            console.warn('Item saved, but reminder scheduling failed', error);
+            Alert.alert('Saved without a reminder', 'The item is in your inbox. You can set its reminder from the item details.');
+          }
         }
+        else Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
       }
       clearSharedPayloads();
       router.replace('/inbox');
     } catch (error) {
+      // If anything fails after the insert, leave the item accessible and avoid a
+      // retry creating a duplicate. Any reminder failure is handled above.
+      if (savedItem) {
+        clearSharedPayloads();
+        router.replace('/inbox');
+        Alert.alert('Saved', 'Your item is in the inbox, but some follow-up step failed.');
+        return;
+      }
       setSaving(false);
       Alert.alert('Could not save', String(error));
     }
@@ -121,12 +223,28 @@ function Review({ intake }: { intake: Intake }) {
     router.replace('/');
   };
 
+  // Leaving the review by any route (header, Android back) discards it, so copied
+  // files and the pending share never linger half-processed.
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      discard();
+      return true;
+    });
+    return () => subscription.remove();
+  });
+
   const preview = intake.attachments.find((name) => !isPdf(name));
   const pdf = intake.attachments.find(isPdf);
   const unsure = analysis.type === 'generic' || analysis.confidence < 0.6;
 
   return (
     <SafeAreaView edges={['bottom']} style={[styles.flex, { backgroundColor: theme.background }]}>
+      <Stack.Screen
+        options={{
+          headerBackVisible: false,
+          headerLeft: () => <Button label="Cancel" variant="plain" size="small" onPress={discard} disabled={saving} />,
+        }}
+      />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {preview ? (
           <Image
@@ -152,13 +270,37 @@ function Review({ intake }: { intake: Intake }) {
               accessibilityLabel="Title"
             />
           </View>
-          <FieldList rows={fieldRows(analysis.fields, type, now)} />
+          <FieldEditor key={type} type={type} fields={fields} onChange={changeFields} />
         </Card>
 
-        {unsure ? (
+        {ai.status === 'asking' || (aiAlways && canAskAi && ai.status === 'idle' && !ai.before) ? (
+          <View style={styles.aiRow}>
+            <ActivityIndicator size="small" />
+            <ThemedText type="small" themeColor="textSecondary">
+              Improving with AI…
+            </ThemedText>
+          </View>
+        ) : ai.status === 'applied' ? (
+          <View style={styles.aiRow}>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+              ✨ Improved with AI. Check before saving.
+            </ThemedText>
+            <Button label="Undo" variant="plain" size="small" onPress={undoAi} />
+          </View>
+        ) : ai.status === 'failed' ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
-            Not sure what this is. Pick a type if one fits.
+            AI couldn’t be reached. Showing what was found on this device.
           </ThemedText>
+        ) : null}
+        {(unsure || aiMode === 'ask') && ai.status !== 'applied' && ai.status !== 'asking' ? (
+          <View style={styles.aiRow}>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+              {unsure ? 'Not sure what this is. Pick a type if one fits.' : 'Something not right?'}
+            </ThemedText>
+            {canAskAi && aiMode === 'ask' ? (
+              <Button label="✨ Improve with AI" variant="plain" size="small" onPress={confirmAi} />
+            ) : null}
+          </View>
         ) : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           {ITEM_TYPES.map((t) => (
@@ -167,13 +309,13 @@ function Review({ intake }: { intake: Intake }) {
         </ScrollView>
 
         <SectionHeader title="Remind me" />
-        <ReminderPicker value={reminder} onChange={setReminder} suggestion={analysis.reminder} />
+        <ReminderPicker value={reminder} onChange={changeReminder} suggestion={suggestion} />
 
-        {analysis.calendar ? (
+        {calendar ? (
           <Button
             label="Add to calendar…"
             style={styles.calendar}
-            onPress={() => addToCalendar({ ...analysis.calendar!, title: title.trim() || analysis.title }).catch(console.warn)}
+            onPress={() => addToCalendar({ ...calendar, title: title.trim() || analysis.title }).catch(console.warn)}
           />
         ) : null}
 
@@ -247,6 +389,12 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   hint: {
+    marginTop: Spacing.two,
+  },
+  aiRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
     marginTop: Spacing.two,
   },
   chips: {

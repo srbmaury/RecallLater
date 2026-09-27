@@ -1,4 +1,18 @@
-export const ITEM_TYPES = ['bill', 'task', 'event', 'travel', 'receipt', 'purchase', 'generic'] as const;
+export const ITEM_TYPES = [
+  'bill',
+  'task',
+  'event',
+  'travel',
+  'receipt',
+  'purchase',
+  'job',
+  'coupon',
+  'place',
+  'book',
+  'watch',
+  'recipe',
+  'generic',
+] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
 
 export type ItemStatus = 'active' | 'done' | 'archived';
@@ -12,6 +26,9 @@ export type ReminderMode = 'none' | 'once' | 'until_done';
 export type LocalDateTime = string;
 
 export type Barcode = { format: string; rawValue: string };
+
+export type JobStage = 'saved' | 'applied' | 'interview' | 'closed';
+export type Ingredient = { text: string; done: boolean };
 
 export type ExtractedFields = {
   amount?: number;
@@ -35,6 +52,26 @@ export type ExtractedFields = {
   emails?: string[];
   phones?: string[];
   barcodes?: Barcode[];
+  warrantyUntil?: LocalDateTime;
+  // Jobs
+  company?: string;
+  location?: string;
+  stage?: JobStage;
+  // Coupons
+  merchant?: string;
+  discount?: string;
+  // Places
+  address?: string;
+  placeKind?: 'eat' | 'destination';
+  // Books and shows
+  author?: string;
+  platform?: string;
+  // Recipes
+  ingredients?: Ingredient[];
+  // QR payloads
+  wifi?: { ssid: string; password?: string; security?: string };
+  contact?: { name?: string; phone?: string; email?: string };
+  upi?: { payee: string; name?: string; amount?: number };
 };
 
 export type Item = {

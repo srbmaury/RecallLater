@@ -7,11 +7,11 @@ import { EmptyState } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useDbQuery } from '@/hooks/use-db-query';
 import { useTheme } from '@/hooks/use-theme';
-import { listByStatus, listByType } from '@/lib/db/items';
+import { listByStatus, listByType, VIRTUAL_COLLECTIONS, type VirtualCollection } from '@/lib/db/items';
 import { TYPE_META } from '@/lib/format';
 import { ITEM_TYPES, type ItemType } from '@/lib/types';
 
-type CollectionKey = ItemType | 'done' | 'archived';
+type CollectionKey = ItemType | VirtualCollection | 'done' | 'archived';
 
 function loadCollection(db: SQLiteDatabase, key: CollectionKey) {
   return key === 'done' || key === 'archived' ? listByStatus(db, key) : listByType(db, key);
@@ -22,7 +22,13 @@ export default function CollectionScreen() {
   const { type } = useLocalSearchParams<{ type: CollectionKey }>();
   const isType = (ITEM_TYPES as readonly string[]).includes(type);
   const { data } = useDbQuery(loadCollection, type);
-  const title = isType ? TYPE_META[type as ItemType].collection : type === 'done' ? 'Done' : 'Archived';
+  const title = isType
+    ? TYPE_META[type as ItemType].collection
+    : type in VIRTUAL_COLLECTIONS
+      ? VIRTUAL_COLLECTIONS[type as VirtualCollection].title
+      : type === 'done'
+        ? 'Done'
+        : 'Archived';
 
   return (
     <>

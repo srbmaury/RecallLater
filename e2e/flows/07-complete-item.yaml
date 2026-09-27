@@ -1,0 +1,26 @@
+appId: com.srbmaury.recalllater
+name: Marking an item done removes it from Today and files it under Done
+---
+- tapOn: Today
+# Today reloads its list on focus; wait for it before tapping a row.
+- extendedWaitUntil:
+    visible: Send updated deck
+    timeout: 10000
+- tapOn:
+    text: Send updated deck
+    retryTapIfNoChange: true
+- assertVisible: .*repeats daily until done.*
+- assertVisible: Original text
+- tapOn: Mark done
+- assertVisible: Move back to inbox
+# Done items hide the reminder section: the daily reminder must be gone.
+- assertNotVisible: .*repeats daily until done.*
+- back
+- assertNotVisible: Send updated deck
+
+- tapOn: Collections
+- scrollUntilVisible:
+    element: Done
+- tapOn: Done
+- assertVisible: Send updated deck
+- back

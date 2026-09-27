@@ -9,7 +9,8 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={theme.background}
       indicatorColor={theme.backgroundSelected}
-      labelStyle={{ selected: { color: theme.text } }}>
+      labelStyle={{ default: { color: theme.textSecondary }, selected: { color: theme.text } }}
+      labelVisibilityMode="labeled">
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={{ default: 'sun.max', selected: 'sun.max.fill' }} md="today" />

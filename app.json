@@ -21,7 +21,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "allowBackup": false
+      "allowBackup": false,
+      "blockedPermissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "com.google.android.c2dm.permission.RECEIVE",
+        "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -48,8 +54,15 @@
           },
           "android": {
             "enabled": true,
-            "singleShareMimeTypes": ["text/plain", "image/*", "application/pdf"],
-            "multipleShareMimeTypes": ["image/*", "application/pdf"]
+            "singleShareMimeTypes": [
+              "text/plain",
+              "image/*",
+              "application/pdf"
+            ],
+            "multipleShareMimeTypes": [
+              "image/*",
+              "application/pdf"
+            ]
           }
         }
       ],
@@ -66,7 +79,8 @@
           "writeOnlyAccess": true,
           "writeOnlyCalendarPermission": "RecallLater adds trips and events you choose to your calendar."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

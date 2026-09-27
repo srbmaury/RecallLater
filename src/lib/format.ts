@@ -1,5 +1,5 @@
 import { formatDay, formatLocalDateTime } from '@/lib/dates';
-import type { ExtractedFields, Item, ItemType } from '@/lib/types';
+import type { ExtractedFields, Item, ItemType, JobStage } from '@/lib/types';
 
 export const TYPE_META: Record<ItemType, { label: string; collection: string; emoji: string }> = {
   bill: { label: 'Bill', collection: 'Bills', emoji: '⚡' },
@@ -8,10 +8,23 @@ export const TYPE_META: Record<ItemType, { label: string; collection: string; em
   travel: { label: 'Travel', collection: 'Trips', emoji: '✈️' },
   receipt: { label: 'Receipt', collection: 'Receipts', emoji: '🧾' },
   purchase: { label: 'Buy later', collection: 'Buy Later', emoji: '🛒' },
+  job: { label: 'Job', collection: 'Jobs', emoji: '💼' },
+  coupon: { label: 'Coupon', collection: 'Coupons', emoji: '🏷' },
+  place: { label: 'Place', collection: 'Places to Try', emoji: '🍜' },
+  book: { label: 'Book', collection: 'Reading List', emoji: '📚' },
+  watch: { label: 'Watch', collection: 'Watchlist', emoji: '🎬' },
+  recipe: { label: 'Recipe', collection: 'Recipes', emoji: '🥘' },
   generic: { label: 'Saved', collection: 'Saved', emoji: '📌' },
 };
 
-export function formatMoney(amount: number, currency = 'INR'): string {
+export const JOB_STAGES: { value: JobStage; label: string }[] = [
+  { value: 'saved', label: 'Saved' },
+  { value: 'applied', label: 'Applied' },
+  { value: 'interview', label: 'Interview' },
+  { value: 'closed', label: 'Closed' },
+];
+
+function formatMoney(amount: number, currency = 'INR'): string {
   try {
     return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : undefined, {
       style: 'currency',
@@ -38,17 +51,37 @@ export function summarize(item: Pick<Item, 'type' | 'fields' | 'extractedText'>,
       case 'event':
         return [f.startsAt && formatLocalDateTime(f.startsAt, now)];
       case 'receipt':
-        return [money, f.returnBy ? `Return by ${formatLocalDateTime(f.returnBy, now)}` : undefined];
+        return [
+          money,
+          f.returnBy ? `Return by ${formatLocalDateTime(f.returnBy, now)}` : undefined,
+          !f.returnBy && f.warrantyUntil ? `Warranty till ${formatLocalDateTime(f.warrantyUntil, now)}` : undefined,
+        ];
       case 'purchase':
         return [money, f.expiresOn && `Ends ${formatLocalDateTime(f.expiresOn, now)}`];
+      case 'job':
+        return [
+          [f.company, f.location].filter(Boolean).join(', ') || undefined,
+          f.dueDate && `Apply by ${formatLocalDateTime(f.dueDate, now)}`,
+          f.stage && f.stage !== 'saved' ? JOB_STAGES.find((s) => s.value === f.stage)?.label : undefined,
+        ];
+      case 'coupon':
+        return [f.couponCode, f.expiresOn && `Expires ${formatLocalDateTime(f.expiresOn, now)}`];
+      case 'place':
+        return [f.address ?? (f.placeKind === 'destination' ? 'Travel idea' : undefined)];
+      case 'book':
+        return [f.author && `by ${f.author}`];
+      case 'watch':
+        return [f.platform];
+      case 'recipe':
+        return [f.ingredients?.length ? `${f.ingredients.length} ingredients` : undefined];
       case 'generic':
-        return [f.urls?.[0] ?? snippet(item.extractedText)];
+        return [f.contact?.phone ?? f.contact?.email ?? f.upi?.payee ?? f.urls?.[0] ?? snippet(item.extractedText)];
     }
   })();
   return parts.filter(Boolean).join(' · ');
 }
 
-export type FieldRow = { label: string; value: string };
+type FieldRow = { label: string; value: string };
 
 /** Extracted fields as label/value rows for the review and detail screens. */
 export function fieldRows(fields: ExtractedFields, type?: ItemType, now = new Date()): FieldRow[] {
@@ -64,13 +97,29 @@ export function fieldRows(fields: ExtractedFields, type?: ItemType, now = new Da
   add(type === 'bill' ? 'Billed on' : 'Purchased', fields.purchasedOn && formatLocalDateTime(fields.purchasedOn, now));
   add('Return by', fields.returnBy && formatLocalDateTime(fields.returnBy, now));
   add('Expires', fields.expiresOn && formatLocalDateTime(fields.expiresOn, now));
+  add('Warranty till', fields.warrantyUntil && formatLocalDateTime(fields.warrantyUntil, now));
   add('Order', fields.orderId);
   add('Code', fields.couponCode);
+  add('Offer', fields.discount);
+  add('Merchant', fields.merchant);
+  add('Company', fields.company);
+  add('Location', fields.location);
+  add('Address', fields.address);
+  add('Author', fields.author);
+  add('On', fields.platform);
+  add('Wi-Fi', fields.wifi?.ssid);
+  add('Password', fields.wifi?.password);
+  add('Name', fields.contact?.name);
+  add('Phone', fields.contact?.phone);
+  add('Email', fields.contact?.email);
+  add('Pay to', fields.upi && [fields.upi.name, fields.upi.payee].filter(Boolean).join(' · '));
+  add('Amount', fields.upi?.amount !== undefined ? formatMoney(fields.upi.amount) : undefined);
   fields.urls?.slice(0, 3).forEach((url) => add('Link', url));
   add('Phone', fields.phones?.[0]);
   add('Email', fields.emails?.[0]);
   fields.barcodes
-    ?.filter((b) => !fields.urls?.includes(b.rawValue))
+    // Payloads already shown as Wi-Fi / contact / UPI rows aren't repeated raw.
+    ?.filter((b) => !fields.urls?.includes(b.rawValue) && !/^(WIFI:|BEGIN:VCARD|MECARD:|upi:)/i.test(b.rawValue))
     .slice(0, 2)
     .forEach((b) => add(b.format === 'qr' ? 'QR' : 'Barcode', b.rawValue));
   return rows;

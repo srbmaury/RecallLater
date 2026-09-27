@@ -2,16 +2,24 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, Linking, StyleSheet } from 'react-native';
 
 import { PrivacyPromise } from '@/components/privacy-promise';
 import { TabScreen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Card, SectionHeader } from '@/components/ui';
+import { Button, Card, Radio, SectionHeader } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
+import { AI_SETTING, type AiMode, aiModeOf, isAiConfigured } from '@/lib/ai/client';
 import { deleteAllAttachments } from '@/lib/attachments';
+import { getSetting, setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
-import { ensureNotificationPermission } from '@/lib/reminders';
+import { ensureNotificationPermission, fireNewestSoon } from '@/lib/reminders';
+
+const AI_MODES: { value: AiMode; label: string; detail: string }[] = [
+  { value: 'off', label: 'Off', detail: 'Only on-device reading. What you share never leaves your phone.' },
+  { value: 'ask', label: 'Ask each time', detail: 'Shows “Improve with AI” on the review screen, with a preview of exactly what is sent.' },
+  { value: 'always', label: 'Always', detail: 'Improves every share automatically. You can undo it on the review screen.' },
+];
 
 const STORAGE_MODES = [
   { label: 'Keep everything on this device', available: true },
@@ -23,11 +31,13 @@ export default function SettingsScreen() {
   const db = useDatabase();
   const [notificationsOn, setNotificationsOn] = useState<boolean | null>(null);
   const [itemCount, setItemCount] = useState(0);
+  const [aiMode, setAiMode] = useState<AiMode>('ask');
 
   useFocusEffect(
     useCallback(() => {
       Notifications.getPermissionsAsync().then((p) => setNotificationsOn(p.granted));
       db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM items').then((r) => setItemCount(r?.count ?? 0));
+      getSetting(db, AI_SETTING).then((value) => setAiMode(aiModeOf(value)));
     }, [db]),
   );
 
@@ -46,6 +56,8 @@ export default function SettingsScreen() {
         onPress: async () => {
           await Notifications.cancelAllScheduledNotificationsAsync();
           await db.execAsync('DELETE FROM reminders; DELETE FROM items;');
+          // Compact the file and empty the write-ahead log so nothing lingers on disk.
+          await db.execAsync('VACUUM; PRAGMA wal_checkpoint(TRUNCATE);');
           deleteAllAttachments();
           setItemCount(0);
           router.navigate('/');
@@ -64,19 +76,40 @@ export default function SettingsScreen() {
       <SectionHeader title="Storage" />
       <Card>
         {STORAGE_MODES.map((mode, index) => (
-          <View key={mode.label} style={styles.radioRow}>
-            <ThemedText themeColor={mode.available ? 'text' : 'textSecondary'}>{index === 0 ? '●' : '○'}</ThemedText>
-            <View style={styles.flex}>
-              <ThemedText themeColor={mode.available ? 'text' : 'textSecondary'}>{mode.label}</ThemedText>
-              {!mode.available ? (
-                <ThemedText type="small" themeColor="textSecondary">
-                  Coming later
-                </ThemedText>
-              ) : null}
-            </View>
-          </View>
+          <Radio
+            key={mode.label}
+            label={mode.label}
+            detail={mode.available ? undefined : 'Coming later'}
+            selected={index === 0}
+            disabled={!mode.available}
+            onPress={() => {}}
+          />
         ))}
       </Card>
+
+      {isAiConfigured() ? (
+        <>
+          <SectionHeader title="AI understanding" />
+          <Card>
+            {AI_MODES.map((mode) => (
+              <Radio
+                key={mode.value}
+                label={mode.label}
+                detail={mode.detail}
+                selected={aiMode === mode.value}
+                onPress={() => {
+                  setAiMode(mode.value);
+                  setSetting(db, AI_SETTING, mode.value).catch(console.warn);
+                }}
+              />
+            ))}
+            <ThemedText type="small" themeColor="textSecondary">
+              AI only ever sees the text read from what you share, never the image, with phone numbers, emails and
+              account numbers removed first.
+            </ThemedText>
+          </Card>
+        </>
+      ) : null}
 
       <SectionHeader title="Reminders" />
       <Card>
@@ -94,6 +127,22 @@ export default function SettingsScreen() {
         <Button label="Delete all data" variant="danger" onPress={deleteEverything} disabled={!itemCount} />
       </Card>
 
+      {__DEV__ ? (
+        <>
+          <SectionHeader title="Developer" />
+          <Card>
+            <Button
+              label="Remind about newest item in 5 s"
+              onPress={async () => {
+                await ensureNotificationPermission();
+                const title = await fireNewestSoon(db);
+                Alert.alert(title ? `Reminder queued: ${title}` : 'No active items');
+              }}
+            />
+          </Card>
+        </>
+      ) : null}
+
       <ThemedText type="small" themeColor="textSecondary" style={styles.version}>
         RecallLater {Constants.expoConfig?.version}
       </ThemedText>
@@ -102,14 +151,7 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  radioRow: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  flex: {
-    flex: 1,
-  },
+
   version: {
     textAlign: 'center',
     marginTop: Spacing.five,

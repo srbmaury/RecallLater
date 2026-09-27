@@ -40,6 +40,15 @@ public class RecallNativeModule: Module {
       ]
     }
 
+    // Keeps a local folder out of iCloud / iTunes device backups.
+    AsyncFunction("excludeFromBackupAsync") { (path: String) throws in
+      var url = URL(fileURLWithPath: path.hasPrefix("file://") ? (URL(string: path)?.path ?? path) : path)
+      guard FileManager.default.fileExists(atPath: url.path) else { return }
+      var values = URLResourceValues()
+      values.isExcludedFromBackup = true
+      try url.setResourceValues(values)
+    }
+
     AsyncFunction("detectBarcodesAsync") { (uri: String) async throws -> [[String: Any]] in
       let url = try fileURL(uri)
       let request = VNDetectBarcodesRequest()
@@ -78,8 +87,8 @@ private func recognizeLines(_ handler: VNImageRequestHandler) async throws -> [S
   return groupIntoLines(fragments)
 }
 
-/// Joins fragments that sit on the same visual row, so "Due Date" and "28/09/2026"
-/// printed in two columns come out as one line.
+/// Joins fragments that sit on the same visual row into one line, cells separated by
+/// tabs, so the parser can pair a row of labels with the row of values below it.
 private func groupIntoLines(_ fragments: [TextFragment]) -> [String] {
   var rows: [[TextFragment]] = []
   for fragment in fragments.sorted(by: { $0.midY < $1.midY }) {
@@ -90,7 +99,7 @@ private func groupIntoLines(_ fragments: [TextFragment]) -> [String] {
     }
   }
   return rows.map { row in
-    row.sorted { $0.minX < $1.minX }.map(\.text).joined(separator: " ")
+    row.sorted { $0.minX < $1.minX }.map(\.text).joined(separator: "\t")
   }
 }
 

@@ -1,8 +1,10 @@
-import type { ItemType } from '@/lib/types';
+import { ITEM_TYPES, type ItemType } from '@/lib/types';
 
 import type { DateMatch } from './dates';
+import { isJobHost, isMapsUrl } from './domains';
 import type { Entities } from './entities';
 import type { AmountMatch } from './money';
+import { hostOf } from './url';
 
 type Signals = {
   text: string;
@@ -27,12 +29,15 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/hotel|check-?out|\bnights?\b|guests?/i, 1],
   ],
   event: [
+    [/\bevent name\s*[:\t]/i, 3],
+    [/tickets?\s+from\s+(?:₹|rs\.?\s*)?\d/i, 3],
     [/\bvenue\b|\brsvp\b|register(?:\s+now)?|registration|tickets? (?:on|at)|doors open|join us|save the date/i, 3],
     [/conference|meetup|summit|webinar|workshop|concert|festival|\bfest\b|hackathon|exhibition|screening|launch/i, 2],
     [/\binterview\b|\bappointment\b|\bmeeting\b|\bparty\b|wedding|birthday/i, 2],
   ],
   receipt: [
-    [/tax invoice|\binvoice\b|\breceipt\b|\bgstin\b|order summary/i, 3],
+    [/\border document\b|\bwarranty certificate\b|\bwarranty registration summary\b|\binvoice id\b/i, 3],
+    [/tax invoice|\binvoice\b|\breceipt\b|\bgstin\b|order summary|order confirmed/i, 3],
     [/payment (?:successful|received)|paid|transaction id|txn id|thank you for (?:your )?(?:order|purchase|shopping)/i, 2],
     [/warranty|return (?:policy|window)|delivered|order (?:id|no|number)/i, 2],
   ],
@@ -40,7 +45,42 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/add to cart|buy now|in stock|out of stock|deal of the day|limited time deal|free delivery|m\.?r\.?p/i, 3],
     [/\b\d{1,2}% off\b|customer reviews|\bratings?\b|\bemi\b|delivery by/i, 2],
   ],
+  job: [
+    [/\bjob document\b|\bcompany\s*[:\t]|\brole\s*[:\t]/i, 3],
+    [/we'?re hiring|now hiring|job description|job id|apply (?:now|here|by)|careers?\b|open (?:role|position)/i, 3],
+    [/responsibilities|requirements|qualifications|years? of experience|\d\+?\s*(?:yrs|years)\b|full[- ]time|internship|\bctc\b|\blpa\b|hybrid|on-?site/i, 2],
+    [/\b(?:engineer|developer|designer|analyst|scientist|intern)\b/i, 1],
+  ],
+  coupon: [
+    [/\bcoupon document\b|\boffer\s*[:\t]/i, 3],
+    [/use code|promo ?code|coupon|voucher|cashback|offer valid|t&c apply/i, 3],
+    [/\b\d{1,2}\s?% off\b|(?:₹|rs\.?)\s?\d[\d,]*\s?off\b|\bflat \d/i, 2],
+  ],
+  place: [
+    [/\brestaurant document\b|\brestaurant\s*[:\t]/i, 3],
+    [/(?:^|\n)instagram\n[^\n]+\n(?:bengaluru|bangalore|mumbai|delhi|pune|chennai|kolkata|jaipur|goa|kochi|hyderabad)[^\n]*\n[\s\S]{0,180}\b(?:menu|pasta|espresso|desserts?|coffee|cuisine|baked|kitchen|restaurant|cafe)\b/i, 4],
+    [/\bshared location\b/i, 4],
+    [/restaurant|\bcaf[eé]\b|bistro|brewery|\bpub\b|bakery|dhaba|cuisine|must (?:try|visit)|brunch|dine-?in/i, 3],
+    [/\b(?:beach(?:es)?|fort|temple|lake|trek|waterfalls?|museum|island|valley|national park|backwaters|monastery|hidden gem)\b/i, 3],
+    [/\b\d{6}\b|\b(?:road|rd\.?|street|lane|marg|nagar|layout|colony|sector)\b/i, 1],
+  ],
+  book: [
+    [/paperback|hardcover|kindle edition|\bisbn\b|\bnovel\b|audiobook|bestseller|goodreads|\bauthor\b/i, 3],
+    [/\S\s+by\s+[A-Z][a-z]+\s+[A-Z][a-z]+/, 2],
+    [/^(?:[A-Z][A-Z0-9’'&,: -]*\n){1,3}[A-Z][a-z]+\s+[A-Z][a-z]+$/m, 3],
+  ],
+  watch: [
+    [/\bseason \d+|\bepisode\b|web series|\bmovie\b|\bfilm\b|trailer|streaming|\bimdb\b|in (?:cinemas|theatres)|add to watchlist|limited series|\d+ episodes?/i, 3],
+    [/netflix|prime video|hotstar|jiocinema|sonyliv|zee5|apple tv/i, 2],
+  ],
+  recipe: [
+    [/\brecipe document\b|\bdish\s*[:\t]/i, 3],
+    [/\bingredients\b/i, 4],
+    [/\bserves?\s+\d[\s\S]{0,120}\b(?:tbsp|tsp|cups?|grams?|ml)\b/i, 3],
+    [/\b(?:tbsp|tsp|preheat|prep time|cook time|serves \d|recipe|marinate|simmer|saut[eé])\b/i, 2],
+  ],
   task: [
+    [/\btask\s*[:\t]|\bdeadline text\s*[:\t]/i, 3],
     [/^(?:hey|hi|hello)\b|\b(?:can|could|would|will) you\b|\bplease\b|\bpls\b|\bplz\b|\bkindly\b/i, 2],
     [/remind me|don'?t forget|remember to|\bto-?do\b|need to|have to|make sure/i, 3],
     [/\b(?:send|share|call|reply|email|submit|review|finish|book|pay|buy|pick up|drop|bring|renew|update|fix)\b/i, 1],
@@ -49,10 +89,10 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
 
 const SHOPPING_HOSTS = /(?:^|\.)(amazon\.|flipkart\.com|myntra\.com|ajio\.com|meesho\.com|nykaa\.com|croma\.com|reliancedigital\.in|tatacliq\.com|snapdeal\.com|ebay\.|etsy\.com|bestbuy\.com|walmart\.com)/i;
 
-export type Classification = { type: ItemType; confidence: number; scores: Record<ItemType, number> };
+type Classification = { type: ItemType; confidence: number; scores: Record<ItemType, number> };
 
 export function classify({ text, dates, amounts, entities }: Signals): Classification {
-  const scores: Record<ItemType, number> = { bill: 0, task: 0, event: 0, travel: 0, receipt: 0, purchase: 0, generic: 1 };
+  const scores = Object.fromEntries(ITEM_TYPES.map((t) => [t, t === 'generic' ? 1 : 0])) as Record<ItemType, number>;
 
   for (const [type, rules] of Object.entries(KEYWORDS) as [Exclude<ItemType, 'generic'>, Rule[]][]) {
     for (const [pattern, weight] of rules) {
@@ -78,6 +118,13 @@ export function classify({ text, dates, amounts, entities }: Signals): Classific
   if (hasTimedDate && !hasAmount) scores.event += 1;
 
   if (entities.urls.some((url) => SHOPPING_HOSTS.test(hostOf(url)))) scores.purchase += 4;
+  if (entities.urls.some((url) => isJobHost(url) || /\/(?:jobs?|careers?)\//i.test(url))) scores.job += 5;
+  if (entities.urls.some(isMapsUrl) || entities.urls.some((url) => /zomato\.com|tripadvisor\.|dineout/i.test(url))) scores.place += 5;
+  if (entities.urls.some((url) => /goodreads\.com/i.test(url))) scores.book += 5;
+  if (entities.urls.some((url) => /imdb\.com|netflix\.com|primevideo\.com|hotstar\.com|letterboxd\.com/i.test(url))) scores.watch += 5;
+  if (entities.couponCode) scores.coupon += 3;
+  // Coupons carry amounts and expiry dates too; don't let them read as bills.
+  if (scores.coupon >= 3) scores.bill = Math.max(0, scores.bill - 3);
   if (hasAmount && scores.purchase > 0) scores.purchase += 1;
 
   // Chat messages are short and mostly asks; long OCR'd documents rarely are.
@@ -94,9 +141,4 @@ export function classify({ text, dates, amounts, entities }: Signals): Classific
   // Confidence grows with the lead over the runner-up, capped below certainty.
   const confidence = Math.min(0.97, 0.5 + (top - second) / (top + 2));
   return { type: topType, confidence: Math.round(confidence * 100) / 100, scores };
-}
-
-export function hostOf(url: string): string {
-  const match = url.match(/^(?:https?:\/\/)?([^/?#]+)/i);
-  return (match?.[1] ?? '').replace(/^www\./, '').toLowerCase();
 }

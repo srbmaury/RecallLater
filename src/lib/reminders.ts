@@ -3,14 +3,14 @@ import * as Notifications from 'expo-notifications';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-import { getItem, setStatus } from '@/lib/db/items';
+import { archiveExpiredCoupons, getItem, setStatus } from '@/lib/db/items';
 import { summarize } from '@/lib/format';
 import type { Item, ReminderMode } from '@/lib/types';
 
 const CHANNEL_ID = 'reminders';
 const CATEGORY_ID = 'item-reminder';
-export const ACTION_DONE = 'done';
-export const ACTION_LATER = 'later';
+const ACTION_DONE = 'done';
+const ACTION_LATER = 'later';
 
 const DAY = 86_400_000;
 const LATER_DELAY = 3 * 3_600_000;
@@ -59,10 +59,20 @@ export async function scheduleReminders(
   await cancelReminders(db, item.id);
   await db.runAsync('UPDATE items SET reminder_mode = ? WHERE id = ?', mode, item.id);
   if (mode === 'none' || !firstFireAt) return;
+  if (!(await Notifications.getPermissionsAsync()).granted) {
+    await db.runAsync('UPDATE items SET reminder_mode = \'none\' WHERE id = ?', item.id);
+    return;
+  }
 
   const count = mode === 'until_done' ? UNTIL_DONE_QUEUE : 1;
   const times = Array.from({ length: count }, (_, i) => new Date(firstFireAt.getTime() + i * DAY));
-  await queue(db, item, times);
+  try {
+    await queue(db, item, times);
+  } catch (error) {
+    await cancelReminders(db, item.id).catch(console.warn);
+    await db.runAsync("UPDATE items SET reminder_mode = 'none' WHERE id = ?", item.id).catch(console.warn);
+    throw error;
+  }
 }
 
 export async function cancelReminders(db: SQLiteDatabase, itemId: string): Promise<void> {
@@ -71,10 +81,16 @@ export async function cancelReminders(db: SQLiteDatabase, itemId: string): Promi
     itemId,
   );
   await Promise.all(
-    rows.filter((r) => r.notification_id).map((r) => Notifications.cancelScheduledNotificationAsync(r.notification_id!)),
+    rows.filter((r) => r.notification_id).map((r) => Notifications.cancelScheduledNotificationAsync(r.notification_id!).catch(() => {})),
   );
   await db.runAsync('DELETE FROM reminders WHERE item_id = ?', itemId);
   await db.runAsync('UPDATE items SET next_reminder_at = NULL WHERE id = ?', itemId);
+}
+
+/** Persist completion and remove scheduled OS notifications together at the call site. */
+export async function restoreItem(db: SQLiteDatabase, itemId: string): Promise<void> {
+  await cancelReminders(db, itemId);
+  await setStatus(db, itemId, 'active');
 }
 
 export async function completeItem(db: SQLiteDatabase, itemId: string): Promise<void> {
@@ -99,6 +115,15 @@ export async function snooze(db: SQLiteDatabase, itemId: string, until = new Dat
  * daily at the same time until they're completed.
  */
 export async function reconcileReminders(db: SQLiteDatabase, now = Date.now()): Promise<void> {
+  await archiveExpiredCoupons(db, new Date(now));
+  // Anything no longer active (e.g. a coupon just archived) must not keep notifying.
+  const stale = await db.getAllAsync<{ notification_id: string }>(
+    `SELECT notification_id FROM reminders
+     WHERE notification_id IS NOT NULL AND item_id IN (SELECT id FROM items WHERE status != 'active')`,
+  );
+  await Promise.all(stale.map((r) => Notifications.cancelScheduledNotificationAsync(r.notification_id)));
+  await db.runAsync(`DELETE FROM reminders WHERE item_id IN (SELECT id FROM items WHERE status != 'active')`);
+  if (!(await Notifications.getPermissionsAsync()).granted) return;
   const needingTopUp = await db.getAllAsync<{ id: string; last_fire: number | null; pending: number }>(
     `SELECT i.id, MAX(r.fire_at) AS last_fire, SUM(CASE WHEN r.fire_at > ? THEN 1 ELSE 0 END) AS pending
      FROM items i LEFT JOIN reminders r ON r.item_id = i.id
@@ -123,6 +148,17 @@ export async function reconcileReminders(db: SQLiteDatabase, now = Date.now()): 
   await refreshNextReminder(db);
 }
 
+/** Development / E2E aid: re-queues the newest active item's reminder a few seconds from now. */
+export async function fireNewestSoon(db: SQLiteDatabase, seconds = 5): Promise<string | null> {
+  const row = await db.getFirstAsync<{ id: string }>(
+    "SELECT id FROM items WHERE status = 'active' ORDER BY created_at DESC LIMIT 1",
+  );
+  const item = row && (await getItem(db, row.id));
+  if (!item) return null;
+  await scheduleReminders(db, item, 'once', new Date(Date.now() + seconds * 1000));
+  return item.title;
+}
+
 export async function handleNotificationResponse(
   db: SQLiteDatabase,
   response: Notifications.NotificationResponse,
@@ -145,28 +181,35 @@ export async function handleNotificationResponse(
 
 async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<void> {
   const body = summarize(item) || 'Tap to open';
-  for (const fireAt of times) {
-    if (fireAt.getTime() <= Date.now()) continue;
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: item.title,
-        body,
-        data: { itemId: item.id },
-        categoryIdentifier: CATEGORY_ID,
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: fireAt,
-        channelId: CHANNEL_ID,
-      },
-    });
-    await db.runAsync(
-      'INSERT INTO reminders (id, item_id, fire_at, notification_id) VALUES (?, ?, ?, ?)',
-      Crypto.randomUUID(),
-      item.id,
-      fireAt.getTime(),
-      notificationId,
-    );
+  const scheduled: string[] = [];
+  try {
+    for (const fireAt of times) {
+      if (fireAt.getTime() <= Date.now()) continue;
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: item.title,
+          body,
+          data: { itemId: item.id },
+          categoryIdentifier: CATEGORY_ID,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: fireAt,
+          channelId: CHANNEL_ID,
+        },
+      });
+      scheduled.push(notificationId);
+      await db.runAsync(
+        'INSERT INTO reminders (id, item_id, fire_at, notification_id) VALUES (?, ?, ?, ?)',
+        Crypto.randomUUID(),
+        item.id,
+        fireAt.getTime(),
+        notificationId,
+      );
+    }
+  } catch (error) {
+    await Promise.all(scheduled.map((id) => Notifications.cancelScheduledNotificationAsync(id).catch(() => {})));
+    throw error;
   }
   await refreshNextReminder(db, item.id);
 }

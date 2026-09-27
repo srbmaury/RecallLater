@@ -1,0 +1,361 @@
+[
+  {
+    "id": "img_001",
+    "category": "ecommerce_product",
+    "file": "images/01_ecommerce_product.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nShopKart\tSearch Cart\nAA\nRoadster X1 Riding Jacket\n6,499 8,999 28% off\nSeller: Velocity Retail • 4.5 *\nADD TO CART\nBUY NOW\nDelivery by 27 Sep • Free delivery",
+    "barcodes": [],
+    "expected": {
+      "product": "Roadster X1 Riding Jacket",
+      "price": 6499,
+      "currency": "INR",
+      "seller": "Velocity Retail"
+    }
+  },
+  {
+    "id": "img_002",
+    "category": "travel_ticket",
+    "file": "images/02_flight_ticket.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nSkyGo\nYour trip is confirmed\nDEL\tBLR\n29 SEP 2026\n06:20\t09:05\nFlight\tSeat\tPNR\nSG 6132\t12A\tRL7K2P\nSaurabh M.\nTerminal 2 Gate shown 2h before departure\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "mode": "flight",
+      "from": "DEL",
+      "to": "BLR",
+      "date": "2026-09-29",
+      "departure": "06:20",
+      "flight": "SG 6132",
+      "pnr": "RL7K2P"
+    }
+  },
+  {
+    "id": "img_003",
+    "category": "event",
+    "file": "images/03_event_poster.jpg",
+    "text": "COSMIC\nNIGHT 2026\nAstronomy • Music • Telescopes\nSAT • 3 OCT e 6:30 PM\nNehru Planetarium, Bengaluru\nENTRY E499\nGates open at 5:30 PM\ncosmicnight. example.com",
+    "barcodes": [],
+    "expected": {
+      "event": "Cosmic Night 2026",
+      "date": "2026-10-03",
+      "time": "18:30",
+      "venue": "Nehru Planetarium, Bengaluru",
+      "price": 499
+    }
+  },
+  {
+    "id": "img_004",
+    "category": "message_deadline",
+    "file": "images/04_message_deadline.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nRahul\nR\nonline\nHey, did you get the updated deck?\n7:12 PM\nYes, I am fixing the charts tonight.\n7:13 PM\nPerfect. Can you send me the final deck\nbefore we speak on Friday morning?\n7:14 PM",
+    "barcodes": [],
+    "expected": {
+      "person": "Rahul",
+      "task": "Send final deck",
+      "deadline_phrase": "before we speak on Friday morning"
+    }
+  },
+  {
+    "id": "img_005",
+    "category": "restaurant",
+    "file": "images/05_restaurant_post.jpg",
+    "text": "9:41\tII Wi-Fi 87%\ntaste.bangalore\n2,431 likes\ntaste.bangalore New opening: Cedar & Bean, Indiranagar. Quiet courtyard,\nstrong coffee and all-day breakfast.\n012th Main, Indiranagar, Bengaluru\n#cafes #bangalore #brunch",
+    "barcodes": [],
+    "expected": {
+      "name": "Cedar & Bean",
+      "area": "Indiranagar",
+      "city": "Bengaluru",
+      "address": "12th Main, Indiranagar, Bengaluru"
+    }
+  },
+  {
+    "id": "img_006",
+    "category": "job_posting",
+    "file": "images/06_job_posting.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nNimbus Labs\nSoftware Engineer II\nBackend Platform • Bengaluru / Hybrid\nAbout the role\nBuild distributed backend services used by millions of requests\nper day. Work with Java, PostgreSQL, Redis and event-driven\nsystems. 2-5 years of software engineering experience\npreferred.\nApply by: 5 Oct 2026\nReg ID: NL-BE-2041\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "Nimbus Labs",
+      "role": "Software Engineer II",
+      "location": "Bengaluru / Hybrid",
+      "deadline": "2026-10-05",
+      "req_id": "NL-BE-2041"
+    }
+  },
+  {
+    "id": "img_007",
+    "category": "bill",
+    "file": "images/07_utility_bill_photo.jpg",
+    "text": "CITY POWER - ELECTRICITY BILL\nA. Sharma\nConsumer\nService address\tFlat 18B, Lotus Residency, Bengaluru\nBilling period\t18 Aug - 17 Sep 2026\nUnits consumed\t286 kWh\nCurrent charges\t2,840.00\nAmount due\t2,840.00\nDue date\t28 Sep 2026\nBill reference\tCP-2609-184731\nSynthetic test document. All names, references and addresses are fictitious.",
+    "barcodes": [],
+    "expected": {
+      "merchant": "City Power",
+      "amount": 2840,
+      "currency": "INR",
+      "due_date": "2026-09-28",
+      "reference": "CP-2609-184731"
+    }
+  },
+  {
+    "id": "img_008",
+    "category": "product_order",
+    "file": "images/08_product_order.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nAmazon\nOrder confirmed\nOrder # 407-0000123-0000456\nNoise-cancelling\nheadphones\n12,999\nDelivered 22 Sep\nReturn eligible until\n29 Sep 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "merchant": "Amazon",
+      "product": "Noise-cancelling headphones",
+      "price": 12999,
+      "return_deadline": "2026-09-29",
+      "order_id": "407-0000123-0000456"
+    }
+  },
+  {
+    "id": "img_009",
+    "category": "coupon",
+    "file": "images/09_coupon.jpg",
+    "text": "9:41\tI Wi-Fi 87%\nFOODRUSH\n200 OFF\non orders above T699\nDINNER200\nValid till 30 Sep 2026\nOne use per customer\nSelected restaurants only\nCOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "merchant": "FoodRush",
+      "code": "DINNER200",
+      "discount": "₹200 OFF",
+      "min_order": 699,
+      "expiry": "2026-09-30"
+    }
+  },
+  {
+    "id": "img_010",
+    "category": "recipe",
+    "file": "images/10_recipe_post.jpg",
+    "text": "9:41\tI Wi-Fi 87%\nCreamy Mocha Overnight Oats\n10 min prep serves 2\n• 1 cup rolled oats\n• l cup milk\n•l tbsp cocoa powder\n• l tsp instant coffee\n• 2 tbsp yogurt\n• 1 tbsp honey\n• banana slices\nMix, chill overnight, top with banana.\n@everydaybowis",
+    "barcodes": [],
+    "expected": {
+      "dish": "Creamy Mocha Overnight Oats",
+      "ingredients": [
+        "1 cup rolled oats",
+        "1 cup milk",
+        "1 tbsp cocoa powder",
+        "1 tsp instant coffee",
+        "2 tbsp yogurt",
+        "1 tbsp honey",
+        "banana slices"
+      ]
+    }
+  },
+  {
+    "id": "img_011",
+    "category": "address",
+    "file": "images/11_address_location.jpg",
+    "text": "9:41\tII Wi-Fi 87%\nShared location\nOrchid Studio\n24 Lakeview Road, Sector 4, Bengaluru, Karnataka 5600XX\nMeeting entrance: Gate B",
+    "barcodes": [],
+    "expected": {
+      "place": "Orchid Studio",
+      "address": "24 Lakeview Road, Sector 4, Bengaluru, Karnataka 5600XX",
+      "note": "Meeting entrance: Gate B"
+    }
+  },
+  {
+    "id": "img_012",
+    "category": "qr_code",
+    "file": "images/12_qr_code_photo.jpg",
+    "text": "EVENT CHECK-IN\nScan to open your pass\nRL-DEMO -2026",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "https://events.example.com/checkin/RL-DEMO-2026"
+      }
+    ],
+    "expected": {
+      "qr_type": "url",
+      "value": "https://events.example.com/checkin/RL-DEMO-2026"
+    }
+  },
+  {
+    "id": "img_013",
+    "category": "movie_show",
+    "file": "images/13_movie_show.jpg",
+    "text": "CALLNS\nORBITAL\nA NEW SCI-FI SERIES\nStreaming 2 0ctober\n8 episodes Sci-Fi / Drama\nWatch on StreamWave",
+    "barcodes": [],
+    "expected": {
+      "title": "Orbital",
+      "release_date": "2026-10-02",
+      "platform": "StreamWave",
+      "genre": "Sci-Fi / Drama"
+    }
+  },
+  {
+    "id": "img_014",
+    "category": "book",
+    "file": "images/14_book.jpg",
+    "text": "9:41\tI Wi-Fi 87%\nSYSTEMS\nTHAT\nREMEMBER\nMira Sen\nRecommended by TechShelf\nDistributed systems • Reliability\nISBN 978-1-23456-789-0",
+    "barcodes": [],
+    "expected": {
+      "title": "Systems That Remember",
+      "author": "Mira Sen",
+      "isbn": "978-1-23456-789-0"
+    }
+  },
+  {
+    "id": "img_015",
+    "category": "receipt",
+    "file": "images/15_receipt_photo.jpg",
+    "text": "TECHMART - TAX RECEIPT\nReceipt\tTM-0923-7741\nDate\n23 Sep 2026 18:42\nUSB-C Hub x1\t3,499.00\nLaptop Stand x1\tF1,899.00\nGST\t*823.14\nTOTAL\n6,221.14\nPayment\tUPI\nWarranty\t12 months on USB-C Hub\nReturn eligible within 7 days for unopened items. Synthetic test receipt.",
+    "barcodes": [],
+    "expected": {
+      "merchant": "TechMart",
+      "date": "2026-09-23",
+      "total": 6221.14,
+      "currency": "INR",
+      "warranty": "12 months on USB-C Hub"
+    }
+  },
+  {
+    "id": "img_016",
+    "category": "travel_destination",
+    "file": "images/16_travel_reel.jpg",
+    "text": "@weekendroutes\nSave this for your next trip: Space & Science Centre,\nSriharikota\nn Sriharikota, Andhra Pradesh",
+    "barcodes": [],
+    "expected": {
+      "destination": "Space & Science Centre",
+      "location": "Sriharikota, Andhra Pradesh"
+    }
+  },
+  {
+    "id": "pdf_001",
+    "category": "bill",
+    "file": "pdfs/01_city_power_bill.pdf",
+    "text": "CITY POWER\nMonthly electricity statement\nAmount due\nDue 28 Sep 2026\n72,840.00\nCONSUMER\tBILL REFERENCE\nA. Sharma\tCP-2609-184731\nBILLING PERIOD\tUNITS CONSUMED\n18 Aug - 17 Sep 2026\t286 kWh\nCharge breakdown\nEnergy charges\t72,210.00\nNetwork charges\t338.00\nTaxes & duties\t292.00\nTotal\t2,840.00\nPAYMENT NOTE\nPay before the due date to avoid late charges.\nSynthetic test bill - no real account or payment details.",
+    "barcodes": [],
+    "expected": {
+      "merchant": "City Power",
+      "amount": 2840,
+      "currency": "INR",
+      "due_date": "2026-09-28"
+    }
+  },
+  {
+    "id": "pdf_002",
+    "category": "travel_ticket",
+    "file": "pdfs/02_flight_itinerary.pdf",
+    "text": "SKYGO\nE-ticket itinerary\nDEL\tBLR\n06:20\t09:05\n29 Sep 2026\t29 Sep 2026\nPASSENGER\tPNR\nSaurabh M.\tRL7K2P\nFLIGHT\tSEAT\nSG 6132\t12A\nTERMINAL\tCABIN\n2\tEconomy\nREMINDER\nArrive at the airport at least 2 hours before departure.\nSynthetic itinerary for application testing only.",
+    "barcodes": [],
+    "expected": {
+      "from": "DEL",
+      "to": "BLR",
+      "date": "2026-09-29",
+      "flight": "SG 6132",
+      "pnr": "RL7K2P"
+    }
+  },
+  {
+    "id": "pdf_003",
+    "category": "travel_ticket",
+    "file": "pdfs/03_train_eticket.pdf",
+    "text": "RAILCONNECT\nElectronic reservation slip\nNDLS → BSB\n27 Sep 2026• 20:10 → O6:25 (+1 day)\nTRAIN\tPNR\n12560 - Shiv Express\t2456789012\nPASSENGER\tCOACH / BERTH\nA. Sharma\tB2 / 41 LB\nCLASS\tSTATUS\n3A\tCONFIRMED\nBOARDING\nNew Delhi Railway Station • Platform announced before departure\nSynthetic reservation slip. PNR and passenger details are fictitious.",
+    "barcodes": [],
+    "expected": {
+      "mode": "train",
+      "from": "NDLS",
+      "to": "BSB",
+      "date": "2026-09-27",
+      "train": "12560 - Shiv Express",
+      "pnr": "2456789012"
+    }
+  },
+  {
+    "id": "pdf_004",
+    "category": "receipt",
+    "file": "pdfs/04_product_invoice.pdf",
+    "text": "TECHMART\nTax Invoice\nInvoice TM-0923-7741\n23 Sep 2026 • Bengaluru\nCUSTOMER\tPAYMENT\nA. Sharma\tUPI\nITEM\tPRICE\tTOTAL\nUSB-C Hub xl\t3,499.00\nLaptop Stand xl\t1,899.00\nGST\tT823.14\nTOTAL\tT6,221.14\nWARRANTY & RETURNS\nUSB-C Hub: 12-month warranty.\nUnopened items may be returned within 7 days of purchase.",
+    "barcodes": [],
+    "expected": {
+      "merchant": "TechMart",
+      "date": "2026-09-23",
+      "total": 6221.14,
+      "warranty": "12 months on USB-C Hub"
+    }
+  },
+  {
+    "id": "pdf_005",
+    "category": "event",
+    "file": "pdfs/05_event_pass.pdf",
+    "text": "COSMIC NIGHT\n2026\nSATURDAY• 3 OCTOBER\n6:30 PM\nNehru Planetarium, Bengaluru\nEntry Pass: CN-2026-004981\nAstronomy Live Music • Telescope Zone\nGates open at 5:30 PM. Carry a valid photo ID.\nSynthetic event pass for Recall Later testing.",
+    "barcodes": [],
+    "expected": {
+      "event": "Cosmic Night 2026",
+      "date": "2026-10-03",
+      "time": "18:30",
+      "venue": "Nehru Planetarium, Bengaluru"
+    }
+  },
+  {
+    "id": "pdf_006",
+    "category": "job_posting",
+    "file": "pdfs/06_job_description.pdf",
+    "text": "NIMBUS LABS\nEngineering careers\nSoftware Engineer Il\nBackend Platform • Bengaluru / Hybrid Req NL-BE-2041\nAPPLICATION DEADLINE: 5 OCT 2026\nWhat you will do\n• Design and build Java backend services.\n• Operate PostgreSQL and Redis-backed systems.\n• Improve reliability, observability and deployment safety.\nWhat we are looking for\n• 2-5 years of software engineering experience.\n• Strong data structures, APls and system design fundamentals.\n•Experience with distributed systems is a plus.\nApply at: careers.example.com/nimbus/NL-BE-2041\nSynthetic job description - company and role data are fictional.",
+    "barcodes": [],
+    "expected": {
+      "company": "Nimbus Labs",
+      "role": "Software Engineer II",
+      "deadline": "2026-10-05",
+      "req_id": "NL-BE-2041"
+    }
+  },
+  {
+    "id": "pdf_007",
+    "category": "recipe",
+    "file": "pdfs/07_recipe_card.pdf",
+    "text": "EVERYDAY BOWLS\nRecipe card\nCreamy Mocha Overnight Oats\n10 min prep• 2 servings • chill overnight\nINGREDIENTS\tMETHOD\n•l cup rolled oats\n1. Combine oats, milk, cocoa and coffee.\n•l cup milk\n•1 tbsp cocoa powder\t2. Fold in yogurt and honey.\n• l tsp instant coffee\n3. Refrigerate overnight.\n• 2 tbsp yogurt\n•1 tbsp honey\n4. Top with banana before serving.\n• banana slices\nSynthetic recipe card for 0CR/classification testing.",
+    "barcodes": [],
+    "expected": {
+      "dish": "Creamy Mocha Overnight Oats",
+      "ingredients": [
+        "1 cup rolled oats",
+        "1 cup milk",
+        "1 tbsp cocoa powder",
+        "1 tsp instant coffee",
+        "2 tbsp yogurt",
+        "1 tbsp honey",
+        "banana slices"
+      ]
+    }
+  },
+  {
+    "id": "pdf_008",
+    "category": "coupon",
+    "file": "pdfs/08_coupon_voucher.pdf",
+    "text": "FOODRUSH\n200 OFF\non orders above 699\nDINNER200\nValid until 30 Sep 2026\nOne use per customer • selected restaurants only\nSynthetic promotional voucher for application testing.",
+    "barcodes": [],
+    "expected": {
+      "merchant": "FoodRush",
+      "code": "DINNER200",
+      "expiry": "2026-09-30",
+      "discount": "₹200 OFF"
+    }
+  },
+  {
+    "id": "pdf_009",
+    "category": "restaurant",
+    "file": "pdfs/09_restaurant_booking.pdf",
+    "text": "CEDAR & BEAN\nReservation confirmation\nTable confirmed\nDATE\tTIME\n26 Sep 2026\t8:00 PM\nGUESTS\tBOOKING\n2\tCB-260926-118\nCedar & Bean\n12th Main, Indiranagar, Bengaluru\nCourtyard table requested\nSynthetic booking confirmation. No real reservation exists.",
+    "barcodes": [],
+    "expected": {
+      "name": "Cedar & Bean",
+      "date": "2026-09-26",
+      "time": "20:00",
+      "address": "12th Main, Indiranagar, Bengaluru"
+    }
+  },
+  {
+    "id": "pdf_010",
+    "category": "warranty",
+    "file": "pdfs/10_warranty_certificate.pdf",
+    "text": "AUDIOVAULT\nLimited warranty certificate\nNoise-cancelling Headphones X2\nWarranty registration summary\nPURCHASE DATE\tWARRANTY UNTIL\n22 Sep 2026\t21 Sep 2027\nSERIAL\tRETAILER\nAVX2-DEMO-883104\tAmazon\ncOVERAGE\nManufacturing defects and hardware failure under normal use.\nProof of purchase may be required for service.\nSynthetic warranty certificate for RecallLater tests.",
+    "barcodes": [],
+    "expected": {
+      "product": "Noise-cancelling Headphones X2",
+      "purchase_date": "2026-09-22",
+      "warranty_until": "2027-09-21"
+    }
+  }
+]

@@ -1,0 +1,9 @@
+appId: com.srbmaury.recalllater
+name: Dismiss the development-client introduction when present
+---
+- tapOn:
+    text: Continue
+    optional: true
+- tapOn:
+    text: Close
+    optional: true

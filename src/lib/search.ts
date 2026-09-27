@@ -9,6 +9,12 @@ const TYPE_WORDS: Record<string, ItemType> = {
   trip: 'travel', trips: 'travel', travel: 'travel', flight: 'travel', flights: 'travel', train: 'travel', trains: 'travel', ticket: 'travel', tickets: 'travel',
   receipt: 'receipt', receipts: 'receipt', invoice: 'receipt', invoices: 'receipt', order: 'receipt', orders: 'receipt', warranty: 'receipt',
   buy: 'purchase', product: 'purchase', products: 'purchase', shopping: 'purchase', wishlist: 'purchase',
+  job: 'job', jobs: 'job', role: 'job', roles: 'job', applications: 'job',
+  coupon: 'coupon', coupons: 'coupon', offer: 'coupon', offers: 'coupon', code: 'coupon', codes: 'coupon', deals: 'coupon',
+  place: 'place', places: 'place', restaurant: 'place', restaurants: 'place', cafe: 'place', cafes: 'place', food: 'place',
+  book: 'book', books: 'book', reading: 'book', read: 'book',
+  movie: 'watch', movies: 'watch', show: 'watch', shows: 'watch', watchlist: 'watch', watch: 'watch',
+  recipe: 'recipe', recipes: 'recipe', cook: 'recipe', cooking: 'recipe',
 };
 
 const STOP_WORDS = new Set(['things', 'items', 'stuff', 'my', 'all', 'the', 'due', 'expiring', 'upcoming', 'later']);
@@ -20,6 +26,17 @@ const STOP_WORDS = new Set(['things', 'items', 'stuff', 'my', 'all', 'the', 'due
 export function parseQuery(query: string, now = new Date()): SearchFilters {
   let rest = ` ${query.toLowerCase()} `;
   const filters: SearchFilters = { terms: [] };
+
+  if (/\b(?:expiring|expiry|expires)\b/.test(rest)) {
+    filters.dateField = 'expiry';
+    rest = rest.replace(/\b(?:expiring|expiry|expires)\b/g, ' ');
+  } else if (/\b(?:return|returns)\b/.test(rest)) {
+    filters.dateField = 'return';
+    rest = rest.replace(/\b(?:return|returns)\b/g, ' ');
+  } else if (/\bwarrant(?:y|ies)\b/.test(rest)) {
+    filters.dateField = 'warranty';
+    rest = rest.replace(/\bwarrant(?:y|ies)\b/g, ' ');
+  }
 
   const windows: [RegExp, () => Partial<SearchFilters>][] = [
     [/\boverdue\b/, () => ({ dueBefore: now.getTime() })],

@@ -1,0 +1,6 @@
+appId: com.srbmaury.recalllater
+name: Wait until RecallLater is on screen (after a dev-client reload)
+---
+- extendedWaitUntil:
+    visible: Collections|Get started|Continue
+    timeout: 60000

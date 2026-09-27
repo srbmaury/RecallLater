@@ -9,6 +9,8 @@ declare class RecallNativeModule extends NativeModule<{}> {
   extractPdfTextAsync(uri: string, maxPages: number): Promise<PdfTextResult>;
   /** QR codes and barcodes found in an image at a local `file://` URI. */
   detectBarcodesAsync(uri: string): Promise<BarcodeResult[]>;
+  /** Keeps a local folder out of device cloud backups (iOS; Android backup is off app-wide). */
+  excludeFromBackupAsync(path: string): Promise<void>;
 }
 
 export default requireNativeModule<RecallNativeModule>('RecallNative');

@@ -1,19 +1,31 @@
-import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
+import { defaultDatabaseDirectory, openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+
+import RecallNative from '../../../modules/recall-native';
+import { attachmentsDirectoryUri } from '../attachments';
 
 import { DATABASE_NAME, migrate } from './schema';
 
 let opening: Promise<SQLiteDatabase> | null = null;
 
 /**
- * The app's single database connection, opened and migrated once and never closed.
- * (expo-sqlite's `SQLiteProvider` closes the connection on unmount, which crashes
- * natively on Android SDK 57 when a remount or reload races the close.)
+ * The app's single database connection, opened and migrated once and never closed:
+ * closing a connection aborts natively on Android with expo-sqlite 57, so nothing
+ * in the app may close one (this includes `withExclusiveTransactionAsync`).
  */
-export function getDatabase(): Promise<SQLiteDatabase> {
+function getDatabase(): Promise<SQLiteDatabase> {
   opening ??= openDatabaseAsync(DATABASE_NAME)
     .then(async (db) => {
       await migrate(db);
+      // "Stored on this device" must hold on iOS too, where Documents is in iCloud backups.
+      // Best effort: never let this block opening the app.
+      await Promise.all(
+        [defaultDatabaseDirectory, attachmentsDirectoryUri()].map((path) =>
+          Promise.resolve()
+            .then(() => RecallNative.excludeFromBackupAsync(path))
+            .catch(console.warn),
+        ),
+      );
       return db;
     })
     .catch((error) => {

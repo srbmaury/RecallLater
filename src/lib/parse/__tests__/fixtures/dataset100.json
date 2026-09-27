@@ -1,0 +1,1537 @@
+[
+  {
+    "id": "RL001",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/001_product_01.jpg",
+    "text": "9:41\nAmazon\nPremium Cat Portrait Print 12x18\n4.3 D| 1,200 ratings\n73,999\nMRP 4,998 20% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Premium Cat Portrait Print 12x18",
+      "price": 3999
+    }
+  },
+  {
+    "id": "RL002",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/002_product_02.jpg",
+    "text": "9:41\nFlipkart\nVintage Camera Art Print\n4.4 0| 1,577 ratings\nZ4,649\nMRP F5,811 25% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Vintage Camera Art Print",
+      "price": 4649
+    }
+  },
+  {
+    "id": "RL003",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/003_product_03.jpg",
+    "text": "9:41\nAmazon\nSingle-Origin Coffee Beans 500g\n4.5 0 | 1,954 ratings\n5,299\nMRP T6,623 30% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Single-Origin Coffee Beans 500g",
+      "price": 5299
+    }
+  },
+  {
+    "id": "RL004",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/004_product_04.jpg",
+    "text": "9:41\nFlipkart\nSpace Rocket Poster - Framed\n4.6 0| 2,331 ratings\n5,949\nMRP 7,436 35% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Space Rocket Poster - Framed",
+      "price": 5949
+    }
+  },
+  {
+    "id": "RL005",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/005_product_05.jpg",
+    "text": "9:41\nAmazon\nAstronaut Collector Poster\n4.7 0| 2,708 ratings\n6,599\nMRP F8, 248 20% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Astronaut Collector Poster",
+      "price": 6599
+    }
+  },
+  {
+    "id": "RL006",
+    "category": "ecommerce_product",
+    "split": "train",
+    "file": "images/006_product_06.jpg",
+    "text": "9:41\nFlipkart\nVintage Coin Collection Set\n4.8 D | 3,085 ratings\n7,249\nMRP F9,061 25% off\nFREE delivery tomorrow\nADD TO CART\nBUY NOW",
+    "barcodes": [],
+    "expected": {
+      "product": "Vintage Coin Collection Set",
+      "price": 7249
+    }
+  },
+  {
+    "id": "RL007",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/007_ticket_01.jpg",
+    "text": "9:41\nSkyGo\nBEN\tHYD\n06:20\t09:05\n25 Sep 2026\nPASSENGER\tA. Sharma\nFLIGHT\t6E 6100\nSEAT\t12A\nBOOKING ID\tRLX31K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-25",
+      "departure": "06:20",
+      "pnr": "RLX31K9",
+      "flight": "6E 6100"
+    }
+  },
+  {
+    "id": "RL008",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/008_ticket_02.jpg",
+    "text": "9:41\nRailConnect\nDEL\tPUN\n07:30\t10:13\n26 Sep 2026\nPASSENGER\tA. Sharma\nTRAIN\t12951\nSEAT\tB2 /41\nBOOKING ID\tRLX32K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-26",
+      "departure": "07:30",
+      "pnr": "RLX32K9",
+      "train": "12951"
+    }
+  },
+  {
+    "id": "RL009",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/009_ticket_03.jpg",
+    "text": "9:41\nSkyGo\nMUM\tCHE\n08:40\t11:21\n27 Sep 2026\nPASSENGER\tA. Sharma\nFLIGHT\t6E 6114\nSEAT\t12A\nBOOKING ID\tRLX33K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-27",
+      "departure": "08:40",
+      "pnr": "RLX33K9",
+      "flight": "6E 6114"
+    }
+  },
+  {
+    "id": "RL010",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/010_ticket_04.jpg",
+    "text": "9:41\nRailConnect\nHYD\tJAI\n09:50\t12:29\n28 Sep 2026\nPASSENGER\tA. Sharma\nTRAIN\t12953\nSEAT\tB2 /41\nBOOKING ID\tRLX34K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-28",
+      "departure": "09:50",
+      "pnr": "RLX34K9",
+      "train": "12953"
+    }
+  },
+  {
+    "id": "RL011",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/011_ticket_05.jpg",
+    "text": "9:41\nSkyGo\nPUN\tKOL\n10:20\t13:37\n29 Sep 2026\nPASSENGER\tA. Sharma\nFLIGHT\t6E 6128\nSEAT\t12A\nBOOKING ID\tRLX35K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-29",
+      "departure": "10:20",
+      "pnr": "RLX35K9",
+      "flight": "6E 6128"
+    }
+  },
+  {
+    "id": "RL012",
+    "category": "travel_ticket",
+    "split": "train",
+    "file": "images/012_ticket_06.jpg",
+    "text": "9:41\nRailConnect\nCHE\tWAR\n11:30\t14:05\n30 Sep 2026\nPASSENGER\tA. Sharma\nTRAIN\t12955\nSEAT\tB2 / 41\nBOOKING ID\tRLX36K9\nTRAVEL NOTE\nArrive early and keep a valid ID ready for verification.\nADD TO CALENDAR",
+    "barcodes": [],
+    "expected": {
+      "date": "2026-09-30",
+      "departure": "11:30",
+      "pnr": "RLX36K9",
+      "train": "12955"
+    }
+  },
+  {
+    "id": "RL013",
+    "category": "event",
+    "split": "train",
+    "file": "images/013_event_01.jpg",
+    "text": "941\nCOSMIC NIGHT\nSATURDAY 03 OCTOBER\n5:30 PM\nNehru Planetarium, Bengaluru\nTickets from 499\nLive music Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Cosmic Night",
+      "time": "17:30"
+    }
+  },
+  {
+    "id": "RL014",
+    "category": "event",
+    "split": "train",
+    "file": "images/014_event_02.jpg",
+    "text": "9241\nDESIGN AFTER DARK\nMONDAY · 05 OCTO BER\n6:30 PM\nBIEC, Bengaluru\nTickets from 499\nLive music Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Design After Dark",
+      "time": "18:30"
+    }
+  },
+  {
+    "id": "RL015",
+    "category": "event",
+    "split": "train",
+    "file": "images/015_event_03.jpg",
+    "text": "9241\nINDIE MAKERS MEET\nWEDNESDAY · 07 OCTOBER\n7:30 PM\nIndia Habitat Centre, Delhi\nTickets from 7499\nLive music Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Indie Makers Meet",
+      "time": "19:30"
+    }
+  },
+  {
+    "id": "RL016",
+    "category": "event",
+    "split": "train",
+    "file": "images/016_event_04.jpg",
+    "text": "COFFEE & CODE\nFRIDAY 09 OCTOBER\n8:30 PM\nKala Ghoda, Mumbai\nTickets from 499\nLive music· Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Coffee & Code",
+      "time": "20:30"
+    }
+  },
+  {
+    "id": "RL017",
+    "category": "event",
+    "split": "train",
+    "file": "images/017_event_05.jpg",
+    "text": "941\nMOBILE DEV DAY\nSUNDAY · 11 0CTOBER\n5:30 PM\nT-Hub, Hyderabad\nTickets from 7499\nLive music Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Mobile Dev Day",
+      "time": "17:30"
+    }
+  },
+  {
+    "id": "RL018",
+    "category": "event",
+    "split": "train",
+    "file": "images/018_event_06.jpg",
+    "text": "9241\nCREATOR WEEKEND\nTUESDAY 13 OCTOBER\n6:30 PM\nBaga, Goa\nTickets from 499\nLive music· Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Creator Weekend",
+      "time": "18:30"
+    }
+  },
+  {
+    "id": "RL019",
+    "category": "event",
+    "split": "train",
+    "file": "images/019_event_07.jpg",
+    "text": "9241\nNIGHTOF IDEAS\nTHURSDAY 15 OCTOBER\n7:30 PM\nBHU Amphitheatre, Varanasi\nTickets from 499\nLive music Talks Workshops Food\nSAVE EVENT",
+    "barcodes": [],
+    "expected": {
+      "event": "Night of Ideas",
+      "time": "19:30"
+    }
+  },
+  {
+    "id": "RL020",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/020_message_01.jpg",
+    "text": "9:41\nWhatsApp\nRahul\nHey, did you get the deck?\nCan you send the updated version before our call\nFriday?\n9:20\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "Friday"
+    }
+  },
+  {
+    "id": "RL021",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/021_message_02.jpg",
+    "text": "9:41\nWhatsApp\nPriya\nQuick reminder\nPlease bring the signed form tomorrow morning.\n10:21\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "tomorrow morning"
+    }
+  },
+  {
+    "id": "RL022",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/022_message_03.jpg",
+    "text": "9:41\nWhatsApp\nOffice Group\nInterview moved\nYour interview is now Monday at 3 PM. Please\nconfirm.\n11:22\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "Monday 3 PM"
+    }
+  },
+  {
+    "id": "RL023",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/023_message_04.jpg",
+    "text": "9:41\nWhatsApp\nMeera\nDinner plan\nCan you book the table by 6 PM today?\n12:23\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "6 PM today"
+    }
+  },
+  {
+    "id": "RL024",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/024_message_05.jpg",
+    "text": "9:41\nWhatsApp\nAman\nDocs\nPlease upload the address proof before Sep 29.\n13:24\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "Sep 29"
+    }
+  },
+  {
+    "id": "RL025",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/025_message_06.jpg",
+    "text": "9:41\nWhatsApp\nProject Team\nRelease\nCan you review PR #481 before standup\ntomorrow?\n14:25\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "standup tomorrow"
+    }
+  },
+  {
+    "id": "RL026",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "images/026_message_07.jpg",
+    "text": "9:41\nWhatsApp\nKavya\nTrip\nPlease pay your share by Sunday evening.\n15:26\nSure, I will take care of it.\nRecallLater suggestion\nCreate a reminder from this message?",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "Sunday evening"
+    }
+  },
+  {
+    "id": "RL027",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/027_restaurant_01.jpg",
+    "text": "9:41\nInstagram\nCedar & Bean\nDelhi\nA quiet courtyard, strong coffee and fresh sourdough. Save this for your\nnext brunch.\n0 Cedar & Bean, Delhi",
+    "barcodes": [],
+    "expected": {
+      "name": "Cedar & Bean"
+    }
+  },
+  {
+    "id": "RL028",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/028_restaurant_02.jpg",
+    "text": "9:41\nInstagram\nMango Table\nMumbai\n000\nNew seasonal menu is live. Try the smoked tomato pasta and house\ncold brew.\nD Mango Table, Mumbai",
+    "barcodes": [],
+    "expected": {
+      "name": "Mango Table"
+    }
+  },
+  {
+    "id": "RL029",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/029_restaurant_03.jpg",
+    "text": "9:41\nInstagram\nNorth Star Cafe\nHyderabad\nHidden cafe with the best morning light. Perfect for a slow Sunday.\nO North Star Cafe, Hyderabad",
+    "barcodes": [],
+    "expected": {
+      "name": "North Star Cafe"
+    }
+  },
+  {
+    "id": "RL030",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/030_restaurant_04.jpg",
+    "text": "9:41\nInstagram\nOlive Courtyard\nPune\nA tiny neighbourhood kitchen worth crossing town for.\nO Olive Courtyard, Pune",
+    "barcodes": [],
+    "expected": {
+      "name": "Olive Courtyard"
+    }
+  },
+  {
+    "id": "RL031",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/031_restaurant_05.jpg",
+    "text": "9:41\nInstagram\nBasil House\nChennai\nLate-night desserts and espresso until midnight.\nD Basil House, Chennai",
+    "barcodes": [],
+    "expected": {
+      "name": "Basil House"
+    }
+  },
+  {
+    "id": "RL032",
+    "category": "restaurant",
+    "split": "train",
+    "file": "images/032_restaurant_06.jpg",
+    "text": "9:41\nInstagram\nAmber Kitchen\nJaipur\nWeekend special: citrus pancakes, cold brew and baked ricotta.\nD Amber Kitchen, Jaipur",
+    "barcodes": [],
+    "expected": {
+      "name": "Amber Kitchen"
+    }
+  },
+  {
+    "id": "RL033",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/033_job_01.jpg",
+    "text": "9:41\nLinkedIn\nSoftware Engineer II\nNimbus Labs\nMumbai Hybrid- Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReview code and mentor peers\nBuild observability into new features\nApplication deadline: 05 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "Nimbus Labs",
+      "role": "Software Engineer II",
+      "deadline": "2026-10-05"
+    }
+  },
+  {
+    "id": "RL034",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/034_job_02.jpg",
+    "text": "9:41\nLinkedIn\nBackend Engineer\nOrbit Systems\nHyderabad Hybrid Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReview code and mentor peers\nBuild observability into new features\nApplication deadline: 08 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "Orbit Systems",
+      "role": "Backend Engineer",
+      "deadline": "2026-10-08"
+    }
+  },
+  {
+    "id": "RL035",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/035_job_03.jpg",
+    "text": "9:41\nLinkedIn\nAI Engineer\nBluePeak\nPune Hybrid Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReview code and mentor peers\nBuild observability into new features\nApplication deadline: 11 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "BluePeak",
+      "role": "AI Engineer",
+      "deadline": "2026-10-11"
+    }
+  },
+  {
+    "id": "RL036",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/036_job_04.jpg",
+    "text": "9:41\nLinkedIn\nPlatform Engineer\nNorthwind Tech\nChennai Hybrid Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReview code and mentor peers\nBuild observability into new features\nApplication deadline: 14 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "Northwind Tech",
+      "role": "Platform Engineer",
+      "deadline": "2026-10-14"
+    }
+  },
+  {
+    "id": "RL037",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/037_job_05.jpg",
+    "text": "9:41\nLinkedIn\nMobile Engineer\nPixelForge\nJaipur Hybrid · Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReviewN COde and mentor peers\nBuild observability into new features\nApplication deadline: 17 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "PixelForge",
+      "role": "Mobile Engineer",
+      "deadline": "2026-10-17"
+    }
+  },
+  {
+    "id": "RL038",
+    "category": "job_posting",
+    "split": "train",
+    "file": "images/038_job_06.jpg",
+    "text": "9:41\nLinkedIn\nData Engineer\nVectorWorks\nKolkata Hybrid Full-time\n2-4 years\nAbout the role\nBuild and operate reliable product systems, collaborate with design and\nplatform teams, and own features from design to production.\nWhat you will do\nDesign production services\nImprove latency and reliability\nReview code and mentor peers\nBuild observability into new features\nApplication deadline: 20 Oct 2026\nAPPLY",
+    "barcodes": [],
+    "expected": {
+      "company": "VectorWorks",
+      "role": "Data Engineer",
+      "deadline": "2026-10-20"
+    }
+  },
+  {
+    "id": "RL039",
+    "category": "bill",
+    "split": "train",
+    "file": "images/039_bill_01.jpg",
+    "text": "CITY POWER - BILL\nMonthly statement\nAMOUNT DUE\n1,840.00\nA. Sharma\nCustomer\nBilling period\t01 Sep -30 Sep 2026\nDue date\t27 Sep 2026\nAC-92018-44\nAccount\nLate fees may apply after the due date.\nSynthetic sample for Recall Later tes ting",
+    "barcodes": [],
+    "expected": {
+      "amount": 1840,
+      "due_date": "2026-09-27"
+    }
+  },
+  {
+    "id": "RL040",
+    "category": "bill",
+    "split": "train",
+    "file": "images/040_bill_02.jpg",
+    "text": "METRO GAS - BILL\nMonthly statement\nAMOUNT DUE\n2,157.00\nCustomer\nA. Sharma\nBilling period\n01 Sep- 30 Sep 2026\nDue date\n29 Sep 2026\nAccount\nAC-92118-44\nLate fees may apply after the due date.\nSynthetic sample for RecallLater testing",
+    "barcodes": [],
+    "expected": {
+      "amount": 2157,
+      "due_date": "2026-09-29"
+    }
+  },
+  {
+    "id": "RL041",
+    "category": "bill",
+    "split": "train",
+    "file": "images/041_bill_03.jpg",
+    "text": "AQUABOARD - BILL\nMonthly statement\nAMOUNT DUE\n2,474.00\nA. Sharma\nCustomer\nBilling period\t01 Sep- 30 Sep 2026\n01 Oct 2026\nDue date\nAC-92218-44\nAccount\nLate fees may apply after the due date.\nSynthetic sample for RecallLater tes ting",
+    "barcodes": [],
+    "expected": {
+      "amount": 2474,
+      "due_date": "2026-10-01"
+    }
+  },
+  {
+    "id": "RL042",
+    "category": "bill",
+    "split": "train",
+    "file": "images/042_bill_04.jpg",
+    "text": "FIBERONE - BILL\nMonthly statement\nAMOUNT DUE\n2,791.00\nCustomer\tA. Sharma\nBilling period\t01 Sep -30 Sep 2026\nDue date\t03 Oct 2026\nAccount\tAC-92318-44\nLate fees may apply after the due date.\nSynthetic sample for Recall Later testing",
+    "barcodes": [],
+    "expected": {
+      "amount": 2791,
+      "due_date": "2026-10-03"
+    }
+  },
+  {
+    "id": "RL043",
+    "category": "bill",
+    "split": "train",
+    "file": "images/043_bill_05.jpg",
+    "text": "GREENGRID - BILL\nMonthly statement\nAMOUNT DUE\n73,108.00\nCustomer\nA. Sharma\nBilling period\nDue date\t01 Sep - 30 Sep 2026\n05 Oct 2026\nAccount\nAC-92418-44\nLate fees may apply after the due date.\nSynthetic sample for Recall La ter testing",
+    "barcodes": [],
+    "expected": {
+      "amount": 3108,
+      "due_date": "2026-10-05"
+    }
+  },
+  {
+    "id": "RL044",
+    "category": "bill",
+    "split": "train",
+    "file": "images/044_bill_06.jpg",
+    "text": "URBAN ENERGY - BILL\nMonthly statement\nAMOUNT DUE\n73,425.00\nCustomer\tA. Sharma\nBilling period\t01 Sep - 30 Sep 2026\nDue date\t07 Oct 2026\nAccount\tAC-92518-44\nLate fees may apply after the due date.\nSynthetic sample for RecallLater testing",
+    "barcodes": [],
+    "expected": {
+      "amount": 3425,
+      "due_date": "2026-10-07"
+    }
+  },
+  {
+    "id": "RL045",
+    "category": "bill",
+    "split": "train",
+    "file": "images/045_bill_07.jpg",
+    "text": "HOMENET - BILL\nMonthly statement\nAMOUNT DUE\n3,742.00\nA. Sharma\nCustomer\nBilling period\t01 Sep - 30 Sep 2026\n09 Oct 2026\nDue date\nAC-92618-44\nAccount\nLate fees may apply after the due date.\nSynthetic sample for RecallLater testing",
+    "barcodes": [],
+    "expected": {
+      "amount": 3742,
+      "due_date": "2026-10-09"
+    }
+  },
+  {
+    "id": "RL046",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/046_order_01.jpg",
+    "text": "9:41\nAmazon\nOrder confirmed\nOrder #RL-2610-8840\nPremium Cat Portrait Print\n12x18\n74,999\nDelivered 27 Sep 2026\nRETURN WINDOWN\nReturn eligible until 04 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Premium Cat Portrait Print 12x18",
+      "price": 4999,
+      "return_deadline": "2026-10-04"
+    }
+  },
+  {
+    "id": "RL047",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/047_order_02.jpg",
+    "text": "9:41\nFlipkart\nOrder confirmed\nOrder #RL-2611-8841\nVintage Camera Art Print\n5,539\nDelivered 28 Sep 2026\nRETURN WINDOw\nReturn eligible until 05 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Vintage Camera Art Print",
+      "price": 5539,
+      "return_deadline": "2026-10-05"
+    }
+  },
+  {
+    "id": "RL048",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/048_order_03.jpg",
+    "text": "9:41\nAmazon\nOrder confirmed\nOrder #RL-2612-8842\nSingle-Origin Coffee Gift Box\nT6,079\nDelivered 29 Sep 2026\nRETURN WINDOw\nReturn eligible until 06 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Single-Origin Coffee Gift Box",
+      "price": 6079,
+      "return_deadline": "2026-10-06"
+    }
+  },
+  {
+    "id": "RL049",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/049_order_04.jpg",
+    "text": "9:41\nFlipkart\nOrder confirmed\nOrder #RL-2613-8843\nSpace Rocket Poster - Framed\nT6,619\nDelivered 30 Sep 2026\nRETURN WINDOw\nReturn eligible until 07 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Space Rocket Poster - Framed",
+      "price": 6619,
+      "return_deadline": "2026-10-07"
+    }
+  },
+  {
+    "id": "RL050",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/050_order_05.jpg",
+    "text": "9:41\nAmazon\nOrder confirmed\nOrder #RL-2614-8844\nAstronaut Collector Poster\n7,159\nDelivered 01 Oct 2026\nRETURN WINDOw\nReturn eligible until 08 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Astronaut Collector Poster",
+      "price": 7159,
+      "return_deadline": "2026-10-08"
+    }
+  },
+  {
+    "id": "RL051",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/051_order_06.jpg",
+    "text": "9:41\nFlipkart\nOrder confirmed\nOrder #RL-2615-8845\nVintage Coin Collection Set\n7,699\nDelivered 02 Oct 2026\nRETURN WINDOw\nReturn eligible until 09 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Vintage Coin Collection Set",
+      "price": 7699,
+      "return_deadline": "2026-10-09"
+    }
+  },
+  {
+    "id": "RL052",
+    "category": "product_order",
+    "split": "train",
+    "file": "images/052_order_07.jpg",
+    "text": "9:41\nAmazon\nOrder confirmed\nOrder #RL-2616-8846\nPremium Cat Portrait Print\n12x18\n78,239\nDelivered 03 Oct 2026\nRETURN WINDOWN\nReturn eligible until 10 Oct 2026\nVIEW ORDER",
+    "barcodes": [],
+    "expected": {
+      "product": "Premium Cat Portrait Print 12x18",
+      "price": 8239,
+      "return_deadline": "2026-10-10"
+    }
+  },
+  {
+    "id": "RL053",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/053_coupon_01.jpg",
+    "text": "9:41\nFOODRUSH\n200 OFF\nLimited-time offer\ncoUPON CODE\nDINNER200\nValid until 29 Sep 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "DINNER200",
+      "expiry": "2026-09-29",
+      "discount": "₹200 OFF"
+    }
+  },
+  {
+    "id": "RL054",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/054_coupon_02.jpg",
+    "text": "9:41\nRIDEON\n25% OFF\nLimited-time offer\ncOUPON CODE\nRIDE25\nValid until 02 Oct 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "RIDE25",
+      "expiry": "2026-10-02",
+      "discount": "25% OFF"
+    }
+  },
+  {
+    "id": "RL055",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/055_coupon_03.jpg",
+    "text": "9:41\nSTYLEBOX\nBUY 1 GET 1\nLimited-time offer\ncoUPON CODE\nSTYLEB0GO\nValid until 05 Oct 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "STYLEBOGO",
+      "expiry": "2026-10-05",
+      "discount": "BUY 1 GET 1"
+    }
+  },
+  {
+    "id": "RL056",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/056_coupon_04.jpg",
+    "text": "9:41\nQUICKGROCERY\n150 OFF\nLimited-time offer\ncoUPON CODE\nSAVE150\nValid until 08 Oct 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "SAVE150",
+      "expiry": "2026-10-08",
+      "discount": "₹150 OFF"
+    }
+  },
+  {
+    "id": "RL057",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/057_coupon_05.jpg",
+    "text": "9:41\nTRAVELGO\n500 OFF\nLimited-time offer\ncOUPON CODE\nFLY500\nValid until 11 Oct 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "FLY500",
+      "expiry": "2026-10-11",
+      "discount": "₹500 OFF"
+    }
+  },
+  {
+    "id": "RL058",
+    "category": "coupon",
+    "split": "train",
+    "file": "images/058_coupon_06.jpg",
+    "text": "9:41\nCAFECLUB\nFREE DESSERT\nLimited-time offer\ncOUPON CODE\nSWEETFREE\nValid until 14 Oct 2026\nOne use per account. Minimum cart value may apply.\ncOPY CODE",
+    "barcodes": [],
+    "expected": {
+      "code": "SWEETFREE",
+      "expiry": "2026-10-14",
+      "discount": "FREE DESSERT"
+    }
+  },
+  {
+    "id": "RL059",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/059_recipe_01.jpg",
+    "text": "9:41\nEveryday Bowls\nCreamy Mocha Overnight Oats\n15 min Easy·Serves 2\nIngredients\n• rolled oats\n• milk\nespresso\nchia seeds\n• maple syrup\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Creamy Mocha Overnight Oats",
+      "ingredients": [
+        "rolled oats",
+        "milk",
+        "espresso",
+        "chia seeds",
+        "maple syrup"
+      ]
+    }
+  },
+  {
+    "id": "RL060",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/060_recipe_02.jpg",
+    "text": "9:41\nEveryday Bowls\nEspresso Tiramisu Cup\n20 min Easy· Serves 3\nIngredients\nespresso\n• maScarpone\nCOCoa\nladyfingers\n• cream\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Espresso Tiramisu Cup",
+      "ingredients": [
+        "espresso",
+        "mascarpone",
+        "cocoa",
+        "ladyfingers",
+        "cream"
+      ]
+    }
+  },
+  {
+    "id": "RL061",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/061_recipe_03.jpg",
+    "text": "9:41\nEveryday Bowls\nCold Brew Oat Shake\n25 min Easy· Serves 4\nIngredients\ncold brew\noats\nbanana\nmilk\n• cinnamon\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Cold Brew Oat Shake",
+      "ingredients": [
+        "cold brew",
+        "oats",
+        "banana",
+        "milk",
+        "cinnamon"
+      ]
+    }
+  },
+  {
+    "id": "RL062",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/062_recipe_04.jpg",
+    "text": "9:41\nEveryday Bowls\nCinnamon Coffee French Toast\n30 min Easy· Serves 2\nIngredients\nbread\n• eggs\nespresSo\n• milk\n• cinnamon\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Cinnamon Coffee French Toast",
+      "ingredients": [
+        "bread",
+        "eggs",
+        "espresso",
+        "milk",
+        "cinnamon"
+      ]
+    }
+  },
+  {
+    "id": "RL063",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/063_recipe_05.jpg",
+    "text": "9:41\nEveryday Bowls\nCoffee Chia Pudding\n35 min Easy· Serves 3\nIngredients\nchia seeds\ncold brew\nmilk\nCOCoa\nmaple syrup\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Coffee Chia Pudding",
+      "ingredients": [
+        "chia seeds",
+        "cold brew",
+        "milk",
+        "cocoa",
+        "maple syrup"
+      ]
+    }
+  },
+  {
+    "id": "RL064",
+    "category": "recipe",
+    "split": "train",
+    "file": "images/064_recipe_06.jpg",
+    "text": "9:41\nEveryday Bowls\nMocha Affogato Bowl\n40 min Easy Serves 4\nIngredients\nvanilla gelato\n• espresso\ndark chocolate\nhazelnuts\n• cOCoa\nSAVE RECIPE",
+    "barcodes": [],
+    "expected": {
+      "dish": "Mocha Affogato Bowl",
+      "ingredients": [
+        "vanilla gelato",
+        "espresso",
+        "dark chocolate",
+        "hazelnuts",
+        "cocoa"
+      ]
+    }
+  },
+  {
+    "id": "RL065",
+    "category": "address",
+    "split": "train",
+    "file": "images/065_address_01.jpg",
+    "text": "9:41\nShared location\nOrchid Studio\n21 Linden Road, Sector 2, Bengaluru, Karnataka 560001\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "Orchid Studio",
+      "address": "21 Linden Road, Sector 2, Bengaluru, Karnataka 560001"
+    }
+  },
+  {
+    "id": "RL066",
+    "category": "address",
+    "split": "train",
+    "file": "images/066_address_02.jpg",
+    "text": "9:41\nShared location\nCedar & Bean\n18 Museum Lane, Mumbai, Maharashtra 400001\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "Cedar & Bean",
+      "address": "18 Museum Lane, Mumbai, Maharashtra 400001"
+    }
+  },
+  {
+    "id": "RL067",
+    "category": "address",
+    "split": "train",
+    "file": "images/067_address_03.jpg",
+    "text": "9:41\nShared location\nNimbus Office\n45 Tech Park Road, Hyderabad, Telangana 500081\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "Nimbus Office",
+      "address": "45 Tech Park Road, Hyderabad, Telangana 500081"
+    }
+  },
+  {
+    "id": "RL068",
+    "category": "address",
+    "split": "train",
+    "file": "images/068_address_04.jpg",
+    "text": "9:41\nShared location\nLakeview Residency\n72 Lake View Street, Pune, Maharashtra 411001\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "Lakeview Residency",
+      "address": "72 Lake View Street, Pune, Maharashtra 411001"
+    }
+  },
+  {
+    "id": "RL069",
+    "category": "address",
+    "split": "train",
+    "file": "images/069_address_05.jpg",
+    "text": "9:41\nShared location\nCentral Library\n11 University Road, Varanasi, Uttar Pradesh 221 005\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "Central Library",
+      "address": "11 University Road, Varanasi, Uttar Pradesh 221005"
+    }
+  },
+  {
+    "id": "RL070",
+    "category": "address",
+    "split": "train",
+    "file": "images/070_address_06.jpg",
+    "text": "9:41\nShared location\nBluePeak Campus\n9 Innovation Avenue, Chennai, Tamil Nadu 600113\nOPEN IN MAPS",
+    "barcodes": [],
+    "expected": {
+      "place": "BluePeak Campus",
+      "address": "9 Innovation Avenue, Chennai, Tamil Nadu 600113"
+    }
+  },
+  {
+    "id": "RL071",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/071_qr_01.jpg",
+    "text": "EVENT CHECK-IN\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "https://events.example.test/checkin/100"
+      }
+    ],
+    "expected": {
+      "value": "https://events.example.test/checkin/100"
+    }
+  },
+  {
+    "id": "RL072",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/072_qr_02.jpg",
+    "text": "CAFE WI-FI\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "WIFI:T:WPA;S:RecallCafe1;P:demo-pass-1;;"
+      }
+    ],
+    "expected": {
+      "qr_type": "wifi"
+    }
+  },
+  {
+    "id": "RL073",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/073_qr_03.jpg",
+    "text": "CONTACT CARD\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "MECARD:N:Demo User 2;TEL:+91999990002;EMAIL:demo2@example.test;;"
+      }
+    ],
+    "expected": {
+      "qr_type": "contact"
+    }
+  },
+  {
+    "id": "RL074",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/074_qr_04.jpg",
+    "text": "MENU\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "https://menu.example.test/table/4"
+      }
+    ],
+    "expected": {
+      "value": "https://menu.example.test/table/4"
+    }
+  },
+  {
+    "id": "RL075",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/075_qr_05.jpg",
+    "text": "PAYMENT\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "https://example.test/pay/invoice/304"
+      }
+    ],
+    "expected": {
+      "value": "https://example.test/pay/invoice/304"
+    }
+  },
+  {
+    "id": "RL076",
+    "category": "qr_code",
+    "split": "validation",
+    "file": "images/076_qr_06.jpg",
+    "text": "LOCATION\nScan with camera",
+    "barcodes": [
+      {
+        "format": "qr",
+        "rawValue": "geo:12.975,77.595"
+      }
+    ],
+    "expected": {
+      "qr_type": "geo"
+    }
+  },
+  {
+    "id": "RL077",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/077_movie_01.jpg",
+    "text": "9:41\nCOLLINS\nORBITAL\nA NEW SC-FI SERIES\nStreaming October 2\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "Orbital",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL078",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/078_movie_02.jpg",
+    "text": "9:41\nAFTER MIDNIGHT\nDRAMA 8 EPISODES\nA city goes quiet after midnight.\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "After Midnight",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL079",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/079_movie_03.jpg",
+    "text": "9:41\nTHE LAST SIGNAL\nDOCUMENTARY\nBehind the machines that changed imaging.\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "The Last Signal",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL080",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/080_movie_04.jpg",
+    "text": "9:41\nMONSOON LETTERS\nTHRILLER\nOne signal. No source.\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "Monsoon Letters",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL081",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/081_movie_05.jpg",
+    "text": "9:41\nQUIET CITY\nLIMITED SERIES\nA story of letters lost in the rain.\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "Quiet City",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL082",
+    "category": "movie_show",
+    "split": "validation",
+    "file": "images/082_movie_06.jpg",
+    "text": "9:41\nASNay\nSIGNAL ZERO\nMYSTERY\nEvery clock stopped at 11:17.\nADD TO WATCHLIST",
+    "barcodes": [],
+    "expected": {
+      "title": "Signal Zero",
+      "platform": "Streambox"
+    }
+  },
+  {
+    "id": "RL083",
+    "category": "book",
+    "split": "validation",
+    "file": "images/083_book_01.jpg",
+    "text": "SYSTEMS THAT\nREMEMBER\nMira Sen",
+    "barcodes": [],
+    "expected": {
+      "title": "Systems That Remember",
+      "author": "Mira Sen"
+    }
+  },
+  {
+    "id": "RL084",
+    "category": "book",
+    "split": "validation",
+    "file": "images/084_book_02.jpg",
+    "text": "DESIGNING\nRELIABLE THỊNGS\nArun Vale",
+    "barcodes": [],
+    "expected": {
+      "title": "Designing Reliable Things",
+      "author": "Arun Vale"
+    }
+  },
+  {
+    "id": "RL085",
+    "category": "book",
+    "split": "validation",
+    "file": "images/085_book_03.jpg",
+    "text": "SMALL TOOLS, BIG\nLEVERAGE\nNina Roy",
+    "barcodes": [],
+    "expected": {
+      "title": "Small Tools, Big Leverage",
+      "author": "Nina Roy"
+    }
+  },
+  {
+    "id": "RL086",
+    "category": "book",
+    "split": "test",
+    "file": "images/086_book_04.jpg",
+    "text": "THE LAST CACHE\nDev Shah",
+    "barcodes": [],
+    "expected": {
+      "title": "The Last Cache",
+      "author": "Dev Shah"
+    }
+  },
+  {
+    "id": "RL087",
+    "category": "book",
+    "split": "test",
+    "file": "images/087_book_05.jpg",
+    "text": "MAPS OF\nTOMORROW\nLeena Bose",
+    "barcodes": [],
+    "expected": {
+      "title": "Maps of Tomorrow",
+      "author": "Leena Bose"
+    }
+  },
+  {
+    "id": "RL088",
+    "category": "book",
+    "split": "test",
+    "file": "images/088_book_06.jpg",
+    "text": "THE QUIET\nPROTOCOL\nKabir Rao",
+    "barcodes": [],
+    "expected": {
+      "title": "The Quiet Protocol",
+      "author": "Kabir Rao"
+    }
+  },
+  {
+    "id": "RL089",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/089_receipt_01.jpg",
+    "text": "TECHMART - TAX RECEIPT\nTM-2609-1731\nINVOICE\n21 Sep 2026\nDATE\nA. Sharma\nCUSTOMER\nNoise-Cancelling Headphones X2\nITEM\nUPI\nPAYMENT\n6,211.00\nTOTAL\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 6211,
+      "date": "2026-09-21",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL090",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/090_receipt_02.jpg",
+    "text": "HOMEVWORKS - TAX RECEIPT\nINVOICE\nTM-261 0-1732\nDATE\n22 Sep 2026\nCUSTOMER\nA. Sharma\nITEM\nRoadster X1 Riding Jacket\nPAYMENT\nUPI\nTOTAL\n6,947.00\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 6947,
+      "date": "2026-09-22",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL091",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/091_receipt_03.jpg",
+    "text": "CITY PHARMACY - TAX RECEIPT\nTM-2611-1733\nINVOICE\nDATE\t23 Sep 2026\ncUSTOMER\tA. Sharma\nITEM\tMechanical Keyboard Pro\nPAYMENT\tUPI\nTOTAL\t7,683.00\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 7683,
+      "date": "2026-09-23",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL092",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/092_receipt_04.jpg",
+    "text": "AUDIOVAULT- TAX RECEIPT\nINVOICE\nTM-261 2-1734\nDATE\n24 Sep 2026\nCUSTOMER\nA. Sharma\nITEM\nSmart Air Purifier\nPAYMENT\nUPI\nTOTAL\n78,419.00\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 8419,
+      "date": "2026-09-24",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL093",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/093_receipt_05.jpg",
+    "text": "URBAN OUTFIT - TAX RECEIPT\nTM-2613-1735\nINVOICE\n25 Sep 2026\nDATE\nA. Sharma\nCUSTOMER\nTravel Backpack 28L\nITEM\nUPI\nPAYMENT\n79,155.00\nTOTAL\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 9155,
+      "date": "2026-09-25",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL094",
+    "category": "receipt",
+    "split": "test",
+    "file": "images/094_receipt_06.jpg",
+    "text": "CAFE SUPPLY - TAX RECEIPT\nINVOICE\nTM-2614-1736\nDATE\n26 Sep 2026\nCUSTOMER\nA. Sharma\nITEM\nEspresso Grinder Mini\nPAYMENT\nUPI\nTOTAL\n9,891.00\nKeep this receipt for returns and warranty claims.",
+    "barcodes": [],
+    "expected": {
+      "total": 9891,
+      "date": "2026-09-26",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL095",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/095_travel_01.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nSPACE CENTRE VISIT\nRocket exhibits and an unforgettable visitor tour.\nD Sriharikota, Andhra Pradesh",
+    "barcodes": [],
+    "expected": {
+      "destination": "Space Centre Visit"
+    }
+  },
+  {
+    "id": "RL096",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/096_travel_02.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nOLD TOWN COFFEE TRAIL\nCoffee houses, heritage streets anda slow afternoon walk.\nD Fort Kochi, Kerala",
+    "barcodes": [],
+    "expected": {
+      "destination": "Old Town Coffee Trail"
+    }
+  },
+  {
+    "id": "RL097",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/097_travel_03.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nASTRONAUT GALLERY\nA surprisingly good stop for space-history fans.\nO Science Museum, Bengaluru",
+    "barcodes": [],
+    "expected": {
+      "destination": "Astronaut Gallery"
+    }
+  },
+  {
+    "id": "RL098",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/098_travel_04.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nHISTORIC CLOCK TOWER\nSave this landmark for your next city walk.\nO Dehradun, Uttarakhand",
+    "barcodes": [],
+    "expected": {
+      "destination": "Historic Clock Tower"
+    }
+  },
+  {
+    "id": "RL099",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/099_travel_05.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nCAT CAFE DISTRICT\nTiny cafe, cats everywhere, excellent afternoon stop.\nO Mumbai, Maharashtra",
+    "barcodes": [],
+    "expected": {
+      "destination": "Cat Cafe District"
+    }
+  },
+  {
+    "id": "RL100",
+    "category": "travel_destination",
+    "split": "test",
+    "file": "images/100_travel_06.jpg",
+    "text": "9:41\nInstagram\ntravel reel\nPHOTOGRAPHY MUSEUM\nA compact museum full of cameras and photography history.\nD Gurugram, Haryana",
+    "barcodes": [],
+    "expected": {
+      "destination": "Photography Museum"
+    }
+  },
+  {
+    "id": "RL013-pdf",
+    "category": "event",
+    "split": "train",
+    "file": "pdfs/01_RL013_event.pdf",
+    "text": "EVENT DOCUMENT\nSynthetic RecallLater test document\nCosmic Night\nEVENT NAME\tCosmic Night\nDATE\tSATURDAY · 03 OCTOBER\nTIME\t5:30 PM\nVENUE\tNehru Planetarium, Bengaluru\nDetails\nEVENT NAME\tCosmic Night\nDATE\tSATURDAY · 03 OCTOBER\nTIME\t5:30 PM\nVENUE\tNehru Planetarium, Bengaluru\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "event": "Cosmic Night",
+      "time": "17:30"
+    }
+  },
+  {
+    "id": "RL014-pdf",
+    "category": "event",
+    "split": "train",
+    "file": "pdfs/02_RL014_event.pdf",
+    "text": "EVENT DOCUMENT\nSynthetic RecallLater test document\nDesign After Dark\nEVENT NAME\tDesign After Dark\nDATE\tMONDAY · 05 0CTOBER\nTIME\t6:30 PM\nVENUE\tBIEC, Bengaluru\nDetails\nEVENT NAME\tDesign After Dark\nDATE\tMONDAY · 05 OCTOBER\nTIME\t6:30 PM\nVENUE\tBIEC, Bengaluru\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "event": "Design After Dark",
+      "time": "18:30"
+    }
+  },
+  {
+    "id": "RL015-pdf",
+    "category": "event",
+    "split": "train",
+    "file": "pdfs/03_RL015_event.pdf",
+    "text": "EVENT DOCUMENT\nSynthetic RecallLater test document\nIndie Makers Meet\nEVENT NAME\tIndie Makers Meet\nDATE\tWEDNESDAY· 07 0CTOBER\nTIME\t7:30 PM\nVENUE\tIndia Habitat Centre, Delhi\nDetails\nEVENT NAME\tIndie Makers Meet\nDATE\tWEDNESDAY · 07 OCTOBER\nTIME\t7:30 PM\nVENUE\tIndia Habitat Centre, Delhi\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "event": "Indie Makers Meet",
+      "time": "19:30"
+    }
+  },
+  {
+    "id": "RL020-pdf",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "pdfs/04_RL020_message.pdf",
+    "text": "MESSAGE DOCUMENT\nSynthetic RecallLater test document\nMessage\ncONTACT\tRahul\nMESSAGE\tCan you send the updated version before our call\nTASK\tCan you send the updated version before our call\nDEADLINE TEXT\tFriday\nDetails\ncONTACT\tRahul\nMESSAGE\tCan you send the updated version before our call Friday?\nTASK\tCan you send the updated version before our call Friday?\nDEADLINE TEXT\tFriday\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "Friday"
+    }
+  },
+  {
+    "id": "RL021-pdf",
+    "category": "message_deadline",
+    "split": "train",
+    "file": "pdfs/05_RL021_message.pdf",
+    "text": "MESSAGE DOCUMENT\nSynthetic RecallLater test document\nMessage\ncONTACT\tPriya\nMESSAGE\tPlease bring the signed form tomorrow morning.\nTASK\tPlease bring the signed form tomorrow morning\nDEADLINE TEXT\ttomorrow morning\nDetails\ncONTACT\tPriya\nMESSAGE\tPlease bring the signed form tomorrow morning.\nTASK\tPlease bring the signed form tomorrow morning\nDEADLINE TEXT\ttomorrow morning\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "deadline_text": "tomorrow morning"
+    }
+  },
+  {
+    "id": "RL027-pdf",
+    "category": "restaurant",
+    "split": "train",
+    "file": "pdfs/06_RL027_restaurant.pdf",
+    "text": "RESTAURANT DOCUMENT\nSynthetic RecallLater test document\nRestaurant\nRESTAURANT\tCedar & Bean\nCITY\tDelhi\nsOURCE\tInstagram\nDetails\nRESTAURANT\tCedar & Bean\nCITY\tDelhi\nSOURCE\tInstagram\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "name": "Cedar & Bean"
+    }
+  },
+  {
+    "id": "RL033-pdf",
+    "category": "job_posting",
+    "split": "train",
+    "file": "pdfs/07_RL033_job.pdf",
+    "text": "JOB DOCUMENT\nSynthetic RecallLater test document\nSoftware Engineer II\nCOMPANY\tNimbus Labs\nROLE\tSoftware Engineer II\nLOCATION\tMumbai\nDEADLINE\t05 Oct 2026\nDetails\ncOMPANY\tNimbus Labs\nROLE\tSoftware Engineer II\nLOCATION\tMumbai\nDEADLINE\t05 Oct 2026\nURL\thttps:/ljobs.example.test/nimbus-labs/1\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "company": "Nimbus Labs",
+      "role": "Software Engineer II",
+      "deadline": "2026-10-05"
+    }
+  },
+  {
+    "id": "RL039-pdf",
+    "category": "bill",
+    "split": "train",
+    "file": "pdfs/08_RL039_bill.pdf",
+    "text": "BILL DOCUMENT\nSynthetic RecallLater test document\nCity Power\nMERCHANT\tCity Power\nAMOUNT\t1840\nCURRENCY\tINR\nDUE DATE\t27 Sep 2026\nDetails\nMERCHANT\tCity Power\nAMOUNT\t1840\ncURRENCY\tINR\nDUE DATE\t27 Sep 2026\nACCOUNT\tAC-92018-44\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "amount": 1840,
+      "due_date": "2026-09-27"
+    }
+  },
+  {
+    "id": "RL040-pdf",
+    "category": "bill",
+    "split": "train",
+    "file": "pdfs/09_RL040_bill.pdf",
+    "text": "BILL DOCUMENT\nSynthetic RecallLater test document\nMetro Gas\nMERCHANT\tMetro Gas\nAMOUNT\t2157\nCURRENCY\tINR\nDUE DATE\t29 Sep 2026\nDetails\nMERCHANT\tMetro Gas\nAMOUNT\t2157\ncURRENCY\tINR\nDUE DATE\t29 Sep 2026\nACCOUNT\tAC-92118-44\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "amount": 2157,
+      "due_date": "2026-09-29"
+    }
+  },
+  {
+    "id": "RL041-pdf",
+    "category": "bill",
+    "split": "train",
+    "file": "pdfs/10_RL041_bill.pdf",
+    "text": "BILL DOCUMENT\nSynthetic RecallLater test document\nAquaBoard\nMERCHANT\tAquaBoard\nAMOUNT\t2474\nCURRENCY\tINR\nDUE DATE\t01 Oct 2026\nDetails\nMERCHANT\tAquaBoard\nAMOUNT\t2474\ncURRENCY\tINR\nDUE DATE\t01 Oct 2026\nACCOUNT\tAC-92218-44\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "amount": 2474,
+      "due_date": "2026-10-01"
+    }
+  },
+  {
+    "id": "RL042-pdf",
+    "category": "bill",
+    "split": "train",
+    "file": "pdfs/11_RL042_bill.pdf",
+    "text": "BILL DOCUMENT\nSynthetic RecallLater test document\nFiberOne\nMERCHANT\tFiberOne\nAMOUNT\t2791\nCURRENCY\tINR\nDUE DATE\t03 Oct 2026\nDetails\nMERCHANT\tFiberOne\nAMOUNT\t2791\ncURRENCY\tINR\nDUE DATE\t03 Oct 2026\nACCOUNT\tAC-92318-44\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "amount": 2791,
+      "due_date": "2026-10-03"
+    }
+  },
+  {
+    "id": "RL046-pdf",
+    "category": "product_order",
+    "split": "train",
+    "file": "pdfs/12_RL046_order.pdf",
+    "text": "ORDER DOCUMENT\nSynthetic RecallLater test document\nPremium Cat Portrait Print 12x18\nMERCHANT\tAmazon\nPRODUCT\tPremium Cat Portrait Print 12x18\nPRICE\t4999\nCURRENCY\tINR\nDetails\nMERCHANT\tAmazon\nPRODUCT\tPremium Cat Portrait Print 12x18\nPRICE\t4999\nCURRENCY\tINR\nORDER ID\tRL-2610-8840\nDELIVERY DATE\t27 Sep 2026\nRETURN DEADLINE\t04 Oct 2026\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "product": "Premium Cat Portrait Print 12x18",
+      "price": 4999,
+      "return_deadline": "2026-10-04"
+    }
+  },
+  {
+    "id": "RL047-pdf",
+    "category": "product_order",
+    "split": "train",
+    "file": "pdfs/13_RL047_order.pdf",
+    "text": "ORDER DOCUMENT\nSynthetic RecallLater test document\nVintage Camera Art Print\nMERCHANT\tFlipkart\nPRODUCT\tVintage Camera Art Print\nPRICE\t5539\nCURRENCY\tINR\nDetails\nMERCHANT\tFlipkart\nPRODUCT\tVintage Camera Art Print\nPRICE\t5539\nCURRENCY\tINR\nORDER ID\tRL-2611-8841\nDELIVERY DATE\t28 Sep 2026\nil!\tRETURN DEADLINE\t05 Oct 2026\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "product": "Vintage Camera Art Print",
+      "price": 5539,
+      "return_deadline": "2026-10-05"
+    }
+  },
+  {
+    "id": "RL053-pdf",
+    "category": "coupon",
+    "split": "train",
+    "file": "pdfs/14_RL053_coupon.pdf",
+    "text": "COUPON DOCUMENT\nSynthetic RecallLater test document\nFOODRUSH\nMERCHANT\tFOODRUSH\nCODE\tDINNER200\nEXPIRY\t29 Sep 2026\nOFFER\tF200 OFF\nDetails\nMERCHANT\tFOODRUSH\nCODE\tDINNER200\nEXPIRY\t29 Sep 2026\nOFFER\tT200 OFF\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "code": "DINNER200",
+      "expiry": "2026-09-29",
+      "discount": "₹200 OFF"
+    }
+  },
+  {
+    "id": "RL054-pdf",
+    "category": "coupon",
+    "split": "train",
+    "file": "pdfs/15_RL054_coupon.pdf",
+    "text": "COUPON DOCUMENT\nSynthetic RecallLater test document\nRIDEON\nMERCHANT\tRIDEON\nCODE\tRIDE25\nEXPIRY\t02 Oct 2026\nOFFER\t25% OFF\nDetails\nMERCHANT\tRIDEON\nCODE\tRIDE25\nEXPIRY\t02 Oct 2026\nOFFER\t25% OFF\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "code": "RIDE25",
+      "expiry": "2026-10-02",
+      "discount": "25% OFF"
+    }
+  },
+  {
+    "id": "RL059-pdf",
+    "category": "recipe",
+    "split": "train",
+    "file": "pdfs/16_RL059_recipe.pdf",
+    "text": "RECIPE DOCUMENT\nSynthetic RecallLater test document\nCreamy Mocha Overnight Oats\nDISH\tCreamy Mocha Overnight Oats\nSOURCE\trecipe_post\nDetails\nDISH\tCreamy Mocha Overnight Oats\nINGREDIENTS\trolled oats, milk, espresso, chia seeds, maple syrup\nSOURCE\trecipe_post\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "dish": "Creamy Mocha Overnight Oats",
+      "ingredients": [
+        "rolled oats",
+        "milk",
+        "espresso",
+        "chia seeds",
+        "maple syrup"
+      ]
+    }
+  },
+  {
+    "id": "RL060-pdf",
+    "category": "recipe",
+    "split": "train",
+    "file": "pdfs/17_RL060_recipe.pdf",
+    "text": "RECIPE DOCUMENT\nSynthetic RecallLater test document\nEspresso Tiramisu Cup\nDISH\tEspresso Tiramisu Cup\nSOURCE\trecipe_post\nDetails\nDISH\tEspresso Tiramisu Cup\nINGREDIENTS\tespresso, mascarpone, cocoa, ladyfingers, cream\nSOURCE\trecipe_post\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "dish": "Espresso Tiramisu Cup",
+      "ingredients": [
+        "espresso",
+        "mascarpone",
+        "cocoa",
+        "ladyfingers",
+        "cream"
+      ]
+    }
+  },
+  {
+    "id": "RL089-pdf",
+    "category": "receipt",
+    "split": "test",
+    "file": "pdfs/18_RL089_receipt.pdf",
+    "text": "RECEIPT DOCUMENT\nSynthetic RecallLater test document\nNoise-Cancelling Headphones X2\nMERCHANT\tTechMart\nINVOICE ID\tTM-2609-1731\nDATE\t21 Sep 2026\nPRODUCT\tNoise-Cancelling Headphones X2\nDetails\nMERCHANT\tTechMart\nINVOICE ID\tTM-2609-1731\nDATE\t21 Sep 2026\nPRODUCT\tNoise-Cancelling Headphones X2\nAMOUNT\t6211\nCURRENCY\tINR\nWARRANTY MONTHS\t12\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "total": 6211,
+      "date": "2026-09-21",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL090-pdf",
+    "category": "receipt",
+    "split": "test",
+    "file": "pdfs/19_RL090_receipt.pdf",
+    "text": "RECEIPT DOCUMENT\nSynthetic RecallLater test document\nRoadster X1 Riding Jacket\nMERCHANT\tHomeWorks\nINVOICE ID\tTM-2610-1732\nDATE\t22 Sep 2026\nPRODUCT\tRoadster X1 Riding Jacket\nDetails\nMERCHANT\tHomeWorks\nINVOICE ID\tTM-2610-1732\nDATE\t22 Sep 2026\nPRODUCT\tRoadster X1 Riding Jacket\nAMOUNT\t6947\nCURRENCY\tINR\nWARRANTY MONTHS\t12\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "total": 6947,
+      "date": "2026-09-22",
+      "warranty": "12 months"
+    }
+  },
+  {
+    "id": "RL091-pdf",
+    "category": "receipt",
+    "split": "test",
+    "file": "pdfs/20_RL091_receipt.pdf",
+    "text": "RECEIPT DOCUMENT\nSynthetic RecallLater test document\nMechanical Keyboard Pro\nMERCHANT\tCity Pharmacy\nINVOICE ID\tTM-2611-1733\nDATE\t23 Sep 2026\nPRODUCT\tMechanical Keyboard Pro\nDetails\nMERCHANT\tCity Pharmacy\nINVOICE ID\tTM-261 1-1733\nDATE\t23 Sep 2026\nPRODUCT\tMechanical Keyboard Pro\nAMOUNT\t7683\nCURRENCY\tINR\nWARRANTY MONTHS\t12\nSynthetic document for OCR/classification evaluation. No real personal data.",
+    "barcodes": [],
+    "expected": {
+      "total": 7683,
+      "date": "2026-09-23",
+      "warranty": "12 months"
+    }
+  }
+]

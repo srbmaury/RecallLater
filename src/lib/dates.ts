@@ -31,9 +31,21 @@ export function endOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
 }
 
+/** Old due dates stay searchable in Inbox but stop crowding the Today action list after 30 days. */
+export function overdueCutoff(now: Date): Date {
+  return startOfDay(addDays(now, -30));
+}
+
 export function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
+  return next;
+}
+
+export function addMonths(date: Date, months: number): Date {
+  const next = new Date(date.getFullYear(), date.getMonth() + months, date.getDate(), date.getHours(), date.getMinutes());
+  // 31 Jan + 1 month rolls into March; clamp to the last day of the target month.
+  if (next.getDate() !== date.getDate()) next.setDate(0);
   return next;
 }
 
@@ -47,7 +59,7 @@ export function isValidDate(year: number, month: number, day: number): boolean {
 }
 
 /** Whole calendar days from `from` to `to` (negative when `to` is in the past). */
-export function dayDiff(from: Date, to: Date): number {
+function dayDiff(from: Date, to: Date): number {
   return Math.round((startOfDay(to).getTime() - startOfDay(from).getTime()) / 86_400_000);
 }
 
@@ -64,7 +76,7 @@ export function formatDay(date: Date, now = new Date()): string {
   });
 }
 
-export function formatTime(date: Date): string {
+function formatTime(date: Date): string {
   return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 

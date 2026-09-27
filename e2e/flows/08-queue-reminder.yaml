@@ -1,0 +1,11 @@
+appId: com.srbmaury.recalllater
+name: Queue a reminder for the newest item (dev-only button)
+---
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Remind about newest item in 5 s
+- tapOn: Remind about newest item in 5 s
+- assertVisible: "Reminder queued: DEL → BLR"
+- tapOn: OK
+# Leave the app so the notification is shown in the shade, not just delivered in-app.
+- pressKey: Home

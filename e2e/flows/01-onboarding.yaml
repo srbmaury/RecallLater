@@ -1,0 +1,25 @@
+appId: com.srbmaury.recalllater
+name: First launch shows the privacy promise, then an empty Today
+---
+# A dev build shows its own menu introduction on first launch, hiding the app
+# from the accessibility tree until dismissed. Release builds skip this.
+- extendedWaitUntil:
+    visible: Continue
+    timeout: 60000
+    optional: true
+- tapOn:
+    text: Continue
+    optional: true
+# ...after which the full dev menu stays open until closed.
+- tapOn:
+    text: Close
+    optional: true
+- extendedWaitUntil:
+    visible: Share it now. Deal with it when it matters.
+    timeout: 30000
+- assertVisible: We don't scan your photo library
+- assertVisible: Screenshots and PDFs never leave your phone
+- tapOn: Get started
+- assertVisible: Nothing needs you today
+- assertVisible: Inbox
+- assertVisible: Collections

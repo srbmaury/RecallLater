@@ -19,6 +19,10 @@ function attachmentsDir(): Directory {
   return dir;
 }
 
+export function attachmentsDirectoryUri(): string {
+  return attachmentsDir().uri;
+}
+
 export function attachmentFile(name: string): File {
   return new File(attachmentsDir(), name);
 }

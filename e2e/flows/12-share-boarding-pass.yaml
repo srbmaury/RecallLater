@@ -1,0 +1,20 @@
+appId: com.srbmaury.recalllater
+name: A coloured boarding pass with labels above values is read correctly
+---
+- extendedWaitUntil:
+    visible: e2e-boarding-pass.png
+    timeout: 15000
+- longPressOn: e2e-boarding-pass.png
+- tapOn: Share
+- tapOn: RecallLater
+- extendedWaitUntil:
+    visible: DEL → BLR
+    timeout: 30000
+- assertVisible: 6E 6132
+- assertVisible: X7K2QP
+# Departure time from its own column, not the boarding time.
+- assertVisible: .*6:20.*
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000

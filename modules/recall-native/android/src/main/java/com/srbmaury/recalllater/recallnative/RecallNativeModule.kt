@@ -39,6 +39,9 @@ class RecallNativeModule : Module() {
       extractPdfText(Uri.parse(uri), maxPages)
     }
 
+    // Android backup is disabled for the whole app (allowBackup="false"), so nothing to do.
+    AsyncFunction("excludeFromBackupAsync") { _: String -> }
+
     AsyncFunction("detectBarcodesAsync") Coroutine { uri: String ->
       val image = InputImage.fromFilePath(context, Uri.parse(uri))
       barcodeScanner.process(image).await()
@@ -102,8 +105,8 @@ private data class TextFragment(val text: String, val minX: Int, val minY: Int, 
 }
 
 /**
- * Joins fragments that sit on the same visual row, so "Due Date" and "28/09/2026"
- * printed in two columns come out as one line.
+ * Joins fragments that sit on the same visual row into one line, cells separated by
+ * tabs, so the parser can pair a row of labels with the row of values below it.
  */
 private fun groupIntoLines(fragments: List<TextFragment>): List<String> {
   val rows = mutableListOf<MutableList<TextFragment>>()
@@ -115,7 +118,7 @@ private fun groupIntoLines(fragments: List<TextFragment>): List<String> {
       rows.add(mutableListOf(fragment))
     }
   }
-  return rows.map { row -> row.sortedBy { it.minX }.joinToString(" ") { it.text } }
+  return rows.map { row -> row.sortedBy { it.minX }.joinToString("\t") { it.text } }
 }
 
 private fun formatName(format: Int): String = when (format) {

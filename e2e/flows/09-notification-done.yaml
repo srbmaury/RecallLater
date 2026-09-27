@@ -1,0 +1,17 @@
+appId: com.srbmaury.recalllater
+name: Tapping Done on a reminder completes the item
+---
+# run.sh has expanded the notification shade.
+- extendedWaitUntil:
+    visible: DEL → BLR
+    timeout: 30000
+- tapOn: Done
+- extendedWaitUntil:
+    visible: Today
+    timeout: 20000
+- assertNotVisible: DEL → BLR
+- tapOn: Collections
+- scrollUntilVisible:
+    element: Done
+- tapOn: Done
+- assertVisible: DEL → BLR

@@ -1,0 +1,20 @@
+appId: com.srbmaury.recalllater
+name: A coloured bill with a header grid and charges table is read correctly
+---
+- extendedWaitUntil:
+    visible: e2e-color-bill.png
+    timeout: 15000
+- longPressOn: e2e-color-bill.png
+- tapOn: Share
+- tapOn: RecallLater
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+# The total, not the largest line item or the energy charges.
+- assertVisible: "2840"
+- assertVisible: Billed on
+- assertVisible: Until done
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000

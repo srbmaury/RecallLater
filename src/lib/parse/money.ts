@@ -16,18 +16,21 @@ const PREFIXED = new RegExp(`(₹|\\brs\\.?|\\binr|\\$|\\busd|€|\\beur|£|\\bg
 // "2,840/-" is the Indian way of writing a whole-rupee amount.
 const SUFFIXED = new RegExp(`\\b${NUMBER}\\s*(\\/-|₹|\\binr\\b|\\brs\\b)`, 'gi');
 const LABELLED_BARE = new RegExp(
-  `(total|amount due|amount payable|payable amount|net payable|bill amount|grand total|total due|to pay)\\s*(?:\\(.{0,10}\\))?\\s*[:\\-]?\\s*${NUMBER}(?![\\d%])`,
+  `(total|amount due|amount payable|payable amount|net payable|bill amount|grand total|total due|to pay|amount|price|order total|total amount)\\s*(?:\\(.{0,10}\\))?\\s*(?::|-|\\t)?\\s*${NUMBER}(?![\\d%,])`,
   'gi',
 );
+// A price with thousands separators and nothing else around it ("12,999"), for
+// screenshots where OCR dropped the ₹ entirely.
+const BARE_PRICE = /(?:^|\t)(\d{1,3}(?:,\d{2,3})+(?:\.\d{2})?)\s*(?:$|\t|\s+(?:MRP|₹|\d))/m;
 const LABEL = /total|amount|payable|due|to pay|net|bill|price|fare|paid/;
 
 export function findAmounts(text: string, defaultCurrency = 'INR'): AmountMatch[] {
   const matches: AmountMatch[] = [];
   const seen = new Set<number>();
-  const push = (amount: number, currency: string, index: number, numberIndex: number) => {
+  const push = (amount: number, currency: string, index: number, numberIndex: number, labelled = isLabelled(text, index)) => {
     if (!Number.isFinite(amount) || amount <= 0 || seen.has(numberIndex)) return;
     seen.add(numberIndex);
-    matches.push({ amount, currency, index, labelled: isLabelled(text, index) });
+    matches.push({ amount, currency, index, labelled });
   };
 
   for (const m of text.matchAll(PREFIXED)) {
@@ -39,7 +42,7 @@ export function findAmounts(text: string, defaultCurrency = 'INR'): AmountMatch[
   }
   for (const m of text.matchAll(LABELLED_BARE)) {
     const numberIndex = m.index + m[0].lastIndexOf(m[2]);
-    push(toNumber(m[2]), defaultCurrency, numberIndex, numberIndex);
+    push(toNumber(m[2]), defaultCurrency, numberIndex, numberIndex, true);
   }
   return matches.sort((a, b) => a.index - b.index);
 }
@@ -51,9 +54,22 @@ export function primaryAmount(matches: AmountMatch[]): AmountMatch | undefined {
   return pool.reduce<AmountMatch | undefined>((best, m) => (!best || m.amount > best.amount ? m : best), undefined);
 }
 
+/** The most likely price when nothing is marked with a currency: the first grouped number. */
+export function findBarePrice(text: string, defaultCurrency = 'INR'): AmountMatch | undefined {
+  const m = text.match(BARE_PRICE);
+  if (!m || m.index === undefined) return undefined;
+  return { amount: toNumber(m[1]), currency: defaultCurrency, index: m.index, labelled: false };
+}
+
 function isLabelled(text: string, index: number): boolean {
   const lineStart = text.lastIndexOf('\n', index - 1) + 1;
-  return LABEL.test(text.slice(Math.max(lineStart, index - 30), index).toLowerCase());
+  if (LABEL.test(text.slice(Math.max(lineStart, index - 30), index).toLowerCase())) return true;
+  // "AMOUNT DUE" on one line, "₹3,108.00" alone on the next.
+  if (text.slice(lineStart, index).trim() === '') {
+    const previousStart = text.lastIndexOf('\n', lineStart - 2) + 1;
+    return LABEL.test(text.slice(previousStart, lineStart).toLowerCase());
+  }
+  return false;
 }
 
 function toNumber(raw: string): number {

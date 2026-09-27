@@ -22,6 +22,7 @@ describe('parseQuery', () => {
     const month = parseQuery('things expiring this month', NOW);
     expect(month.dueBefore).toBe(endOfDay(new Date(2026, 8, 30)).getTime());
     expect(month.includeDone).toBe(false);
+    expect(month.dateField).toBe('expiry');
 
     expect(parseQuery('overdue bills', NOW)).toMatchObject({ types: ['bill'], dueBefore: NOW.getTime() });
   });

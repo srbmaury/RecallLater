@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { useDateTimePicker } from '@/components/date-time-picker';
 import { ThemedText } from '@/components/themed-text';
 import { Chip } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
@@ -23,23 +24,33 @@ export function ReminderPicker({
   suggestion?: ReminderSuggestion | null;
 }) {
   const presets = useMemo(() => buildPresets(suggestion), [suggestion]);
+  const { pick, element } = useDateTimePicker();
   const selectedKey =
     presets.find((p) => (p.fireAt === null ? value.fireAt === null : p.fireAt.getTime() === value.fireAt?.getTime()))?.key ??
     'custom';
 
-  const pick = (preset: Preset) => {
-    if (!preset.fireAt) return onChange({ mode: 'none', fireAt: null });
+  const choose = (fireAt: Date | null) => {
+    if (!fireAt) return onChange({ mode: 'none', fireAt: null });
     const mode = value.mode === 'none' ? (suggestion?.mode ?? 'once') : value.mode;
-    onChange({ mode, fireAt: preset.fireAt });
+    onChange({ mode, fireAt });
+  };
+
+  const pickCustom = async () => {
+    const chosen = await pick(value.fireAt ?? atTime(addDays(new Date(), 1), 9), 'datetime');
+    if (chosen && chosen.getTime() > Date.now()) choose(chosen);
   };
 
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
         {presets.map((preset) => (
-          <Chip key={preset.key} label={preset.label} selected={selectedKey === preset.key} onPress={() => pick(preset)} />
+          <Chip key={preset.key} label={preset.label} selected={selectedKey === preset.key} onPress={() => choose(preset.fireAt)} />
         ))}
-        {selectedKey === 'custom' && value.fireAt ? <Chip label={formatReminder(value.fireAt)} selected onPress={() => {}} /> : null}
+        <Chip
+          label={selectedKey === 'custom' && value.fireAt ? formatReminder(value.fireAt) : 'Pick date & time…'}
+          selected={selectedKey === 'custom' && value.fireAt !== null}
+          onPress={pickCustom}
+        />
       </ScrollView>
       {value.fireAt ? (
         <View style={styles.row}>
@@ -56,6 +67,7 @@ export function ReminderPicker({
           Reminds you daily from {formatReminder(value.fireAt)} until you mark it done.
         </ThemedText>
       ) : null}
+      {element}
     </View>
   );
 }

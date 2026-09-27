@@ -1,0 +1,20 @@
+appId: com.srbmaury.recalllater
+name: A job message becomes a job whose stage can be tracked
+---
+- extendedWaitUntil:
+    visible: Software Engineer II
+    timeout: 30000
+- assertVisible: Stripe
+- assertVisible: Bengaluru
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- tapOn:
+    text: Software Engineer II
+    retryTapIfNoChange: true
+- scrollUntilVisible:
+    element: Applied
+- tapOn: Applied
+- back
+- assertVisible: .*Applied.*

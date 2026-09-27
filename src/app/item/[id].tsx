@@ -6,19 +6,28 @@ import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { ReminderPicker } from '@/components/reminder-picker';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Card, Chip, FieldList, SectionHeader } from '@/components/ui';
+import { FieldEditor } from '@/components/field-editor';
+import { ItemActions } from '@/components/item-actions';
+import { Button, Card, Chip, SectionHeader } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useDbQuery } from '@/hooks/use-db-query';
 import { useTheme } from '@/hooks/use-theme';
 import { attachmentFile, deleteAttachments, isPdf } from '@/lib/attachments';
 import { addToCalendar } from '@/lib/calendar';
 import { formatDay, parseLocalDateTime } from '@/lib/dates';
-import { deleteItem, getItem, setStatus, updateItem } from '@/lib/db/items';
-import { fieldRows, formatReminder, summarize, TYPE_META } from '@/lib/format';
-import { analyze } from '@/lib/parse';
+import { deleteItem, getItem, updateItem } from '@/lib/db/items';
+import { formatReminder, summarize, TYPE_META } from '@/lib/format';
+import { analyze, keyDateOf } from '@/lib/parse';
 import { suggestCalendar, suggestReminder } from '@/lib/parse/suggest';
-import { archiveItem, cancelReminders, completeItem, ensureNotificationPermission, scheduleReminders } from '@/lib/reminders';
-import { ITEM_TYPES, type Item, type ItemType } from '@/lib/types';
+import { archiveItem, cancelReminders, completeItem, ensureNotificationPermission, restoreItem, scheduleReminders } from '@/lib/reminders';
+import { type ExtractedFields, ITEM_TYPES, type Item, type ItemType } from '@/lib/types';
+
+const DONE_LABELS: Partial<Record<ItemType, string>> = {
+  book: 'Mark as read',
+  watch: 'Mark as watched',
+  place: 'Visited',
+  bill: 'Mark paid',
+};
 
 const SOURCE_LABELS: Record<Item['sourceType'], string> = {
   image: 'a screenshot',
@@ -60,6 +69,12 @@ function ItemDetail({ item, reload, db }: { item: Item; reload: () => void; db: 
     const next = title.trim();
     if (next && next !== item.title) await updateItem(db, item.id, { title: next });
   });
+
+  const saveFields = (fields: ExtractedFields) =>
+    run(async () => {
+      const keyDate = keyDateOf(fields);
+      await updateItem(db, item.id, { fields, dueAt: keyDate ? parseLocalDateTime(keyDate).getTime() : null });
+    })();
 
   const changeType = (type: ItemType) =>
     run(async () => {
@@ -118,11 +133,10 @@ function ItemDetail({ item, reload, db }: { item: Item; reload: () => void; db: 
           ),
         )}
 
-        {fieldRows(item.fields, item.type).length ? (
-          <Card>
-            <FieldList rows={fieldRows(item.fields, item.type)} />
-          </Card>
-        ) : null}
+        <Card>
+          <FieldEditor type={item.type} fields={item.fields} onChange={saveFields} />
+        </Card>
+        <ItemActions item={item} onChangeFields={saveFields} />
 
         {active ? (
           <>
@@ -137,7 +151,11 @@ function ItemDetail({ item, reload, db }: { item: Item; reload: () => void; db: 
               suggestion={suggestReminder(item.type, item.fields, new Date())}
               onChange={(choice) =>
                 run(async () => {
-                  if (choice.fireAt) await ensureNotificationPermission();
+                  if (choice.fireAt && !(await ensureNotificationPermission())) {
+                    await scheduleReminders(db, item, 'none', null);
+                    Alert.alert('Notifications are off', 'Turn on notifications in Settings to use reminders.');
+                    return;
+                  }
                   await scheduleReminders(db, item, choice.mode, choice.fireAt);
                 })()
               }
@@ -147,9 +165,9 @@ function ItemDetail({ item, reload, db }: { item: Item; reload: () => void; db: 
 
         <View style={styles.actions}>
           {active ? (
-            <Button label="Mark done" variant="primary" onPress={run(() => completeItem(db, item.id))} />
+            <Button label={DONE_LABELS[item.type] ?? 'Mark done'} variant="primary" onPress={run(() => completeItem(db, item.id))} />
           ) : (
-            <Button label="Move back to inbox" onPress={run(() => setStatus(db, item.id, 'active'))} />
+            <Button label="Move back to inbox" onPress={run(() => restoreItem(db, item.id))} />
           )}
           {calendar && active ? <Button label="Add to calendar…" onPress={() => addToCalendar(calendar).catch(console.warn)} /> : null}
           {active ? <Button label="Archive" onPress={run(() => archiveItem(db, item.id))} /> : null}

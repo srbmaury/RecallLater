@@ -1,6 +1,6 @@
 import { addDays, isValidDate, startOfDay, toDateKey } from '@/lib/dates';
 
-export type DateLabel = 'due' | 'expiry' | 'departure' | 'arrival' | 'purchase' | 'return' | 'none';
+export type DateLabel = 'due' | 'expiry' | 'departure' | 'arrival' | 'purchase' | 'return' | 'warranty' | 'range' | 'none';
 
 export type DateMatch = {
   /** `YYYY-MM-DD` */
@@ -26,7 +26,7 @@ const ISO = /\b(20\d{2})-(\d{1,2})-(\d{1,2})(?:[T ](\d{2}):(\d{2}))?\b/g;
 const NUMERIC = /\b(\d{1,2})[/.-](\d{1,2})[/.-](20\d{2}|\d{2})\b/g;
 // A 2-digit "year" followed by `:` is really an hour ("5 Mar 10:30").
 const DAY_MONTH = new RegExp(
-  `\\b(\\d{1,2})(?:st|nd|rd|th)?[\\s-]*(?:of\\s+)?${MONTH}\\.?(?:,?[\\s-]*(\\d{4}|'?\\d{2})(?![:.]?\\d))?\\b`,
+  `\\b(\\d{1,2})(?:st|nd|rd|th)?[\\s-]*(?:of\\s+)?${MONTH}\\.?(?:,?[\\s-]*(\\d{4}|'?\\d{2})(?![:.]?\\d)(?![ \\t]*[A-Za-z]{3}))?\\b`,
   'gi',
 );
 const MONTH_DAY = new RegExp(`\\b${MONTH}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?![:.]\\d)(?:,?\\s*(\\d{4})\\b)?`, 'gi');
@@ -41,7 +41,8 @@ const TIME_COLON = /\b([01]?\d|2[0-3]):([0-5]\d)(?:\s*(am|pm|a\.m\.|p\.m\.))?/gi
 const TIME_MERIDIEM = /\b(1[0-2]|0?[1-9])(?:\.([0-5]\d))?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/gi;
 
 const LABEL_PATTERNS: [DateLabel, RegExp][] = [
-  ['return', /return/g],
+  ['return', /return(?:\s+(?:deadline|window|by|until|eligible(?:\s+until)?))?/g],
+  ['warranty', /warranty\s*(?:until|till|upto|up to|valid(?: till| until)?|expires|ends)/g],
   ['expiry', /expir|valid\s*(?:till|until|upto|up to|thru)|use by|best before|offer ends|ends on/g],
   ['due', /\bdue\b|pay by|payable by|last date|deadline|before|submit by|\bby\s*$/g],
   ['departure', /depart|\bdep\b|journey|boarding|travel date|flight date|check-?\s?in|scheduled/g],
@@ -98,8 +99,9 @@ export function findDates(text: string, now: Date): DateMatch[] {
   const times = findTimes(text);
   return withoutEchoes.map((match) => ({
     ...match,
-    time: match.time ?? nearestTime(text, match, times),
-    label: labelFor(text, match.index),
+    time: match.time ?? nearestTime(text, match, times) ?? adjacentLineTime(text, match),
+    // "01 Sep - 30 Sep 2026" is a billing period, not a deadline.
+    label: isRange(text, match, withoutEchoes) ? 'range' : labelFor(text, match.index),
   }));
 }
 
@@ -138,10 +140,44 @@ function nearestTime(text: string, match: { index: number; end: number }, times:
   return best?.time;
 }
 
+/**
+ * Posters and tickets often print the time on its own line right below (or above)
+ * the date: "SATURDAY 03 OCTOBER" / "5:30 PM", "06:20  09:05" / "25 Sep 2026".
+ * The first time on such a line is the start.
+ */
+function adjacentLineTime(text: string, match: { index: number; end: number }): string | undefined {
+  const lines = text.split('\n');
+  let offset = 0;
+  let lineIndex = 0;
+  for (; lineIndex < lines.length; lineIndex++) {
+    if (match.index < offset + lines[lineIndex].length + 1) break;
+    offset += lines[lineIndex].length + 1;
+  }
+  for (const neighbour of [lines[lineIndex + 1], lines[lineIndex - 1]]) {
+    if (neighbour && /^\s*(?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:am|pm))?(?:\s*(?:\t|→|-|–)\s*.*)?$/i.test(neighbour)) {
+      return findTimes(neighbour)[0]?.time;
+    }
+  }
+  return undefined;
+}
+
+function isRange(text: string, match: { index: number; end: number }, all: { index: number; end: number }[]): boolean {
+  return all.some((other) => {
+    if (other === match) return false;
+    const between = other.index >= match.end ? text.slice(match.end, other.index) : text.slice(other.end, match.index);
+    return /^\s*(?:-|–|—|to|till|until)\s*$/i.test(between);
+  });
+}
+
 function labelFor(text: string, index: number): DateLabel {
-  // Labels usually sit just before the value, on the same line or the line above
-  // ("Due Date\n28/09/2026" is common in OCR output).
-  const context = text.slice(Math.max(0, index - 40), index).toLowerCase();
+  // Prefer labels on the same OCR row. Looking back a fixed number of characters
+  // can mix adjacent columns ("PURCHASE DATE | WARRANTY UNTIL") and attach the
+  // warranty label to the purchase date. Fall back to the preceding row only when
+  // the current row has no text ("Due Date\n28/09/2026").
+  const lineStart = text.lastIndexOf('\n', index - 1) + 1;
+  const sameLine = text.slice(lineStart, index).trim();
+  const previousLines = text.slice(Math.max(0, lineStart - 120), lineStart).split('\n').slice(-2).join(' ');
+  const context = (sameLine || previousLines).toLowerCase();
   let best: DateLabel = 'none';
   let bestPosition = -1;
   for (const [label, pattern] of LABEL_PATTERNS) {

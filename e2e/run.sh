@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# End-to-end tests on an Android emulator/device against a development build.
+#
+# Prerequisites:
+#   - A dev build installed (`npm run android`) and Metro running (`npm start`)
+#   - Maestro (https://maestro.mobile.dev) on PATH or in ~/.maestro/bin
+#   - JDK 17+ in JAVA_HOME (Maestro needs it)
+#
+# Wipes the app's data: run it on a test device, not your daily phone.
+set -euo pipefail
+
+APP=com.srbmaury.recalllater
+DIR="$(cd "$(dirname "$0")" && pwd)"
+ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
+MAESTRO="$(command -v maestro || echo "$HOME/.maestro/bin/maestro")"
+METRO_PORT="${METRO_PORT:-8081}"
+export MAESTRO_CLI_NO_ANALYTICS=1
+
+step() { printf '\n\033[1m▶ %s\033[0m\n' "$*"; }
+flow() { step "flow $1"; "$MAESTRO" test "$DIR/flows/$1.yaml"; }
+
+launch_app() {
+  "$ADB" shell am start -a android.intent.action.VIEW \
+    -d "recalllater://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A${METRO_PORT}" "$APP" >/dev/null
+  # The dev client reloads the JS bundle; a share sent before it's back gets lost.
+  "$MAESTRO" test "$DIR/flows/00-wait-for-app.yaml" >/dev/null
+}
+
+share_text() {
+  step "share text: $1"
+  "$ADB" shell am start -a android.intent.action.SEND -t text/plain \
+    --es android.intent.extra.TEXT "'$1'" "$APP" >/dev/null
+}
+
+open_downloads() {
+  # Files keeps its selection between launches; start clean so only one file is shared.
+  "$ADB" shell am force-stop com.google.android.documentsui
+  "$ADB" shell am start -a android.intent.action.VIEW -t vnd.android.document/root \
+    -d content://com.android.providers.downloads.documents/root/downloads com.google.android.documentsui >/dev/null
+}
+
+step "reset app and fixtures"
+"$ADB" shell pm clear "$APP" >/dev/null
+"$ADB" shell pm grant "$APP" android.permission.POST_NOTIFICATIONS
+"$ADB" reverse "tcp:${METRO_PORT}" "tcp:${METRO_PORT}" >/dev/null
+for fixture in e2e-bill.jpg e2e-ticket.pdf e2e-color-bill.png e2e-boarding-pass.png e2e-wifi-qr.png; do
+  "$ADB" push "$DIR/fixtures/$fixture" "/sdcard/Download/$fixture" >/dev/null
+  "$ADB" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+    -d "file:///sdcard/Download/$fixture" >/dev/null
+done
+"$ADB" shell cmd statusbar collapse >/dev/null
+
+launch_app
+flow 01-onboarding
+
+share_text "Can you send me the updated deck before we speak on Friday?"
+flow 02-share-text-task
+
+share_text "https://www.amazon.in/Sony-WH-1000XM6-Wireless-Headphones/dp/B0CXYZ1234"
+flow 03-share-url-purchase
+
+open_downloads
+flow 04-share-image-bill
+
+open_downloads
+flow 05-share-pdf-ticket
+"$ADB" shell am force-stop com.google.android.calendar
+"$ADB" shell am force-stop com.google.android.documentsui
+launch_app
+
+flow 06-browse-and-search
+flow 07-complete-item
+
+flow 08-queue-reminder
+step "wait for the reminder, then open the notification shade"
+sleep 12
+"$ADB" shell cmd statusbar expand-notifications
+flow 09-notification-done
+
+launch_app
+share_text "Remind me to buy milk tomorrow"
+flow 10-share-cancel
+
+# Real-world layouts: colour, grids, labels above values.
+open_downloads
+flow 11-share-color-bill
+open_downloads
+flow 12-share-boarding-pass
+
+# V1.5 collections.
+share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2026"
+flow 13-share-coupon
+share_text "We are hiring a Software Engineer II at Stripe in Bengaluru. 3+ years of experience. Apply by Dec 10"
+flow 14-share-job
+open_downloads
+flow 15-share-wifi-qr
+
+step "all flows passed"

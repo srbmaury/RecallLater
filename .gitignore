@@ -46,3 +46,11 @@ example
 modules/*/android/build/
 modules/*/android/.cxx/
 modules/*/android/.gradle/
+
+# E2E run output
+e2e/out/
+
+# Secrets (API keys) — never commit
+.env
+.env.*
+!.env.example

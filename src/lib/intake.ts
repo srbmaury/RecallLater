@@ -1,7 +1,7 @@
 import type { SharePayload } from 'expo-sharing';
 
 import RecallNative from '../../modules/recall-native';
-import { attachmentFile, importAttachment } from '@/lib/attachments';
+import { attachmentFile, deleteAttachments, importAttachment } from '@/lib/attachments';
 import type { Barcode, SourceType } from '@/lib/types';
 
 export type Intake = {
@@ -29,6 +29,7 @@ export async function processPayloads(payloads: SharePayload[]): Promise<Intake>
   const warnings: string[] = [];
   const kinds = new Set<Kind>();
 
+  try {
   for (const payload of payloads) {
     const kind = kindOf(payload);
     kinds.add(kind);
@@ -37,29 +38,14 @@ export async function processPayloads(payloads: SharePayload[]): Promise<Intake>
       case 'url':
         texts.push(payload.value.trim());
         break;
-      case 'image': {
-        const name = await importAttachment(payload.value, payload.mimeType);
-        attachments.push(name);
-        const uri = attachmentFile(name).uri;
-        const [ocr, codes] = await Promise.allSettled([
-          RecallNative.recognizeTextAsync(uri),
-          RecallNative.detectBarcodesAsync(uri),
-        ]);
-        if (ocr.status === 'fulfilled') texts.push(ocr.value.text);
-        else warnings.push("Couldn't read text in the image.");
-        if (codes.status === 'fulfilled') barcodes.push(...codes.value);
-        break;
-      }
+      case 'image':
       case 'pdf': {
-        const name = await importAttachment(payload.value, 'application/pdf');
+        const name = await importAttachment(payload.value, kind === 'pdf' ? 'application/pdf' : payload.mimeType);
         attachments.push(name);
-        try {
-          const pdf = await RecallNative.extractPdfTextAsync(attachmentFile(name).uri, MAX_PDF_PAGES);
-          texts.push(pdf.text);
-          if (pdf.pageCount > MAX_PDF_PAGES) warnings.push(`Read the first ${MAX_PDF_PAGES} of ${pdf.pageCount} pages.`);
-        } catch {
-          warnings.push("Couldn't read text in the PDF.");
-        }
+        const read = await readLocalFile(attachmentFile(name).uri, kind);
+        if (read.text) texts.push(read.text);
+        barcodes.push(...read.barcodes);
+        warnings.push(...read.warnings);
         break;
       }
       case 'file':
@@ -77,6 +63,32 @@ export async function processPayloads(payloads: SharePayload[]): Promise<Intake>
     attachments,
     barcodes: dedupe(barcodes),
     warnings,
+  };
+  } catch (error) {
+    deleteAttachments(attachments);
+    throw error;
+  }
+}
+
+/** On-device OCR (and QR decoding) of one local image or PDF. */
+export async function readLocalFile(
+  uri: string,
+  kind: 'image' | 'pdf',
+): Promise<{ text: string; barcodes: Barcode[]; warnings: string[] }> {
+  if (kind === 'pdf') {
+    try {
+      const pdf = await RecallNative.extractPdfTextAsync(uri, MAX_PDF_PAGES);
+      const warnings = pdf.pageCount > MAX_PDF_PAGES ? [`Read the first ${MAX_PDF_PAGES} of ${pdf.pageCount} pages.`] : [];
+      return { text: pdf.text, barcodes: [], warnings };
+    } catch {
+      return { text: '', barcodes: [], warnings: ["Couldn't read text in the PDF."] };
+    }
+  }
+  const [ocr, codes] = await Promise.allSettled([RecallNative.recognizeTextAsync(uri), RecallNative.detectBarcodesAsync(uri)]);
+  return {
+    text: ocr.status === 'fulfilled' ? ocr.value.text : '',
+    barcodes: codes.status === 'fulfilled' ? codes.value : [],
+    warnings: ocr.status === 'fulfilled' ? [] : ["Couldn't read text in the image."],
   };
 }
 

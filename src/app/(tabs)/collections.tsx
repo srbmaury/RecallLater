@@ -7,7 +7,7 @@ import { SectionHeader } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useDbQuery } from '@/hooks/use-db-query';
 import { useTheme } from '@/hooks/use-theme';
-import { countByType } from '@/lib/db/items';
+import { countByType, VIRTUAL_COLLECTIONS, type VirtualCollection } from '@/lib/db/items';
 import { TYPE_META } from '@/lib/format';
 import { ITEM_TYPES } from '@/lib/types';
 
@@ -34,6 +34,9 @@ export default function CollectionsScreen() {
     <TabScreen title="Collections" subtitle="Sorted for you as you share">
       <View style={styles.grid}>
         {ITEM_TYPES.map((type) => tile(type, TYPE_META[type].emoji, TYPE_META[type].collection, counts?.[type] ?? 0))}
+        {(Object.keys(VIRTUAL_COLLECTIONS) as VirtualCollection[]).map((key) =>
+          tile(key, VIRTUAL_COLLECTIONS[key].emoji, VIRTUAL_COLLECTIONS[key].title, counts?.[key] ?? 0),
+        )}
       </View>
       <SectionHeader title="History" />
       <View style={styles.grid}>

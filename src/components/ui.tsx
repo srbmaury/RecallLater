@@ -102,6 +102,67 @@ export function FieldList({ rows }: { rows: { label: string; value: string }[] }
   );
 }
 
+type ChoiceProps = {
+  label: string;
+  detail?: string;
+  selected: boolean;
+  onPress: () => void;
+  disabled?: boolean;
+  /** Strike the label through when checked (to-do style lists). */
+  strikeWhenChecked?: boolean;
+};
+
+/** One option of a mutually exclusive set. */
+export function Radio({ label, detail, selected, onPress, disabled }: Omit<ChoiceProps, 'strikeWhenChecked'>) {
+  const theme = useTheme();
+  const color = disabled ? theme.border : selected ? theme.tint : theme.textSecondary;
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: selected, disabled }}
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [styles.choice, { opacity: pressed ? 0.7 : 1 }]}>
+      <View style={[styles.radio, { borderColor: color }]}>{selected ? <View style={[styles.radioDot, { backgroundColor: color }]} /> : null}</View>
+      <ChoiceText label={label} detail={detail} disabled={disabled} />
+    </Pressable>
+  );
+}
+
+/** An independent on/off option. */
+export function Checkbox({ label, detail, selected, onPress, disabled, strikeWhenChecked }: ChoiceProps) {
+  const theme = useTheme();
+  const color = disabled ? theme.border : selected ? theme.tint : theme.textSecondary;
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected, disabled }}
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [styles.choice, { opacity: pressed ? 0.7 : 1 }]}>
+      <View style={[styles.checkbox, { borderColor: color, backgroundColor: selected ? color : 'transparent' }]}>
+        {selected ? <ThemedText style={[styles.checkmark, { color: theme.onTint }]}>✓</ThemedText> : null}
+      </View>
+      <ChoiceText label={label} detail={detail} disabled={disabled} struck={strikeWhenChecked && selected} />
+    </Pressable>
+  );
+}
+
+function ChoiceText({ label, detail, disabled, struck }: { label: string; detail?: string; disabled?: boolean; struck?: boolean }) {
+  return (
+    <View style={styles.choiceText}>
+      <ThemedText themeColor={disabled ? 'textSecondary' : 'text'} style={struck && styles.struck}>
+        {label}
+      </ThemedText>
+      {detail ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {detail}
+        </ThemedText>
+      ) : null}
+    </View>
+  );
+}
+
 export function EmptyState({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.empty}>
@@ -116,6 +177,48 @@ export function EmptyState({ title, message }: { title: string; message: string 
 }
 
 const styles = StyleSheet.create({
+  choice: {
+    flexDirection: 'row',
+    gap: Spacing.three,
+    paddingVertical: Spacing.two,
+    alignItems: 'flex-start',
+  },
+  choiceText: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkmark: {
+    fontSize: 14,
+    lineHeight: 16,
+    fontWeight: 700,
+  },
+  struck: {
+    textDecorationLine: 'line-through',
+    opacity: 0.6,
+  },
   button: {
     minHeight: 48,
     paddingHorizontal: Spacing.four,

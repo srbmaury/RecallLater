@@ -1,0 +1,24 @@
+appId: com.srbmaury.recalllater
+name: A Wi-Fi QR code image is decoded on-device
+---
+- extendedWaitUntil:
+    visible: e2e-wifi-qr.png
+    timeout: 15000
+- longPressOn: e2e-wifi-qr.png
+- tapOn: Share
+- tapOn: RecallLater
+- extendedWaitUntil:
+    visible: "Wi-Fi: RecallLater-Guest"
+    timeout: 30000
+- assertVisible: sharenow123
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- tapOn:
+    text: "Wi-Fi: RecallLater-Guest"
+    retryTapIfNoChange: true
+- scrollUntilVisible:
+    element: Copy Wi-Fi password
+- tapOn: Copy Wi-Fi password
+- assertVisible: Copied ✓

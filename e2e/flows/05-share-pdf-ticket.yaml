@@ -1,0 +1,40 @@
+appId: com.srbmaury.recalllater
+name: A flight ticket PDF becomes a trip with a calendar action
+---
+- scrollUntilVisible:
+    element: e2e-ticket.pdf
+    direction: DOWN
+- longPressOn: e2e-ticket.pdf
+- tapOn: Share
+- tapOn: RecallLater
+- extendedWaitUntil:
+    visible: DEL → BLR
+    timeout: 30000
+- assertVisible: 6E 6132
+- assertVisible: X7K2QP
+- assertVisible: .*PDF saved privately.*
+- assertNotVisible: Amount
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- tapOn: DEL → BLR
+- scrollUntilVisible:
+    element: Add to calendar…
+# The calendar app opens pre-filled; nothing is written until the user saves there.
+# (On a fresh emulator Google Calendar shows its own welcome screen first.)
+- tapOn: Add to calendar…
+- extendedWaitUntil:
+    visible: .*(DEL → BLR|Google Calendar).*
+    timeout: 15000
+# Leave Calendar without saving the event and return to RecallLater's Inbox for the next flow.
+- stopApp: com.google.android.calendar
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: Add to calendar…
+    timeout: 15000
+- back
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000

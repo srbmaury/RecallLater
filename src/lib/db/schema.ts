@@ -57,12 +57,18 @@ const MIGRATIONS: string[] = [
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+  // secure_delete zero-fills deleted rows, so "delete" really removes the content from disk.
+  // It returns a row, which expo-sqlite's execAsync rejects on Android, hence getFirstAsync.
+  await db.getFirstAsync('PRAGMA secure_delete = ON').catch(console.warn);
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   let version = row?.user_version ?? 0;
   while (version < MIGRATIONS.length) {
-    await db.withExclusiveTransactionAsync(async (tx) => {
-      await tx.execAsync(MIGRATIONS[version]);
-      await tx.execAsync(`PRAGMA user_version = ${version + 1}`);
+    // Not withExclusiveTransactionAsync: that opens and closes a second connection,
+    // and the close aborts natively on Android (expo-sqlite 57).
+    const step = version;
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(MIGRATIONS[step]);
+      await db.execAsync(`PRAGMA user_version = ${step + 1}`);
     });
     version += 1;
   }

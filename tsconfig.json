@@ -12,7 +12,9 @@
     },
     "types": [
       "jest"
-    ]
+    ],
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": [
     "**/*.ts",

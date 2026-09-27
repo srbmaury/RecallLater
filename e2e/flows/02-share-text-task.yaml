@@ -1,0 +1,18 @@
+appId: com.srbmaury.recalllater
+name: A shared message becomes a task with a remind-until-done reminder
+---
+- extendedWaitUntil:
+    visible: Send updated deck
+    timeout: 30000
+- assertVisible: New item
+# "Friday" resolves to the next Friday; the app shows it as Tomorrow, a weekday or "Oct 2"
+# depending on the day the suite runs.
+- assertVisible: "Tomorrow|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|[A-Z][a-z]{2} \\d{1,2}"
+- assertVisible: Until done
+- assertVisible: .*Reminds you daily from.*
+- tapOn: Save
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 10000
+- assertVisible: Send updated deck
+- assertVisible: .*7:00.PM.*

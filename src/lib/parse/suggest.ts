@@ -38,9 +38,18 @@ export function suggestReminder(type: ItemType, fields: ExtractedFields, now: Da
       return fields.startsAt ? beforeDeadline(fields.startsAt, now, 'once') : null;
     case 'receipt':
       return fields.returnBy ? beforeDeadline(fields.returnBy, now, 'once') : null;
+    case 'job':
+      return fields.dueDate ? beforeDeadline(fields.dueDate, now, 'once') : null;
+    case 'coupon':
     case 'purchase':
     case 'generic':
       return fields.expiresOn ? beforeDeadline(fields.expiresOn, now, 'once') : null;
+    case 'place':
+    case 'book':
+    case 'watch':
+    case 'recipe':
+      // Collections to come back to, not deadlines.
+      return null;
   }
 }
 
