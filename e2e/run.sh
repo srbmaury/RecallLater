@@ -20,10 +20,16 @@ step() { printf '\n\033[1m▶ %s\033[0m\n' "$*"; }
 flow() { step "flow $1"; "$MAESTRO" test "$DIR/flows/$1.yaml"; }
 
 launch_app() {
-  "$ADB" shell am start -a android.intent.action.VIEW \
+  # NEW_TASK | CLEAR_TASK: a share from Files can leave the app inside Files' task, which
+  # force-stopping Files takes down; always come back in a task of the app's own.
+  "$ADB" shell am start -f 0x10008000 -a android.intent.action.VIEW \
     -d "recalllater://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A${METRO_PORT}" "$APP" >/dev/null
   # The dev client reloads the JS bundle; a share sent before it's back gets lost.
-  "$MAESTRO" test "$DIR/flows/00-wait-for-app.yaml" >/dev/null
+  # A reload sometimes opens the dev menu on top of the app: close it and wait again.
+  "$MAESTRO" test "$DIR/flows/00-wait-for-app.yaml" >/dev/null || {
+    "$MAESTRO" test "$DIR/flows/00-dismiss-dev-menu.yaml" >/dev/null
+    "$MAESTRO" test "$DIR/flows/00-wait-for-app.yaml"
+  }
 }
 
 share_text() {
@@ -122,5 +128,24 @@ open_downloads
 flow 21-share-hindi-bill
 open_downloads
 flow 22-share-mixed-bill
+
+# Encrypted backup: export with a passphrase, wipe, restore (wrong passphrase first).
+flow 23-encrypted-backup
+"$ADB" exec-out run-as "$APP" sh -c 'cat cache/*.recalllater' > "$DIR/out/backup-encrypted.recalllater"
+grep -q '"sealed"' "$DIR/out/backup-encrypted.recalllater"  # really encrypted
+! grep -q 'Swiggy' "$DIR/out/backup-encrypted.recalllater"  # no readable content
+"$ADB" push "$DIR/out/backup-encrypted.recalllater" /sdcard/Download/RecallLater-encrypted.recalllater >/dev/null
+"$ADB" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+  -d file:///sdcard/Download/RecallLater-encrypted.recalllater >/dev/null
+flow 23b-restore-encrypted
+
+# A brand-new user tries the sample bill from the welcome screen.
+step "reset app for first-run sample"
+"$ADB" shell am force-stop com.google.android.documentsui  # left open by the restore's file picker
+"$ADB" shell pm clear "$APP" >/dev/null
+"$ADB" shell pm grant "$APP" android.permission.POST_NOTIFICATIONS
+launch_app
+"$MAESTRO" test "$DIR/flows/00-dismiss-dev-menu.yaml" >/dev/null  # dev builds introduce their menu after a wipe
+flow 24-sample-bill
 
 step "all flows passed"

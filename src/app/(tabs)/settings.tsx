@@ -4,6 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Linking, StyleSheet } from 'react-native';
 
+import { usePassphraseSheet } from '@/components/passphrase-sheet';
 import { PrivacyPromise } from '@/components/privacy-promise';
 import { TabScreen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -13,6 +14,7 @@ import { canLock, LOCK_SETTING, lockEnabled, unlock } from '@/lib/app-lock';
 import { AI_SETTING, type AiMode, aiModeOf, isAiConfigured } from '@/lib/ai/client';
 import { deleteAllAttachments } from '@/lib/attachments';
 import { exportBackup, importBackup } from '@/lib/backup-file';
+import { describeStats, STATS_SETTING, statsOf } from '@/lib/corrections';
 import { getSetting, setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
 import { DIGEST_SETTING, digestTimeOf } from '@/lib/digest';
@@ -44,7 +46,9 @@ export default function SettingsScreen() {
   const [aiMode, setAiMode] = useState<AiMode>('ask');
   const [digestTime, setDigestTime] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [readingStats, setReadingStats] = useState<string | null>(null);
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
+  const { ask: askPassphrase, element: passphraseSheet } = usePassphraseSheet();
 
   useFocusEffect(
     useCallback(() => {
@@ -53,6 +57,7 @@ export default function SettingsScreen() {
       getSetting(db, AI_SETTING).then((value) => setAiMode(aiModeOf(value)));
       getSetting(db, DIGEST_SETTING).then((value) => setDigestTime(digestTimeOf(value)));
       getSetting(db, LOCK_SETTING).then((value) => setLocked(lockEnabled(value)));
+      getSetting(db, STATS_SETTING).then((value) => setReadingStats(describeStats(statsOf(value))));
     }, [db]),
   );
 
@@ -76,9 +81,11 @@ export default function SettingsScreen() {
   };
 
   const backUp = async () => {
+    const passphrase = await askPassphrase('create');
+    if (passphrase === null) return;
     setBusy('export');
     try {
-      await exportBackup(db);
+      await exportBackup(db, passphrase || null);
     } catch (error) {
       Alert.alert('Backup failed', String(error));
     } finally {
@@ -89,7 +96,7 @@ export default function SettingsScreen() {
   const restore = async () => {
     setBusy('import');
     try {
-      const result = await importBackup(db);
+      const result = await importBackup(db, (error) => askPassphrase('open', error));
       if (!result) return;
       const count = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM items');
       setItemCount(count?.count ?? 0);
@@ -114,6 +121,8 @@ export default function SettingsScreen() {
         onPress: async () => {
           await Notifications.cancelAllScheduledNotificationsAsync();
           await db.execAsync('DELETE FROM reminders; DELETE FROM items;');
+          await db.runAsync('DELETE FROM settings WHERE key = ?', STATS_SETTING);
+          setReadingStats(null);
           // Compact the file and empty the write-ahead log so nothing lingers on disk.
           await db.execAsync('VACUUM; PRAGMA wal_checkpoint(TRUNCATE);');
           deleteAllAttachments();
@@ -214,11 +223,16 @@ export default function SettingsScreen() {
         <ThemedText>
           {itemCount} {itemCount === 1 ? 'item' : 'items'} stored on this device.
         </ThemedText>
+        {readingStats ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            Reading accuracy: {readingStats}. Counted on this phone only.
+          </ThemedText>
+        ) : null}
         <Button label="Back up to a file…" onPress={backUp} loading={busy === 'export'} disabled={!itemCount || busy !== null} />
         <Button label="Restore from a backup…" onPress={restore} loading={busy === 'import'} disabled={busy !== null} />
         <ThemedText type="small" themeColor="textSecondary">
-          A backup holds your items, their files and settings in one file. You choose where it goes. It isn’t
-          encrypted, so keep it somewhere private.
+          A backup holds your items, their files and settings in one file. You choose where it goes. Add a
+          passphrase to encrypt it; without one, keep the file somewhere private.
         </ThemedText>
         <Button label="Delete all data" variant="danger" onPress={deleteEverything} disabled={!itemCount} />
       </Card>
@@ -239,6 +253,7 @@ export default function SettingsScreen() {
         </>
       ) : null}
 
+      {passphraseSheet}
       <ThemedText type="small" themeColor="textSecondary" style={styles.version}>
         RecallLater {Constants.expoConfig?.version}
       </ThemedText>

@@ -1,6 +1,7 @@
 import type { ExtractedFields, Ingredient } from '@/lib/types';
 
 import { labelledValue } from './layout';
+import { ENGAGEMENT, HANDLE, NAMED_IN_CAPTION } from './social';
 import { hostOf } from './url';
 
 /**
@@ -39,11 +40,22 @@ export function extractJob(text: string, urls: string[]): DomainResult {
   const adjacentCompany = lineAfterRole && !/\b(?:full[- ]time|part[- ]time|remote|hybrid|on[- ]site|years? of experience)\b/i.test(lineAfterRole)
     ? lineAfterRole.split(/\s*[·|•,-]\s*/)[0].trim()
     : undefined;
+  // A job card's header: "Nimbus Labs" on its own line above "Software Engineer II",
+  // possibly with an "Engineering careers" line in between.
+  const header = lines
+    .slice(Math.max(0, roleIndex - 2), Math.max(0, roleIndex))
+    .reverse()
+    .find((line) => !/hiring|careers?|jobs?\b|openings?/i.test(line));
+  const headerCompany =
+    header && /^[A-Z][\w&.'-]*(?:\s[A-Z][\w&.'-]*){0,3}$/.test(header) && !ROLE.test(header)
+      ? header === header.toUpperCase() ? titleCase(header.toLowerCase()) : header
+      : undefined;
   fields.company ??=
     labelledValue(text, ['company', 'employer', 'organization', 'organisation']) ??
     text.match(/\b(?:company|organisation|organization|employer)\s*[:\-]\s*([A-Z][\w&.\- ]{1,40})/)?.[1].trim() ??
     text.match(/\bcompany\s*\n\s*([A-Z][\w&.\- ]{1,40})/i)?.[1].trim() ??
     adjacentCompany ??
+    headerCompany ??
     text.match(/\bat\s+([A-Z][\w&.\-]+(?:\s[A-Z][\w&.\-]+){0,2})\b/)?.[1] ??
     // "Stripe · Bengaluru (Hybrid)": the line under the role, before a separator.
     text.split('\n').find((line, i, lines) => i > 0 && lines[i - 1] === roleLine && /[·|•,-]/.test(line))?.split(/\s*[·|•,-]\s*/)[0].trim() ??
@@ -95,7 +107,7 @@ export function extractCoupon(text: string): DomainResult {
 
 const DESTINATION = /\b(beach(?:es)?|fort|temple|lake|trek|waterfalls?|falls|museum|island|valley|hills?|national park|sanctuary|palace|backwaters|viewpoint|sunset point|monastery)\b/i;
 const EATERY = /\b(restaurant|cafe|café|bistro|bar|brewery|pub|bakery|dhaba|eatery|diner|kitchen|cuisine|menu|must try|brunch|dessert|biryani|thali|dine|dining)\b/i;
-const ADDRESS_LINE = /\b(road|rd\.?|street|st\.|lane|marg|nagar|layout|colony|sector|block|main|cross|circle|phase|stage)\b.*|\b\d{6}\b/i;
+const ADDRESS_LINE = /\b(road|rd\.?|street|st\.|lane|marg|nagar|layout|colony|sector|block|main|cross|circle|phase|stage)\b.*|(?<![\w-])\d{6}(?![\w-])/i;
 const MAPS_URL = /google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps|maps\.apple\.com/i;
 
 export function extractPlace(text: string, urls: string[]): DomainResult {
@@ -106,8 +118,9 @@ export function extractPlace(text: string, urls: string[]): DomainResult {
 
   const mapsPlace = urls.map((u) => u.match(/\/maps\/place\/([^/@?]+)/)?.[1]).find(Boolean);
   let title = labelledValue(text, ['restaurant', 'place name']) ?? (mapsPlace ? safeDecode(mapsPlace.replace(/\+/g, ' ')) : undefined);
+  title ??= text.match(NAMED_IN_CAPTION)?.[1].trim();
   // "Gokarna: hidden beaches…" / "Gokarna — hidden beaches…": the name before the dash or colon.
-  title ??= lines.find((l) => !/^https?:/i.test(l) && l !== fields.address && !/^(?:shared location|instagram|facebook|tiktok|youtube|open in maps|save this|source\b)/i.test(l))
+  title ??= lines.find((l) => !/^https?:/i.test(l) && l !== fields.address && !HANDLE.test(l) && !ENGAGEMENT.test(l) && !/^(?:shared location|instagram|facebook|tiktok|youtube|open in maps|save this|source\b)/i.test(l))
     ?.split(/\s[—–-]\s|:\s/)[0].trim();
   return { fields: compact(fields), title: title && title.length <= 60 ? title : undefined };
 }
@@ -120,14 +133,17 @@ export function isMapsUrl(url: string): boolean {
 
 export function extractBook(text: string): DomainResult {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-  const byLine = lines.find((l) => /\sby\s+[A-Z]/.test(l));
+  // "Recommended by TechShelf" names who suggested it, not who wrote it.
+  const byLine = lines.find(
+    (l) => /\sby\s+[A-Z]/.test(l) && !/^(?:recommended|curated|reviewed|picked|published|narrated|translated|illustrated|shared)\b/i.test(l),
+  );
   const match = byLine?.match(/^(.{2,80}?)\s+by\s+([A-Z][\w.'-]+(?:\s[A-Z][\w.'-]+){0,3})/);
   if (match) return { fields: compact({ author: match[2] }), title: match[1].trim() };
-  const author = lines.at(-1);
-  const titleLines = lines.slice(0, -1);
-  if (author && /^[A-Z][a-z]+(?:[-'][A-Z]?[a-z]+)?\s+[A-Z][a-z]+(?:[-'][A-Z]?[a-z]+)?$/.test(author) &&
-      titleLines.length >= 1 && titleLines.length <= 3 && titleLines.every((line) => /^[A-Z0-9][A-Z0-9’'&,: -]*$/.test(line))) {
-    return { fields: { author }, title: titleCase(titleLines.join(' ').toLowerCase()) };
+  // A cover: the title in capitals over one to three lines, then the author's name.
+  const authorIndex = lines.findIndex((line) => /^[A-Z][a-z]+(?:[-'][A-Z]?[a-z]+)?\s+[A-Z][a-z]+(?:[-'][A-Z]?[a-z]+)?$/.test(line));
+  const titleLines = lines.slice(0, Math.max(0, authorIndex));
+  if (titleLines.length >= 1 && titleLines.length <= 3 && titleLines.every((line) => /^[A-Z0-9][A-Z0-9’'&,: -]*$/.test(line))) {
+    return { fields: { author: lines[authorIndex] }, title: titleCase(titleLines.join(' ').toLowerCase()) };
   }
   return { fields: {} };
 }
@@ -168,7 +184,7 @@ const UNIT = /\b(g|gm|grams?|kg|ml|l|litres?|cups?|tbsp|tsp|teaspoons?|tablespoo
 
 export function extractRecipe(text: string): DomainResult {
   const lines = text.split('\n').map((l) => l.trim());
-  const metricsIndex = lines.findIndex((line) => /\b\d+\s*min\b/i.test(line) && /\b(?:serves?|easy|medium|hard)\b/i.test(line));
+  const metricsIndex = lines.findIndex((line) => /\b\d+\s*min\b/i.test(line) && /\b(?:serves?|servings?|easy|medium|hard)\b/i.test(line));
   const title = labelledValue(text, ['dish', 'recipe name']) ?? (metricsIndex > 0 ? lines[metricsIndex - 1] : undefined);
   const start = lines.findIndex((l) => /^ingredients\b/i.test(l));
   const labelledIngredients = labelledValue(text, 'ingredients');

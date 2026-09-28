@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.20",
+    "@noble/hashes": "^2.4.0",
     "@react-native-community/datetimepicker": "9.1.0",
     "expo": "~57.0.25",
+    "expo-asset": "~57.0.18",
     "expo-calendar": "~57.0.5",
     "expo-clipboard": "~57.0.2",
     "expo-constants": "~57.0.19",
@@ -59,6 +61,9 @@
       "/node_modules/",
       "/android/",
       "/ios/"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(\\.pnpm|react-native|@react-native|@react-native-community|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@noble/.*))"
     ]
   },
   "main": "index.ts"

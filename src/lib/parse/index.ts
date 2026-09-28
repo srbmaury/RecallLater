@@ -18,7 +18,7 @@ import { findEntities } from './entities';
 import { pairLabelledCells } from './layout';
 import { findRepeat } from './repeat';
 import { normalizeOcr } from './normalize';
-import { findAmounts, findBarePrice, primaryAmount } from './money';
+import { type AmountMatch, findAmounts, findBarePrice, primaryAmount } from './money';
 import { type CalendarSuggestion, type ReminderSuggestion, suggestCalendar, suggestReminder } from './suggest';
 import { buildTitle } from './title';
 
@@ -41,7 +41,12 @@ export type Analysis = {
   keyDate?: LocalDateTime;
   reminder: ReminderSuggestion | null;
   calendar: CalendarSuggestion | null;
+  /** Fields picked from several candidates without a label to go on: worth a second look. */
+  unsure: UnsureField[];
 };
+
+export type UnsureField = 'amount' | 'dueDate' | 'startsAt' | 'expiresOn' | 'returnBy';
+const DATE_FIELDS_TO_CHECK = ['dueDate', 'startsAt', 'expiresOn', 'returnBy'] as const;
 
 /**
  * Deterministic understanding of a shared item: no network, no model. Anything it
@@ -107,7 +112,21 @@ export function analyze({ text, barcodes = [], now = new Date(), type: forcedTyp
     keyDate,
     reminder: suggestReminder(type, fields, now),
     calendar: suggestCalendar(type, title, fields),
+    unsure: unsureFields(fields, dates, amounts, amount),
   };
+}
+
+function unsureFields(fields: ExtractedFields, dates: DateMatch[], amounts: AmountMatch[], chosen: AmountMatch | undefined): UnsureField[] {
+  const unsure: UnsureField[] = [];
+  const distinctAmounts = new Set(amounts.map((a) => a.amount)).size;
+  if (fields.amount !== undefined && chosen && !chosen.labelled && distinctAmounts > 1) unsure.push('amount');
+  const distinctDates = new Set(dates.map((d) => d.date)).size;
+  for (const key of DATE_FIELDS_TO_CHECK) {
+    const value = fields[key];
+    const source = value && dates.find((d) => d.date === value.slice(0, 10));
+    if (source && source.label === 'none' && distinctDates > 1) unsure.push(key);
+  }
+  return unsure;
 }
 
 function extractDomain(type: ItemType, text: string, urls: string[]): DomainResult {
@@ -134,6 +153,8 @@ export function keyDateOf(fields: ExtractedFields): LocalDateTime | undefined {
   return fields.dueDate ?? fields.startsAt ?? fields.returnBy ?? fields.expiresOn;
 }
 
+const DAY_MS = 86_400_000;
+
 function pickDates(
   type: ItemType,
   dates: DateMatch[],
@@ -146,7 +167,10 @@ function pickDates(
   const labelled = (label: DateLabel) => dates.find((d) => d.label === label);
   const unlabelledUpcoming = upcoming.find((d) => d.label === 'none' || d.label === 'due');
 
-  const purchasedOn = labelled('purchase');
+  // On a receipt a plain "Date" (or no label at all) is when it was bought.
+  const purchasedOn =
+    labelled('purchase') ??
+    (type === 'receipt' ? dates.find((d) => d.label === 'none' && parseLocalDateTime(d.date).getTime() < today.getTime() + DAY_MS) : undefined);
   const returnBy =
     labelled('return') ??
     (returnWindowDays && { date: toDateKey(addDays(purchasedOn ? parseLocalDateTime(purchasedOn.date) : today, returnWindowDays)) });
@@ -175,6 +199,13 @@ function pickDates(
       // Coupons print one date, and it is almost always the expiry.
       const expiry = labelled('expiry') ?? upcoming.find((d) => d.label !== 'purchase');
       result.expiresOn = expiry && toLocal(expiry);
+      break;
+    }
+    case 'place': {
+      // A table booking has a date and time; a saved café or trip idea doesn't.
+      if (!/\breserv|\bbooking\b|\btable (?:confirmed|booked|reserved|for)\b/i.test(text)) break;
+      const booked = upcoming.find((d) => d.time) ?? upcoming[0];
+      result.startsAt = booked && toLocal(withLabelledTime(booked, text, START_TIME));
       break;
     }
     case 'event': {

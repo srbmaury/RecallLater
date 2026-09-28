@@ -47,7 +47,7 @@ const LABEL_PATTERNS: [DateLabel, RegExp][] = [
   ['due', /\bdue\b|pay by|payable by|last date|deadline|before|submit by|\bby\s*$/g],
   ['departure', /depart|\bdep\b|journey|boarding|travel date|flight date|check-?\s?in|scheduled/g],
   ['arrival', /arriv|\barr\b|check-?\s?out/g],
-  ['purchase', /invoice|order(?:ed)?\s*(?:date|on)|bill(?:ing)? date|statement date|issue date|purchase|dated|transaction|txn|paid on|placed on/g],
+  ['purchase', /invoice\s*(?:date|dt\b|dated|no\.?\s*\S+\s+dated)|invoiced on|order(?:ed)?\s*(?:date|on)|bill(?:ing)? date|statement date|issue date|purchase|dated|transaction|txn|paid on|placed on/g],
 ];
 
 /**

@@ -1,7 +1,6 @@
 appId: com.srbmaury.recalllater
-name: Settings exports a backup through the share sheet
+name: A passphrase-protected backup restores only with the right passphrase
 ---
-# Flow 18 ends on an item screen; go back to the tabs.
 - repeat:
     while:
       notVisible: Collections
@@ -12,9 +11,12 @@ name: Settings exports a backup through the share sheet
 - scrollUntilVisible:
     element: Back up to a file…
 - tapOn: Back up to a file…
-# Flow 20 restores this file as-is; the encrypted path is covered in flow 23.
-- tapOn: Save without a passphrase
+- tapOn: Passphrase
+- inputText: recall later 2026
+- tapOn: Passphrase again
+- inputText: recall later 2026
+- tapOn: Encrypt and save
 - extendedWaitUntil:
     visible: .*(Share|Save your backup).*
-    timeout: 15000
+    timeout: 20000
 - back

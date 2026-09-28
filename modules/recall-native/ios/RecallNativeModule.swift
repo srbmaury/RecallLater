@@ -1,3 +1,4 @@
+import CommonCrypto
 import ExpoModulesCore
 import PDFKit
 import UIKit
@@ -11,6 +12,26 @@ public class RecallNativeModule: Module {
       let url = try fileURL(uri)
       let lines = try await recognizeLines(VNImageRequestHandler(url: url))
       return ["text": lines.joined(separator: "\n"), "lines": lines]
+    }
+
+    // PBKDF2-HMAC-SHA256 for backup passphrases (UTF-8 passphrase, 32-byte key).
+    AsyncFunction("deriveKeyAsync") { (passphrase: String, salt: String, iterations: Int) throws -> String in
+      guard let saltData = Data(base64Encoded: salt) else { throw KeyDerivationException() }
+      let password = Array(passphrase.utf8)
+      var derived = [UInt8](repeating: 0, count: 32)
+      let status = saltData.withUnsafeBytes { saltBytes in
+        password.withUnsafeBufferPointer { passwordBytes in
+          CCKeyDerivationPBKDF(
+            CCPBKDFAlgorithm(kCCPBKDF2),
+            UnsafeRawPointer(passwordBytes.baseAddress!).assumingMemoryBound(to: Int8.self), password.count,
+            saltBytes.bindMemory(to: UInt8.self).baseAddress, saltData.count,
+            CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256), UInt32(iterations),
+            &derived, derived.count
+          )
+        }
+      }
+      guard status == kCCSuccess else { throw KeyDerivationException() }
+      return Data(derived).base64EncodedString()
     }
 
     AsyncFunction("extractPdfTextAsync") { (uri: String, maxPages: Int) async throws -> [String: Any] in
@@ -152,6 +173,12 @@ private func fileURL(_ uri: String) throws -> URL {
 private class InvalidUriException: GenericException<String> {
   override var reason: String {
     "Expected a local file URI, got '\(param)'"
+  }
+}
+
+private class KeyDerivationException: Exception {
+  override var reason: String {
+    "Could not derive the backup key"
   }
 }
 

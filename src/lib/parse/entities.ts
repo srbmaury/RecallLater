@@ -36,7 +36,10 @@ const RETURN_WINDOW = /\breturn(?:able)?\s*(?:window\s*(?:of)?|within|in|policy[
 
 export function findEntities(text: string): Entities {
   const route = text.match(ROUTE) ?? text.match(ROUTE_LABELLED) ?? text.match(ROUTE_CELLS);
-  const coupon = text.match(COUPON)?.[1];
+  // No "use code" label: an offer with a code on its own line ("200 OFF … DINNER200").
+  const coupon =
+    text.match(COUPON)?.[1] ??
+    (/\b\d[\d,]*\s?%?\s*off\b/i.test(text) ? text.match(/^([A-Z]{3,12}\d{2,4})$/m)?.[1] : undefined);
   const flight = text.match(FLIGHT);
   const returnWindow = text.match(RETURN_WINDOW)?.[1];
 

@@ -1,0 +1,36 @@
+appId: com.srbmaury.recalllater
+name: Restoring the encrypted backup asks for its passphrase
+---
+- scrollUntilVisible:
+    element: Delete all data
+- tapOn: Delete all data
+- tapOn: DELETE
+- extendedWaitUntil:
+    visible: Today
+    timeout: 10000
+- tapOn: Settings
+- scrollUntilVisible:
+    element: 0 items stored on this device.
+- tapOn: Restore from a backup…
+- tapOn:
+    id: com.google.android.documentsui:id/option_menu_search
+- inputText: RecallLater-encrypted
+- pressKey: Enter
+- tapOn: RecallLater-encrypted.recalllater
+- extendedWaitUntil:
+    visible: Enter the backup’s passphrase
+    timeout: 15000
+- tapOn: Passphrase
+- inputText: wrong passphrase
+- tapOn: Open backup
+- extendedWaitUntil:
+    visible: That passphrase doesn’t open this backup.
+    timeout: 20000
+- tapOn: Passphrase
+- inputText: recall later 2026
+- tapOn: Open backup
+- extendedWaitUntil:
+    visible: Restored
+    timeout: 30000
+- assertVisible: .*items added\.
+- tapOn: OK

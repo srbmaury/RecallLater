@@ -5,6 +5,7 @@ import { shareAsync } from 'expo-sharing';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { attachmentFile } from '@/lib/attachments';
+import { isSealed, openBackup, sealBackup, WrongPassphraseError } from '@/lib/backup-crypto';
 import { BACKUP_EXTENSION, buildBackup, itemsToRestore, parseBackup, resumeReminderAt } from '@/lib/backup';
 import { toDateKey } from '@/lib/dates';
 import { getItem, insertRestoredItem, listAllItems, listSettings, setSetting } from '@/lib/db/items';
@@ -14,7 +15,7 @@ import { refreshSummaries, scheduleReminders } from '@/lib/reminders';
  * Writes everything to one file and opens the share sheet, so the person decides where
  * it goes (Files, a USB drive, their own cloud). Nothing is uploaded by the app.
  */
-export async function exportBackup(db: SQLiteDatabase, now = new Date()): Promise<void> {
+export async function exportBackup(db: SQLiteDatabase, passphrase: string | null, now = new Date()): Promise<void> {
   const items = await listAllItems(db);
   const files: Record<string, string> = {};
   for (const name of items.flatMap((item) => item.attachments)) {
@@ -29,19 +30,42 @@ export async function exportBackup(db: SQLiteDatabase, now = new Date()): Promis
   }
   const file = new File(Paths.cache, `RecallLater-${toDateKey(now)}${BACKUP_EXTENSION}`);
   file.create({ overwrite: true });
-  file.write(JSON.stringify(backup));
+  const json = JSON.stringify(backup);
+  file.write(passphrase ? await sealBackup(json, passphrase) : json);
   await shareAsync(file.uri, { mimeType: 'application/octet-stream', dialogTitle: 'Save your backup' });
 }
 
 export type RestoreResult = { added: number; skipped: number };
 
-/** Lets the person pick a backup and merges it in. Returns null if they cancelled. */
-export async function importBackup(db: SQLiteDatabase, now = new Date()): Promise<RestoreResult | null> {
+/**
+ * Lets the person pick a backup and merges it in. `askPassphrase` is called for an
+ * encrypted file (again, with the reason, after a wrong guess). Returns null if they cancelled.
+ */
+export async function importBackup(
+  db: SQLiteDatabase,
+  askPassphrase: (error?: string) => Promise<string | null>,
+  now = new Date(),
+): Promise<RestoreResult | null> {
   const picked = await getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
   if (picked.canceled) return null;
   const source = new File(picked.assets[0].uri);
   try {
-    const backup = parseBackup(await source.text());
+    let text = await source.text();
+    if (isSealed(text)) {
+      let error: string | undefined;
+      for (;;) {
+        const passphrase = await askPassphrase(error);
+        if (!passphrase) return null;
+        try {
+          text = await openBackup(text, passphrase);
+          break;
+        } catch (failure) {
+          if (!(failure instanceof WrongPassphraseError)) throw failure;
+          error = failure.message;
+        }
+      }
+    }
+    const backup = parseBackup(text);
     const toAdd = itemsToRestore(backup, await listAllItems(db));
 
     await db.withTransactionAsync(async () => {

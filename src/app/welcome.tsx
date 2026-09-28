@@ -1,3 +1,4 @@
+import { Asset } from 'expo-asset';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +10,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
+import { setPendingPayloads } from '@/lib/pending';
 
 const STEPS = [
   'See something important: a bill, ticket, message or product.',
@@ -23,6 +25,15 @@ export default function WelcomeScreen() {
   const start = async () => {
     await setSetting(db, 'welcomed', new Date().toISOString());
     router.back();
+  };
+
+  // Shows the whole loop on a bundled bill, read on this phone like any shared screenshot.
+  const trySample = async () => {
+    const [asset] = await Asset.loadAsync(require('@/assets/images/sample-bill.png'));
+    await start();
+    if (!asset.localUri) return;
+    setPendingPayloads([{ value: asset.localUri, shareType: 'image', mimeType: 'image/png' }]);
+    router.push({ pathname: '/share', params: { source: 'sample', at: String(Date.now()) } });
   };
 
   return (
@@ -50,7 +61,8 @@ export default function WelcomeScreen() {
         </Card>
       </ScrollView>
       <View style={styles.footer}>
-        <Button label="Get started" variant="primary" onPress={start} />
+        <Button label="Try it with a sample bill" variant="primary" onPress={() => trySample().catch(console.warn)} />
+        <Button label="Get started" onPress={start} />
       </View>
     </SafeAreaView>
   );
@@ -74,5 +86,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: Spacing.four,
+    gap: Spacing.two,
   },
 });

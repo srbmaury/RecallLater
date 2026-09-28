@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.util.Base64
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
@@ -13,6 +14,8 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import expo.modules.kotlin.exception.CodedException
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
@@ -42,6 +45,19 @@ class RecallNativeModule : Module() {
 
     AsyncFunction("extractPdfTextAsync") Coroutine { uri: String, maxPages: Int ->
       extractPdfText(Uri.parse(uri), maxPages)
+    }
+
+    // PBKDF2-HMAC-SHA256 for backup passphrases: native is ~100x faster than JS on Hermes.
+    // Java encodes the passphrase as UTF-8, matching the JS fallback, so files open anywhere.
+    AsyncFunction("deriveKeyAsync") Coroutine { passphrase: String, salt: String, iterations: Int ->
+      withContext(Dispatchers.Default) {
+        val spec = PBEKeySpec(passphrase.toCharArray(), Base64.decode(salt, Base64.NO_WRAP), iterations, 256)
+        try {
+          Base64.encodeToString(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded, Base64.NO_WRAP)
+        } finally {
+          spec.clearPassword()
+        }
+      }
     }
 
     // Android backup is disabled for the whole app (allowBackup="false"), so nothing to do.

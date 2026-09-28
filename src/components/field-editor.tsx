@@ -8,6 +8,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { addDays, atTime, formatLocalDateTime, hasTime, parseLocalDateTime, toLocalDateTime } from '@/lib/dates';
 import { fieldRows } from '@/lib/format';
+import type { UnsureField } from '@/lib/parse';
 import type { ExtractedFields, ItemType } from '@/lib/types';
 
 type DateKey = 'dueDate' | 'startsAt' | 'purchasedOn' | 'returnBy' | 'expiresOn' | 'warrantyUntil';
@@ -47,10 +48,13 @@ export function FieldEditor({
   type,
   fields,
   onChange,
+  unsure = [],
 }: {
   type: ItemType;
   fields: ExtractedFields;
   onChange: (fields: ExtractedFields) => void;
+  /** Fields the parser guessed between candidates; marked "Check" until edited. */
+  unsure?: UnsureField[];
 }) {
   const { pick, element } = useDateTimePicker();
   const editable = EDITABLE[type];
@@ -86,6 +90,7 @@ export function FieldEditor({
         key === 'amount' ? (
           <AmountRow
             key={key}
+            check={unsure.includes('amount')}
             amount={fields.amount}
             currency={fields.currency ?? 'INR'}
             onChange={(amount) =>
@@ -95,6 +100,7 @@ export function FieldEditor({
         ) : (
           <EditableRow
             key={key}
+            check={(unsure as string[]).includes(key)}
             label={DATE_FIELDS[key].label}
             value={fields[key] ? formatLocalDateTime(fields[key]!) : undefined}
             placeholder={`Add ${DATE_FIELDS[key].label.toLowerCase()} date`}
@@ -115,7 +121,9 @@ function EditableRow({
   placeholder,
   onPress,
   onClear,
+  check,
 }: {
+  check?: boolean;
   label: string;
   value?: string;
   placeholder: string;
@@ -125,12 +133,10 @@ function EditableRow({
   const theme = useTheme();
   return (
     <View style={styles.row}>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.label}>
-        {label}
-      </ThemedText>
+      <RowLabel label={label} check={check} />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value ?? 'not set'}. Change`}
+        accessibilityLabel={`${label}: ${value ?? 'not set'}.${check ? ' Please check.' : ''} Change`}
         onPress={onPress}
         style={styles.value}>
         <ThemedText type="smallBold" style={{ color: value ? theme.text : theme.tint }}>
@@ -151,7 +157,9 @@ function AmountRow({
   amount,
   currency,
   onChange,
+  check,
 }: {
+  check?: boolean;
   amount?: number;
   currency: string;
   onChange: (amount: number | undefined) => void;
@@ -164,9 +172,7 @@ function AmountRow({
   };
   return (
     <View style={styles.row}>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.label}>
-        Amount
-      </ThemedText>
+      <RowLabel label="Amount" check={check} />
       <ThemedText type="smallBold">{currencySymbol(currency)}</ThemedText>
       <TextInput
         value={text}
@@ -175,9 +181,26 @@ function AmountRow({
         keyboardType="decimal-pad"
         placeholder="Add amount"
         placeholderTextColor={theme.tint}
-        accessibilityLabel="Amount"
+        accessibilityLabel={check ? 'Amount. Please check.' : 'Amount'}
         style={[styles.value, styles.amountInput, { color: theme.text, marginLeft: -Spacing.two }]}
       />
+    </View>
+  );
+}
+
+/** The field's name, with an amber "Check" under it when the value was a guess. */
+function RowLabel({ label, check }: { label: string; check?: boolean }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.label}>
+      <ThemedText type="small" themeColor="textSecondary">
+        {label}
+      </ThemedText>
+      {check ? (
+        <ThemedText type="small" style={{ color: theme.warning }}>
+          Check
+        </ThemedText>
+      ) : null}
     </View>
   );
 }

@@ -19,12 +19,13 @@ import { type AiExtraction, mergeWithAi } from '@/lib/ai/merge';
 import { textForAi } from '@/lib/ai/redact';
 import { addToCalendar } from '@/lib/calendar';
 import { formatDay, parseLocalDateTime } from '@/lib/dates';
-import { findDuplicate, getItem, getSetting, insertItem, setSetting, updateItem } from '@/lib/db/items';
+import { findDuplicate, getItem, getSetting, insertItem, listDueOn, setSetting, updateItem } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
 import { TYPE_META } from '@/lib/format';
 import { type Intake, processPayloads } from '@/lib/intake';
+import { recordCorrections } from '@/lib/corrections';
 import { clearPendingPayloads, getPendingPayloads } from '@/lib/pending';
-import { analyze, keyDateOf, type ReminderSuggestion } from '@/lib/parse';
+import { type Analysis, analyze, keyDateOf, type ReminderSuggestion } from '@/lib/parse';
 import { suggestCalendar, suggestReminder } from '@/lib/parse/suggest';
 import { ensureNotificationPermission, refreshSummaries, scheduleReminders } from '@/lib/reminders';
 import { type ExtractedFields, type Item, ITEM_TYPES, type ItemType } from '@/lib/types';
@@ -37,9 +38,9 @@ function savedWhen(createdAt: number): string {
 export default function ShareScreen() {
   const { at, source } = useLocalSearchParams<{ at?: string; source?: string }>();
   const key = at ?? 'initial';
-  // Items from the ＋ Add sheet arrive in the same shape as OS shares.
+  // Items from the ＋ Add sheet and the welcome screen's sample arrive in the same shape as OS shares.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read the payloads for every new share
-  const payloads = useMemo(() => (source === 'add' ? getPendingPayloads() : getSharedPayloads()), [key]);
+  const payloads = useMemo(() => (source === 'add' || source === 'sample' ? getPendingPayloads() : getSharedPayloads()), [key]);
   const [result, setResult] = useState<{ key: string; intake: Intake | null } | null>(null);
   // Processing copies files, so it must run once per share (not per effect re-run).
   const processedFor = useRef<string | null>(null);
@@ -77,10 +78,10 @@ export default function ShareScreen() {
       </View>
     );
   }
-  return <Review key={key} intake={result.intake} />;
+  return <Review key={key} intake={result.intake} sample={source === 'sample'} />;
 }
 
-function Review({ intake }: { intake: Intake }) {
+function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
   const db = useDatabase();
   const theme = useTheme();
   const [now] = useState(() => new Date());
@@ -100,19 +101,39 @@ function Review({ intake }: { intake: Intake }) {
   const fields = fieldEdits ?? analysis.fields;
   const suggestion = fieldEdits ? suggestReminder(type, fields, now) : analysis.reminder;
   const calendar = fieldEdits ? suggestCalendar(type, title.trim() || analysis.title, fields) : analysis.calendar;
+  // Other things already due that day, so a busy day is visible before saving.
+  const keyDate = keyDateOf(fields);
+  const [sameDay, setSameDay] = useState<{ date: string; titles: string[] } | null>(null);
+  useEffect(() => {
+    if (!keyDate) return;
+    let current = true;
+    listDueOn(db, parseLocalDateTime(keyDate)).then(
+      (titles) => current && setSameDay({ date: keyDate, titles }),
+      console.warn,
+    );
+    return () => {
+      current = false;
+    };
+  }, [db, keyDate]);
+  const alsoDue = keyDate && sameDay?.date === keyDate ? sameDay.titles : [];
   const [saving, setSaving] = useState(false);
   const [showText, setShowText] = useState(false);
 
   // AI understanding (opt-in). `before` lets the user undo what the AI changed.
   type Snapshot = { type: ItemType; title: string; fieldEdits: ExtractedFields | null; reminder: ReminderChoice };
+  const [aiReading, setAiReading] = useState<Analysis | null>(null);
   const [ai, setAi] = useState<{ status: 'idle' | 'asking' | 'applied' | 'failed'; before?: Snapshot }>({ status: 'idle' });
   const [aiMode, setAiMode] = useState<AiMode | null>(null);
   const aiAlways = aiMode === 'always';
   const autoAsked = useRef(false);
   const canAskAi = isAiConfigured() && intake.text.trim() !== '';
+  // Guessed fields stay marked until the user changes them.
+  const reading = aiReading ?? analysis;
+  const unsureFields = reading.unsure.filter((key) => fields[key] === reading.fields[key]);
 
   const applyAi = (extraction: AiExtraction) => {
     const merged = mergeWithAi({ text: intake.text, barcodes: intake.barcodes, now }, extraction);
+    setAiReading(merged);
     setAi({ status: 'applied', before: { type, title, fieldEdits, reminder } });
     setType(merged.type);
     setFieldEdits(merged.fields);
@@ -127,6 +148,7 @@ function Review({ intake }: { intake: Intake }) {
     setTitle(before.title);
     setFieldEdits(before.fieldEdits);
     setReminder(before.reminder);
+    setAiReading(null);
     setAi({ status: 'idle' });
   };
 
@@ -244,6 +266,7 @@ function Review({ intake }: { intake: Intake }) {
         }
         else Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
       }
+      recordCorrections(db, reading, { type, title: candidate.title, fields }).catch(console.warn);
       refreshSummaries(db).catch(console.warn);
       clearIncoming();
       router.replace('/inbox');
@@ -310,6 +333,11 @@ function Review({ intake }: { intake: Intake }) {
         ) : null}
         {pdf ? <ThemedText themeColor="textSecondary">📄 PDF saved privately on this device</ThemedText> : null}
 
+        {sample ? (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
+            This is a sample bill, read on your phone just now. Discard it when you’re done, or save it to see a reminder.
+          </ThemedText>
+        ) : null}
         <SectionHeader title="We found" />
         <Card>
           <View style={styles.titleRow}>
@@ -325,7 +353,7 @@ function Review({ intake }: { intake: Intake }) {
               accessibilityLabel="Title"
             />
           </View>
-          <FieldEditor key={type} type={type} fields={fields} onChange={changeFields} />
+          <FieldEditor key={type} type={type} fields={fields} onChange={changeFields} unsure={unsureFields} />
         </Card>
 
         {ai.status === 'asking' || (aiAlways && canAskAi && ai.status === 'idle' && !ai.before) ? (
@@ -365,6 +393,11 @@ function Review({ intake }: { intake: Intake }) {
 
         <SectionHeader title="Remind me" />
         <ReminderPicker value={reminder} onChange={changeReminder} suggestion={suggestion} />
+        {alsoDue.length ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            Also due {formatDay(parseLocalDateTime(keyDate!)).replace(/^(Today|Tomorrow)$/, (d) => d.toLowerCase())}: {alsoDue.join(', ')}
+          </ThemedText>
+        ) : null}
         <RepeatPicker fields={fields} onChange={changeFields} />
 
         {calendar ? (

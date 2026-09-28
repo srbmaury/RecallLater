@@ -85,7 +85,8 @@ export function mergeWithAi(input: AnalyzeInput, ai: AiExtraction): Analysis {
     : proposedType === 'generic' && rules.type !== 'generic' ? rules.type : proposedType;
   const typed = type === rules.type ? rules : analyze({ ...input, type });
 
-  const fields: ExtractedFields = { ...typed.fields, ...fieldsFromAi(ai, input.text) };
+  const fromAi = fieldsFromAi(ai, input.text);
+  const fields: ExtractedFields = { ...typed.fields, ...fromAi };
   if ((typed.fields.ingredients?.length ?? 0) > (fields.ingredients?.length ?? 0)) {
     fields.ingredients = typed.fields.ingredients;
   }
@@ -112,6 +113,8 @@ export function mergeWithAi(input: AnalyzeInput, ai: AiExtraction): Analysis {
     keyDate: keyDateOf(fields),
     reminder: suggestReminder(type, fields, now),
     calendar: suggestCalendar(type, title, fields),
+    // Two independent readings that agree settle a field; disagreement or silence doesn't.
+    unsure: typed.unsure.filter((key) => fromAi[key] === undefined || fromAi[key] !== typed.fields[key]),
   };
 }
 

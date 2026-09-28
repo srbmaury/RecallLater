@@ -1,6 +1,7 @@
 import type { ExtractedFields, ItemType } from '@/lib/types';
 
 import { labelledValue } from './layout';
+import { ENGAGEMENT, HANDLE } from './social';
 import { hostOf } from './url';
 
 const BILL_KINDS: [RegExp, string][] = [
@@ -17,6 +18,8 @@ const BILL_KINDS: [RegExp, string][] = [
 const NOISE_LINE =
   /^(?:tax invoice|invoice|receipt|bill of supply|original for recipient|boarding pass|e-?ticket|order summary|order confirmed|(?:event|message|recipe|job|order|coupon|restaurant|bill|receipt) document|synthetic recallLater test document|limited warranty certificate|warranty certificate|warranty registration summary|details|shared location|messages?|chats?|whatsapp|instagram|facebook|tiktok|youtube|amazon|flipkart|myntra|today|yesterday)$/i;
 
+// An app's top bar: "ShopKart\tSearch Cart", "Menu", "Back · Share".
+const APP_BAR_WORD = /^(?:search|cart|bag|menu|home|account|profile|log ?in|sign ?in|wishlist|back|share|more|filters?|sort)$/i;
 const MAX_TITLE = 60;
 
 export function buildTitle(type: ItemType, text: string, fields: ExtractedFields, domainTitle?: string): string {
@@ -111,7 +114,7 @@ export function titleFromUrl(url: string | undefined): string | undefined {
 function firstMeaningfulLine(text: string): string | undefined {
   for (const raw of text.split('\n')) {
     const line = raw.replace(/\s+/g, ' ').trim();
-    if (line.length < 4 || NOISE_LINE.test(line)) continue;
+    if (line.length < 4 || NOISE_LINE.test(line) || isAppChrome(raw) || HANDLE.test(line) || ENGAGEMENT.test(line)) continue;
     // Skip status bars, bare dates/amounts/codes and links.
     // Three letters in any script: Hindi letters carry their vowel signs as combining marks.
     if (!/(?:\p{L}\p{M}*){3}/u.test(line) || /^https?:\/\/|^www\./i.test(line)) continue;
@@ -119,6 +122,13 @@ function firstMeaningfulLine(text: string): string | undefined {
     return truncate(line);
   }
   return undefined;
+}
+
+/** A top bar: every cell after the app's name is a navigation word. */
+function isAppChrome(raw: string): boolean {
+  const [, ...rest] = raw.split('\t');
+  const words = (rest.length ? rest.join(' ') : raw).trim().split(/\s+/);
+  return words.length > 0 && words.every((word) => APP_BAR_WORD.test(word));
 }
 
 function withSuffix(line: string | undefined, suffix: string, fallback: string): string {

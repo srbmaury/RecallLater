@@ -45,6 +45,8 @@ export function suggestReminder(type: ItemType, fields: ExtractedFields, now: Da
     case 'generic':
       return fields.expiresOn ? beforeDeadline(fields.expiresOn, now, 'once') : null;
     case 'place':
+      // A table booking gets a nudge before it; a place to try someday doesn't.
+      return fields.startsAt ? beforeDeadline(fields.startsAt, now, 'once') : null;
     case 'book':
     case 'watch':
     case 'recipe':

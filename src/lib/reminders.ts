@@ -16,6 +16,8 @@ import type { Item, ReminderMode } from '@/lib/types';
 
 const CHANNEL_ID = 'reminders';
 const CATEGORY_ID = 'item-reminder';
+// Bills say "Paid" instead of "Done"; the action behind it is the same.
+const BILL_CATEGORY_ID = 'bill-reminder';
 const ACTION_DONE = 'done';
 const ACTION_HOUR = 'snooze-hour';
 const ACTION_TOMORROW = 'snooze-tomorrow';
@@ -46,11 +48,13 @@ export async function setupNotifications(): Promise<void> {
   }
   // Android shows at most three actions. Each opens the app so the change is applied
   // by JS even if the app was killed.
-  await Notifications.setNotificationCategoryAsync(CATEGORY_ID, [
-    { identifier: ACTION_DONE, buttonTitle: 'Done', options: { opensAppToForeground: true } },
+  const actions = (doneTitle: string): Notifications.NotificationAction[] => [
+    { identifier: ACTION_DONE, buttonTitle: doneTitle, options: { opensAppToForeground: true } },
     { identifier: ACTION_HOUR, buttonTitle: '1 hour', options: { opensAppToForeground: true } },
     { identifier: ACTION_TOMORROW, buttonTitle: 'Tomorrow', options: { opensAppToForeground: true } },
-  ]);
+  ];
+  await Notifications.setNotificationCategoryAsync(CATEGORY_ID, actions('Done'));
+  await Notifications.setNotificationCategoryAsync(BILL_CATEGORY_ID, actions('Paid'));
 }
 
 /** Asks only when a reminder is actually being set, never on first launch. */
@@ -276,7 +280,7 @@ async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<voi
           title: item.title,
           body,
           data: { itemId: item.id },
-          categoryIdentifier: CATEGORY_ID,
+          categoryIdentifier: item.type === 'bill' ? BILL_CATEGORY_ID : CATEGORY_ID,
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,

@@ -153,6 +153,17 @@ export async function listUpcoming(db: SQLiteDatabase, days = 7, now = new Date(
   return rows.map(toItem);
 }
 
+/** Titles of active items due on the same day as `day`, for "also due that day". */
+export async function listDueOn(db: SQLiteDatabase, day: Date): Promise<string[]> {
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+  const rows = await db.getAllAsync<{ title: string }>(
+    `SELECT title FROM items WHERE status = 'active' AND due_at >= ? AND due_at <= ? ORDER BY due_at LIMIT 4`,
+    start,
+    endOfDay(day).getTime(),
+  );
+  return rows.map((row) => row.title);
+}
+
 export async function listInbox(db: SQLiteDatabase): Promise<Item[]> {
   const rows = await db.getAllAsync<ItemRow>(
     `SELECT * FROM items WHERE status = 'active' ORDER BY created_at DESC LIMIT 200`,

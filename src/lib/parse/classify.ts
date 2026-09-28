@@ -21,6 +21,8 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/amount due|total due|amount payable|net payable|pay(?:able)? by|due date|last date/i, 3],
     [/electricity|broadband|postpaid|water|gas connection|credit card statement|minimum (?:amount )?due|consumer (?:no|number)|account no|\bca no\b|\bk no\b/i, 2],
     [/late (?:payment )?fee|disconnection|autopay/i, 1],
+    // An instruction to pay something recurring: "Pay gas bill ₹850 today", "pay rent tonight".
+    [/\bpay\b[^\n]{0,40}?\b(?:bill|rent|emi|fees?|premium|dues|invoice|recharge|subscription|maintenance)\b/i, 3],
   ],
   travel: [
     [/boarding pass|e-?ticket|itinerary|booking (?:ref|reference|id)|reservation/i, 2],
@@ -31,7 +33,7 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
   event: [
     [/\bevent name\s*[:\t]/i, 3],
     [/tickets?\s+from\s+(?:₹|rs\.?\s*)?\d/i, 3],
-    [/\bvenue\b|\brsvp\b|register(?:\s+now)?|registration|tickets? (?:on|at)|doors open|join us|save the date/i, 3],
+    [/\bvenue\b|\brsvp\b|register(?:\s+now)?|registration|tickets? (?:on|at)|doors open|gates open|entry pass|\bentry\s*(?:fee)?\s*[:\-]?\s*₹\s?\d|join us|save the date/i, 3],
     [/conference|meetup|summit|webinar|workshop|concert|festival|\bfest\b|hackathon|exhibition|screening|launch/i, 2],
     [/\binterview\b|\bappointment\b|\bmeeting\b|\bparty\b|wedding|birthday/i, 2],
   ],
@@ -60,7 +62,10 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/\brestaurant document\b|\brestaurant\s*[:\t]/i, 3],
     [/(?:^|\n)instagram\n[^\n]+\n(?:bengaluru|bangalore|mumbai|delhi|pune|chennai|kolkata|jaipur|goa|kochi|hyderabad)[^\n]*\n[\s\S]{0,180}\b(?:menu|pasta|espresso|desserts?|coffee|cuisine|baked|kitchen|restaurant|cafe)\b/i, 4],
     [/\bshared location\b/i, 4],
+    // A restaurant booking, not a trip: "Reservation confirmation · Table confirmed".
+    [/\btable (?:confirmed|booked|reserved|for \d)|\bdining reservation\b/i, 4],
     [/restaurant|\bcaf[eé]\b|bistro|brewery|\bpub\b|bakery|dhaba|cuisine|must (?:try|visit)|brunch|dine-?in/i, 3],
+    [/\bsave this for (?:your )?next trip\b|\bbucket list\b/i, 3],
     [/\b(?:beach(?:es)?|fort|temple|lake|trek|waterfalls?|museum|island|valley|national park|backwaters|monastery|hidden gem)\b/i, 3],
     [/\b\d{6}\b|\b(?:road|rd\.?|street|lane|marg|nagar|layout|colony|sector)\b/i, 1],
   ],

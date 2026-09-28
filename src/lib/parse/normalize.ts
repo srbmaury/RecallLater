@@ -27,6 +27,8 @@ export function normalizeOcr(text: string): string {
     .replace(/\bO(?=\d[:.]\d{2}\b)/g, '0')
     .replace(/\b0(?=[a-z]{3,})/gi, 'O')
     .replace(/\bNIGHTOF\b/gi, 'NIGHT OF')
+    // A bullet between a date and a time read as a letter: "SAT • 3 OCT e 6:30 PM".
+    .replace(/(\d{1,2}\s+[a-z]{3,9})\s+[eo]\s+(?=\d{1,2}[:.]\d{2}\s?[ap]\.?m\b)/gi, '$1 • ')
     // OCR occasionally inserts a space inside a month name.
     .replace(/\b(OCTO)\s+(BER)\b/gi, '$1$2')
     // Roman numerals in job titles: "Engineer Il" → "Engineer II".

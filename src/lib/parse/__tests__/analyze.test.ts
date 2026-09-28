@@ -400,3 +400,45 @@ describe('grid layouts from OCR', () => {
     expect(analyze({ text, now: NOW }).fields.startsAt).toBe('2026-10-05T09:30');
   });
 });
+
+describe('everyday payment reminders', () => {
+  // Wednesday, 23 Sep 2026, 10:00 local.
+  const now = new Date(2026, 8, 23, 10, 0);
+
+  it('reads "today", "tomorrow" and "tonight" as the due date', () => {
+    expect(analyze({ text: 'Pay gas bill ₹850 today', now })).toMatchObject({
+      type: 'bill',
+      fields: { amount: 850, dueDate: '2026-09-23' },
+    });
+    expect(analyze({ text: 'pay rent tomorrow', now })).toMatchObject({ type: 'bill', fields: { dueDate: '2026-09-24' } });
+    expect(analyze({ text: 'Need to pay the school fees by Friday ₹12,000', now })).toMatchObject({
+      type: 'bill',
+      fields: { amount: 12000, dueDate: '2026-09-25' },
+    });
+  });
+
+  it('does not turn a payment receipt into a bill', () => {
+    expect(analyze({ text: 'Payment received: ₹850 for your gas bill. Thank you!', now }).type).not.toBe('bill');
+  });
+});
+
+describe('fields worth a second look', () => {
+  const now = new Date(2026, 8, 23, 10, 0);
+
+  it('trusts labelled values', () => {
+    const result = analyze({ text: 'Electricity Bill\nEnergy charges ₹2,100\nAmount due ₹2,840\nDue date 28 Sep 2026\nBill date 10 Sep 2026', now });
+    expect(result.fields).toMatchObject({ amount: 2840, dueDate: '2026-09-28' });
+    expect(result.unsure).toEqual([]);
+  });
+
+  it('flags a guess between several unlabelled candidates', () => {
+    // A listing with the sale and list price side by side.
+    expect(analyze({ text: 'Sony WH-1000XM6 headphones\n₹29,990 ₹34,990\nhttps://amazon.in/dp/B0CXYZ1234', now }).unsure).toContain('amount');
+    // Two dates and nothing saying which one is the deadline.
+    expect(analyze({ text: 'Can you send the invoice to Priya? 28 Sep or 2 Oct works', now }).unsure).toContain('dueDate');
+  });
+
+  it('does not flag the only candidate', () => {
+    expect(analyze({ text: 'Pay gas bill ₹850 today', now }).unsure).toEqual([]);
+  });
+});

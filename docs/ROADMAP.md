@@ -91,3 +91,30 @@ backup exclusion, notifications, the widget and app lock.
    link, and run `npx expo start` to load the app.
 4. TestFlight: `npx eas-cli@latest build -p ios --profile production`, then
    `npx eas-cli@latest submit -p ios`.
+
+## After the roadmap: accuracy and product gaps
+
+Measured with `dataset.test.ts` (rules only, no AI). The 26-sample set and the 100-set train
+split were used for tuning; the validation split was only checked; the test split was never
+looked at, only scored.
+
+| Set | Screenshots fully correct | All samples fully correct |
+|---|---|---|
+| 26-sample set | 7/16 → **15/16** | 12/26 → **25/26** |
+| 100-set train | 69/70 → 69/70 | 86/87 → 86/87 |
+| 100-set validation | 9/15 → 9/15 | 9/15 → 9/15 |
+| 100-set test (held out) | 3/15 → 3/15 | 3/18 → **6/18** |
+
+Parser fixes, each a general pattern rather than a sample-specific rule: app top bars and
+social handles are never titles; captions like "New opening: *Name*" name the place; a
+bullet misread as "e" between a date and time; "gates open" / "entry ₹…" mark events; a
+code on its own line next to "… OFF" is a coupon code; job cards take the company from the
+header line; book covers split over lines; "Recommended by" isn't an author; "servings" on
+recipe cards; table bookings are places with a date and time; a PIN code must stand alone;
+"invoice" alone no longer marks every date as the purchase date; "pay … bill/rent/EMI" is
+a bill, so "Pay gas bill ₹850 today" is due today.
+
+Product: guessed fields are marked **Check** on the review screen; corrections are counted
+on the phone (Settings → Data); a bundled sample bill on the welcome screen; bill reminders
+say **Paid**; the review screen shows what else is due that day; backups can be encrypted
+with a passphrase (AES-256-GCM, PBKDF2-SHA256 600k rounds natively, JS fallback).

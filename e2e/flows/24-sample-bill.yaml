@@ -1,0 +1,18 @@
+appId: com.srbmaury.recalllater
+name: A new user can try the whole loop on a bundled sample bill
+---
+- extendedWaitUntil:
+    visible: Try it with a sample bill
+    timeout: 30000
+- tapOn: Try it with a sample bill
+- extendedWaitUntil:
+    visible: .*This is a sample bill.*
+    timeout: 30000
+- assertVisible: "1284"
+- assertVisible: .*Dec 15.*
+- scrollUntilVisible:
+    element: Until done
+- tapOn: Discard
+- extendedWaitUntil:
+    visible: Collections
+    timeout: 10000
