@@ -35,6 +35,7 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/tickets?\s+from\s+(?:₹|rs\.?\s*)?\d/i, 3],
     [/\bvenue\b|\brsvp\b|register(?:\s+now)?|registration|tickets? (?:on|at)|doors open|gates open|entry pass|\bentry\s*(?:fee)?\s*[:\-]?\s*₹\s?\d|join us|save the date/i, 3],
     [/conference|meetup|summit|webinar|workshop|concert|festival|\bfest\b|hackathon|exhibition|screening|launch/i, 2],
+    [/\bpresents\b|live music|\bonwards\b|early bird|\bline-?up\b/i, 2],
     [/\binterview\b|\bappointment\b|\bmeeting\b|\bparty\b|wedding|birthday/i, 2],
   ],
   receipt: [
@@ -42,14 +43,19 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/tax invoice|\binvoice\b|\breceipt\b|\bgstin\b|order summary|order confirmed/i, 3],
     [/payment (?:successful|received)|paid|transaction id|txn id|thank you for (?:your )?(?:order|purchase|shopping)/i, 2],
     [/warranty|return (?:policy|window)|delivered|order (?:id|no|number)/i, 2],
+    // Paid at the counter: "Cashier: Asha", "Paid via UPI", "Payment Mode: Cash".
+    [/\bcashier\b|\bpaid (?:via|by|using)\b|\bpayment mode\b|\bpayment\s*:\s*(?:upi|cash|card)|thank you for (?:visiting|dining)/i, 3],
+    // Updates about an order already placed.
+    [/\btrack order\b|out for delivery|order placed|estimated delivery|return request|return reference|order amount/i, 3],
   ],
   purchase: [
     [/add to cart|buy now|in stock|out of stock|deal of the day|limited time deal|free delivery|m\.?r\.?p/i, 3],
-    [/\b\d{1,2}% off\b|customer reviews|\bratings?\b|\bemi\b|delivery by/i, 2],
+    [/\b\d{1,2}% off\b|customer reviews|\(\d[\d,.]*k?\s*reviews?\)|\bratings?\b|\bemi\b|delivery by|\bbestseller\b|\bwishlist\b/i, 2],
   ],
   job: [
     [/\bjob document\b|\bcompany\s*[:\t]|\brole\s*[:\t]/i, 3],
     [/we'?re hiring|now hiring|job description|job id|apply (?:now|here|by)|careers?\b|open (?:role|position)/i, 3],
+    [/last date to apply|application deadline|scholarship|admissions? open/i, 3],
     [/responsibilities|requirements|qualifications|years? of experience|\d\+?\s*(?:yrs|years)\b|full[- ]time|internship|\bctc\b|\blpa\b|hybrid|on-?site/i, 2],
     [/\b(?:engineer|developer|designer|analyst|scientist|intern)\b/i, 1],
   ],
@@ -88,6 +94,8 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
     [/\btask\s*[:\t]|\bdeadline text\s*[:\t]/i, 3],
     [/^(?:hey|hi|hello)\b|\b(?:can|could|would|will) you\b|\bplease\b|\bpls\b|\bplz\b|\bkindly\b/i, 2],
     [/remind me|don'?t forget|remember to|\bto-?do\b|need to|have to|make sure/i, 3],
+    // Something to give back: "Borrowing Reminder … please return it by 8 Oct".
+    [/borrowing reminder|\blibrary\b[\s\S]{0,200}\breturn\b|please return (?:it|the (?:book|item))/i, 5],
     [/\b(?:send|share|call|reply|email|submit|review|finish|book|pay|buy|pick up|drop|bring|renew|update|fix)\b/i, 1],
   ],
 };
@@ -95,6 +103,22 @@ const KEYWORDS: Record<Exclude<ItemType, 'generic'>, Rule[]> = {
 const SHOPPING_HOSTS = /(?:^|\.)(amazon\.|flipkart\.com|myntra\.com|ajio\.com|meesho\.com|nykaa\.com|croma\.com|reliancedigital\.in|tatacliq\.com|snapdeal\.com|ebay\.|etsy\.com|bestbuy\.com|walmart\.com)/i;
 
 type Classification = { type: ItemType; confidence: number; scores: Record<ItemType, number> };
+
+// An event booking or invitation, not a trip: "Event Confirmation", "Event: …", "your interview schedule".
+const EVENT_BOOKING = /\bevent confirmation\b|\bevent\s*:\s*\S|\binterview (?:schedule|is scheduled)\b/i;
+// The parts of a till receipt. Any three together make it one, whatever the shop sells.
+const RECEIPT_PARTS: ((text: string) => boolean)[] = [
+  (t) => /\bsub\s?-?\s?total\b|\bsubtotal\b|\bsub\s?ttl\b/i.test(t),
+  (t) => /\b(?:sales\s)?tax\b|\btxtl\b|\bgst\b|\bvat\b|\btva\b/i.test(t),
+  (t) => /\btotal\b|\btotl\b|\bttl\b|\bbalance due\b|\bamount due\b/i.test(t),
+  (t) => /\b(?:visa|mastercard|master card|amex|discover|debit|credit|cash|change|chng|tender(?:ed)?|approved|auth(?:orization)?(?: code)?|card type|upi)\b/i.test(t),
+  (t) => /\b(?:server|cashier|caisse|table|guests?|check\s?#?\s?\d|chk|order\s?#|ticket\s?#|trans(?:action)?\s?(?:id|#|type|key)|register|terminal)\b/i.test(t),
+  (t) => /\btip\b|\bgratuity\b|thank(?:s| you)/i.test(t),
+  // Priced line items: four or more lines that end in an amount ("1 Coffee\t3.00").
+  (t) => (t.match(/^.*[a-z]{2}.*[\s\t][$S]?\d{1,4}[.,]\d{2}-?\s*$/gim)?.length ?? 0) >= 4,
+];
+const CINEMA = /\bscreen \d|\baudi(?:torium)? ?\d|\bcinemas?\b|\bcineplex\b|\bmovie tickets?\b|\bshowtime\b/i;
+const TABLE_BOOKING = /\b(?:dinner|lunch|brunch|table) (?:booking|reservation)\b|\btable booked\b|\bparty size\b|\btable (?:no|number)\b|\byour table\b/i;
 
 export function classify({ text, dates, amounts, entities }: Signals): Classification {
   const scores = Object.fromEntries(ITEM_TYPES.map((t) => [t, t === 'generic' ? 1 : 0])) as Record<ItemType, number>;
@@ -131,6 +155,29 @@ export function classify({ text, dates, amounts, entities }: Signals): Classific
   // Coupons carry amounts and expiry dates too; don't let them read as bills.
   if (scores.coupon >= 3) scores.bill = Math.max(0, scores.bill - 3);
   if (hasAmount && scores.purchase > 0) scores.purchase += 1;
+
+  // A restaurant's bill is still a receipt: the parts of one outweigh talk of food. A booking
+  // with a payment summary (a table, a show, an event) stays a booking.
+  const isBooking =
+    CINEMA.test(text) || EVENT_BOOKING.test(text) || (TABLE_BOOKING.test(text) && /\breserv|\bbook(?:ed|ing)\b|\bconfirmed\b/i.test(text));
+  if (!isBooking && RECEIPT_PARTS.filter((part) => part(text)).length >= 3) {
+    scores.receipt += 6;
+    scores.place = Math.max(0, scores.place - 3);
+  }
+
+  // Seats and reservations aren't only for trips: a film show or a restaurant table.
+  if (CINEMA.test(text)) {
+    scores.event += 5;
+    scores.travel = Math.max(0, scores.travel - 3);
+  }
+  if (EVENT_BOOKING.test(text)) {
+    scores.event += 5;
+    scores.travel = Math.max(0, scores.travel - 3);
+  }
+  if (TABLE_BOOKING.test(text)) {
+    scores.place += 5;
+    scores.travel = Math.max(0, scores.travel - 3);
+  }
 
   // Chat messages are short and mostly asks; long OCR'd documents rarely are.
   const isShort = text.length < 280;

@@ -37,7 +37,58 @@ export function normalizeOcr(text: string): string {
   // On price lines, OCR can read the rupee glyph plus a 3 as "73,999".
   // This narrow shape leaves ordinary prices such as "7,249" unchanged.
   out = out.replace(/(^|\t)7(?=\d{1,3},\d{2,3}(?:\.\d{2})?[ \t]*$)/gm, '$1₹');
-  return out;
+  return repairRupeeSeven(out, /₹|\brs\.?\s?\d|\binr\b/i.test(text));
+}
+
+// Rows that carry money: "Total 7486", "FARE\t7821", "Ticket Price\n7333".
+const MONEY_LABEL =
+  /\b(?:total|amount|payable|price|fee|fees|fare|charges?|due|paid|pay|subtotal|mrp|cost|ticket|entry|balance|tax|gst|cgst|sgst|discount)\b/i;
+// A "7" standing in for ₹ before an ungrouped amount: 7486, 7333.00, 71430.
+const SEVEN_AMOUNT = /(^|[\s:])7(\d{2,5}(?:\.\d{2})?)(?![\d,])/g;
+const BARE_NUMBER = /(?<![\d,.])(\d{2,6}(?:\.\d{2})?)(?![\d,])/g;
+
+/**
+ * ML Kit's Latin model has no ₹ glyph and reads it as "7" ("₹486" → "7486"). On rows that
+ * carry money, a leading 7 is taken as ₹ when the page itself confirms it (the rest appears
+ * elsewhere, or is a sum of other amounts), or when OCR kept no currency sign anywhere and
+ * the number is shaped like a price. Grouped numbers ("77,850") and item tables are left alone.
+ */
+function repairRupeeSeven(text: string, hasCurrency: boolean): string {
+  const lines = text.split('\n');
+  const numbers = new Set<number>();
+  for (const m of text.matchAll(BARE_NUMBER)) numbers.add(Number(m[1]));
+  // Same row as the label, or a number standing alone in its cell up to two rows below it
+  // ("FARE / PASSENGER NAME / Rohan Mehta\t7821") with no other price in between.
+  const bareCell = (line: string) => line.split('\t').some((cell) => /^\s*7?\d[\d.,]*\s*$/.test(cell));
+  const noPrice = (line: string) => !/\d{3,}/.test(line);
+  const moneyRow = (i: number) =>
+    MONEY_LABEL.test(lines[i]) ||
+    (bareCell(lines[i]) &&
+      ((i > 0 && MONEY_LABEL.test(lines[i - 1])) || (i > 1 && MONEY_LABEL.test(lines[i - 2]) && noPrice(lines[i - 1]))));
+  // Amounts on money rows that don't start with 7: parts a total might add up from.
+  const parts = lines.flatMap((line, i) =>
+    moneyRow(i) ? [...line.matchAll(BARE_NUMBER)].map((m) => Number(m[1])).filter((n) => !String(n).startsWith('7')) : [],
+  );
+  const isSum = (value: number) => {
+    for (let a = 0; a < parts.length; a++)
+      for (let b = a + 1; b < parts.length; b++) {
+        if (Math.abs(parts[a] + parts[b] - value) <= 1) return true;
+        for (let c = b + 1; c < parts.length; c++) if (Math.abs(parts[a] + parts[b] + parts[c] - value) <= 1) return true;
+      }
+    return false;
+  };
+  return lines
+    .map((line, i) =>
+      moneyRow(i)
+        ? line.replace(SEVEN_AMOUNT, (whole, lead: string, rest: string) => {
+            const value = Number(rest);
+            const confirmed = numbers.has(value) || isSum(value);
+            const priceShaped = !hasCurrency && rest.replace(/\..*/, '').length >= 3;
+            return confirmed || priceShaped ? `${lead}₹${rest}` : whole;
+          })
+        : line,
+    )
+    .join('\n');
 }
 
 function isStatusBar(line: string): boolean {

@@ -94,7 +94,7 @@ open_downloads
 flow 12-share-boarding-pass
 
 # V1.5 collections.
-share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2026"
+share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2030"
 flow 13-share-coupon
 share_text "We are hiring a Software Engineer II at Stripe in Bengaluru. 3+ years of experience. Apply by Dec 10"
 flow 14-share-job
@@ -107,7 +107,7 @@ flow 15-share-wifi-qr
 flow 16-add-text
 
 # The same coupon again is recognised by its code.
-share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2026"
+share_text "Swiggy: Get ₹200 OFF with code DINNER200. Valid till 30 Sep 2030"
 flow 17-share-duplicate
 
 share_text "Pay rent ₹25,000 by 5 Oct"

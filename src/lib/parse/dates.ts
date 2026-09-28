@@ -1,4 +1,6 @@
-import { addDays, isValidDate, startOfDay, toDateKey } from '@/lib/dates';
+import { addDays, isValidDate, parseLocalDateTime, startOfDay, toDateKey } from '@/lib/dates';
+
+import { looksAmerican } from './locale';
 
 export type DateLabel = 'due' | 'expiry' | 'departure' | 'arrival' | 'purchase' | 'return' | 'warranty' | 'range' | 'none';
 
@@ -23,7 +25,8 @@ const MONTH =
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 const ISO = /\b(20\d{2})-(\d{1,2})-(\d{1,2})(?:[T ](\d{2}):(\d{2}))?\b/g;
-const NUMERIC = /\b(\d{1,2})[/.-](\d{1,2})[/.-](20\d{2}|\d{2})\b/g;
+// OCR sometimes puts a space after a slash: "7/ 18/19".
+const NUMERIC = /\b(\d{1,2})[/.-] ?(\d{1,2})[/.-] ?(20\d{2}|\d{2})\b/g;
 // A 2-digit "year" followed by `:` is really an hour ("5 Mar 10:30").
 const DAY_MONTH = new RegExp(
   `\\b(\\d{1,2})(?:st|nd|rd|th)?[\\s-]*(?:of\\s+)?${MONTH}\\.?(?:,?[\\s-]*(\\d{4}|'?\\d{2})(?![:.]?\\d)(?![ \\t]*[A-Za-z]{3}))?\\b`,
@@ -34,6 +37,8 @@ const RELATIVE_DAY = /\b(day after tomorrow|today|tonight|tomorrow|tmrw)\b/gi;
 const RELATIVE_OFFSETS: Record<string, number> = {
   today: 0, tonight: 0, tomorrow: 1, tmrw: 1, 'day after tomorrow': 2,
 };
+const WEEKDAY_NAME = /\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/i;
+const TOMORROW_NOUN = /\b(?:a|the|better|brighter|kinder|greener|healthier|happier|safer|every|for|your|our|of)\s+$/i;
 const WEEKDAY = /\b(?:(this|next|coming)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/gi;
 const IN_N = /\bin\s+(\d{1,2})\s+(day|week)s?\b/gi;
 
@@ -66,8 +71,10 @@ export function findDates(text: string, now: Date): DateMatch[] {
     const time = m[4] ? `${m[4]}:${m[5]}` : undefined;
     add(build(+m[1], +m[2], +m[3]), m.index, m[0], false, time);
   }
+  // Day first, as in India, unless the page is American ("5/11/18" is 11 May there).
+  const monthFirst = looksAmerican(text);
   for (const m of text.matchAll(NUMERIC)) {
-    let [day, month] = [+m[1], +m[2]];
+    let [day, month] = monthFirst && +m[1] <= 12 ? [+m[2], +m[1]] : [+m[1], +m[2]];
     if (month > 12 && day <= 12) [day, month] = [month, day];
     add(build(normalizeYear(m[3]), month, day), m.index, m[0], false);
   }
@@ -78,6 +85,9 @@ export function findDates(text: string, now: Date): DateMatch[] {
     add(resolveYear(+m[2], monthOf(m[1]), m[3], today), m.index, m[0], false);
   }
   for (const m of text.matchAll(RELATIVE_DAY)) {
+    // "A Brighter Tomorrow", "tomorrow's leaders": the noun, not a date.
+    const before = text.slice(Math.max(0, m.index - 20), m.index);
+    if (/\btomorrow/i.test(m[1]) && (TOMORROW_NOUN.test(before) || /^['’]s\b/i.test(text.slice(m.index + m[0].length)))) continue;
     add(addDays(today, RELATIVE_OFFSETS[m[1].toLowerCase()]), m.index, m[0], true);
   }
   for (const m of text.matchAll(WEEKDAY)) {
@@ -92,17 +102,36 @@ export function findDates(text: string, now: Date): DateMatch[] {
   }
 
   const kept = dropOverlaps(found);
-  const withoutEchoes = kept.filter(
-    // "Friday, 25 Sep": the weekday just restates the absolute date next to it.
-    (match) => !match.relative || !kept.some((other) => !other.relative && Math.abs(other.index - match.end) < 15),
-  );
+  // "Friday, 25 Sep", or "13 Oct 2026 … Tuesday | 6:30 PM" a line or two away: the weekday
+  // restates the absolute date (when that date falls on it) and may carry its time.
+  const echoOf = new Map<(typeof kept)[number], (typeof kept)[number]>();
+  const withoutEchoes = kept.filter((match) => {
+    if (!match.relative) return true;
+    const weekday = match.raw.match(WEEKDAY_NAME)?.[1].toLowerCase();
+    const absolute = kept.find(
+      (other) =>
+        !other.relative &&
+        (Math.abs(other.index - match.end) < 15 ||
+          (weekday !== undefined && Math.abs(other.index - match.index) < 120 && parseLocalDateTime(other.date).getDay() === WEEKDAYS.indexOf(weekday))),
+    );
+    if (absolute && !echoOf.has(absolute)) echoOf.set(absolute, match);
+    return !absolute;
+  });
   const times = findTimes(text);
-  return withoutEchoes.map((match) => ({
+  return withoutEchoes.map((match) => {
+    const echo = echoOf.get(match);
+    return {
     ...match,
-    time: match.time ?? nearestTime(text, match, times) ?? adjacentLineTime(text, match),
+    time:
+      match.time ??
+      nearestTime(text, match, times) ??
+      (echo && nearestTime(text, echo, times)) ??
+      adjacentLineTime(text, match) ??
+      (echo && adjacentLineTime(text, echo)),
     // "01 Sep - 30 Sep 2026" is a billing period, not a deadline.
     label: isRange(text, match, withoutEchoes) ? 'range' : labelFor(text, match.index),
-  }));
+    };
+  });
 }
 
 type TimeMatch = { time: string; index: number; end: number };

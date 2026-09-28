@@ -118,3 +118,32 @@ Product: guessed fields are marked **Check** on the review screen; corrections a
 on the phone (Settings → Data); a bundled sample bill on the welcome screen; bill reminders
 say **Paid**; the review screen shows what else is due that day; backups can be encrypted
 with a passphrase (AES-256-GCM, PBKDF2-SHA256 600k rounds natively, JS fallback).
+
+## New images and launch readiness (28–29 Sep 2026)
+
+46 new generated images (RecallLater_new_images_part1), read by on-device OCR, now a regression
+test (`new-images.test.ts`). First run, before any change: **10/46 fully correct**. After:
+36/46 (type 43, amount 19/22, date 29/38, title 36/39). Unseen held-out test set: field accuracy
+20 → 27 of 39. Findings: ML Kit never outputs ₹ (it becomes "7"), fixed only on money rows and
+only when the page confirms it or no currency sign survived; slogans ("a brighter tomorrow")
+were dates; table headings, codes and taglines were titles.
+
+Launch readiness: real app icon and splash (Android adaptive + monochrome, iOS Icon Composer),
+`docs/privacy-policy.md` and `docs/store-listing.md`, CI on every push
+(`.github/workflows/ci.yml`), OCR timed at ~0.5 s per image on the emulator (both models),
+E2E suite made independent of the date it runs on.
+
+Still needs the owner: iOS build (Expo + Apple accounts), a hosted AI proxy or shipping without
+AI, and a closed beta for real-world accuracy.
+
+## Real receipts (29 Sep 2026)
+
+~200 photographed US restaurant and store receipts with hand transcriptions (third-party data,
+kept local; `real-receipts.test.ts` runs when `e2e/out` has it). First run, rules only:
+**17/193 fully correct**, type 33/193, total 108/168, date 9/121. After: **131/193** fully
+correct, type 190/193, total 124/168 (of 145 legible in OCR), date 99/121. No other set moved.
+Changes: a receipt is recognised by its parts (subtotal, tax, total, payment, server/table,
+tip/thanks, priced lines) whatever the shop sells; its total comes from its own arithmetic
+(subtotal + tax), since photo OCR often puts values before their labels; pages with strong US
+signs (a $, a state and ZIP, a "(562) 699-7484" phone) read dates month-first and bare amounts
+as dollars. Indian pages are unaffected (tested).

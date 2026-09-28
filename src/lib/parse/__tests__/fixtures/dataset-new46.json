@@ -1,0 +1,324 @@
+[
+ {
+  "id": "RL101",
+  "category": "product",
+  "prompt": "Compact Travel Umbrella, ₹1,249, delivery 6 Oct 2026, return by 16 Oct 2026",
+  "text": "10:24\t.ill 78% O\nMonsoon Mart\nHome > Travel Essentials > Umbrellas > Compact Travel Umbrella\nBestseller\n1/6\nCompact Travel Umbrella\nLightweight, windproof and easy to carry. Perfect for travel,\ncommute and everyday use.\n4.5 (320 reviews)\n71,249\nDelivery: 6 Oct 2026\nFree delivery on orders above T499\nReturn by: 16 Oct 2026\nHassle-free 7-day return policy\nAdd to Wishlist\tAdd to Cart",
+  "barcodes": []
+ },
+ {
+  "id": "RL102",
+  "category": "receipt",
+  "prompt": "Cedar Café receipt, 28 Sep 2026, ₹486, UPI",
+  "text": "Cedar Café\n12 Green Park Road\nRivermount\nBengaluru 560034\nPh: 080 - 4123 7789\nBill No: 10437\tTable: 5\nDate: 28 Sep 2026\tTime: 10:24 AM\nCashier: Asha\nItem\tRate\tAmount\nQty\nCappuccino\t150\t150\nVeg Sandwich\t1\t180\t180\nFrench Fries\t1\t120\t120\nSubtotal\t450\nCGST (2%)\nSGST (2%)\t9\nRound 0ff\t-2\nTotal\t7486\nPaid via UPI\t486\nThank you for visiting\nCedar Café!",
+  "barcodes": []
+ },
+ {
+  "id": "RL103",
+  "category": "event",
+  "prompt": "Create fictional community workshop poster, \"Weekend Pottery Workshop\", 7 Oct 2026, 11:00 AM, venue Maple Studio, Bengaluru, ticket ₹333.",
+  "text": "Maple Studio\nCreate • Learn\tBelong\ttHands\nin Clay\nWEEKEND\t'Days\nPOTTERY\nWORKSHOP\nGet your hands dirty and take\nhome your own creation!\nDate\n7Oct 2026\n(Saturday)\nTime\n11:00 AM - 1:30 PM\nVenue\nMaple Studio\nBengaluru\nTicket Price\n7333\n(Materials Included)\nBeginner\tTake home\tA creative break\nAll materials\tyour piece\tfrom the routine\nfriendly\nprovided\nLimited Seats Book Now!",
+  "barcodes": []
+ },
+ {
+  "id": "RL104",
+  "category": "message",
+  "prompt": "Create fictional phone messaging screenshot from \"Aditi\", message \"Please send the updated document by 8 Oct 2026 at 5 PM.\".",
+  "text": "l 78%\n11:24\nAditi\nOnline\nToday\nPlease send the updated\ndocument by 8 Oct 2026 at\n11:18 AM\n5 PM.\nMessage",
+  "barcodes": []
+ },
+ {
+  "id": "RL105",
+  "category": "restaurant",
+  "prompt": "Create fictional restaurant booking confirmation, \"Saffron Table\", 9 Oct 2026 at 7:30 PM, party of 3, reservation RL305.",
+  "text": "5:12\nSaffron Table\nMODERN INDIAN KITCHEN\nReservation Confirmed\nThank you for choosing Saffron Table.\nWe look forward to welcoming you!\nDate\tFriday, 9 October 2026\nTime\t7:30 PM\nParty Size\t3 Guests\nReservation No. RL305\nView / Manage Reservation\nIf you need to make any changes, you can do so\nup to 2 hours before your reservation time.",
+  "barcodes": []
+ },
+ {
+  "id": "RL106",
+  "category": "job",
+  "prompt": "Create fictional job interview email screenshot, \"Interview for Backend Engineer\", 10 Oct 2026 at 2:00 PM, video call, reply requested.",
+  "text": "M\tQ Search mail\nD\nInterview for Backend Engineer Inbox x\nTalent Team <careers@cloudnexa.in>\tWed, 7 Oct 2026, 5:18 PM\nto me v\nHi Aarav,\nWe are pleased to inform you that you have been shortlisted for the interview for the position of\nBackend Engineer at CloudNexa.\nDate:\tSaturday, 10 October 2026\nTime:\t2:00 PM (IST)\nMode:\nVideo Call (Google Meet)\nInterview Panel: Engineering Manager & Senior Backend Engineer\nThe Google Meet link and further instructions will be shared a day before the interview.\ngiven time, let us know and we will try to find an alternate slot.\tPlease confirm your availability by replying to this email at the earliest. If you are not available at the\nWe look forward to speaking with you!\nRegards,\nTalent Team\nCloudNexa\nBuilding a more open internet for everyone.",
+  "barcodes": []
+ },
+ {
+  "id": "RL107",
+  "category": "bill",
+  "prompt": "Create fictional electricity bill photographed on table, \"Northview Power\", amount due ₹1467, due 12 Oct 2026, account ending 1007.",
+  "text": "Northview Power\tElectricity Bill\nResidential | Reliable | Responsible\nCLEAN ENERGY. BRIGHTER TOMORROW.\nNV1007\nAccount No.\nCustomer Name\t(ending 1007)\nRohan Mehta\n01 Sep 2026 - 30 Sep 2026\nBill Period\nService Address\n02 Oct 2026\nB-304, Maple Residency\tBill Date\nGreenwOod Layout, East Park\t12 Oct 2026\nDue Date\nBengaluru - 560068\nAmount Due\tPay by 12 Oct 2026\nto avoid late payment charges.\nZ1,467\n(Rupees One Thousand Four Hundred\nSixty Seven Only)\nUsage Summary\nBill Summary\tUnits Consumed: 210 kWh\nAmount ()\n220\t215\t210\nDescription\t1,123.50\t208\n196\nEnergy Charges\t180.00\t180\nFixed Charges\t96.30\nGovernment Surcharge\t0.00\nAug 26\tSep 26\nAdjustments\tJun 26\tJul 26\nApr 26\tMay 26\n1,467.00\nTotal Amount (Rounded)\nPayment Options\tAuto Pay\nDebit / Credit Card\nNet Banking\tSet up auto pay for\nO% JP UPI\tPay via our website\thassle-free paymnents\nLog in to your bank and\twww.northviewpower.in\nScan the QR code\tselect Northview Power\nto pay",
+  "barcodes": []
+ },
+ {
+  "id": "RL108",
+  "category": "order",
+  "prompt": "Create fictional order confirmation screenshot for \"Cotton bedsheet set\", order RL408, total ₹1351, arriving 13 Oct 2026.",
+  "text": "10:24\tl 78%\nOrder Confirmed\nThank you for your purchase!\nYour order has been placed successfully.\nWe will notify you when it is shipped.\nOrder No.\tOrder Date\nRL408\t09 Oct 2026\nCotton bedsheet set\nKing Size |3 Pieces\nWhite & Blue Leaf Print\n1,351\nQty: 1\nArriving by\n13 Oct 2026\nStandard Delivery\nOrder\tShipped Out for Delivery Delivered\nConfirmed\nOrder Total\t1,351 a\nItem Total\t71,299\nShipping Charge\t752\nTotal Paid\t1,351",
+  "barcodes": []
+ },
+ {
+  "id": "RL109",
+  "category": "coupon",
+  "prompt": "Create fictional store coupon screenshot, \"SAVE19\", 20% off, expires 15 Oct 2026, minimum spend ₹999.",
+  "text": "FreshKart\tEssentials\nGOOD FOOD BRIGHTER DAYS\tfor a tappier tome\nSAVE19\nUse this code & get\n20% OFF\non your next order\tValid till\nMinimum spend: 7999\t15 Oct 2026\nu Groceries\tFresh Produce\tHousehold\nPet Care",
+  "barcodes": []
+ },
+ {
+  "id": "RL110",
+  "category": "recipe",
+  "prompt": "Create fictional recipe card photographed in a kitchen, \"Lemon Herb Pasta\", ingredients pasta lemon garlic basil, cook time 25 minutes.",
+  "text": "Lemon Herb Pasta\tCook Time:\n25 minutes\nIngredients:\n• 200 9 pasta (penne or spaghetti)\n1 lemon (zest and juice)\n• 4 garlic cloves (minced)\n• A handful of fresh basil leaves\nOlive oil\nSalt and pepper to taste\nMethod:\n1. Cook pasta in salted water until al dente. Drain and keep aside.\n2. Heat olive oil in a pan, add minced qarlic and sauté until fraqrant.\n3. Add lemon zest, lemon juice and cooked pasta. Toss well.\n4. Stir in fresh basil leaves, season with salt and pepper.\n5. Serve hot with extra lemon zest and basil on top.",
+  "barcodes": []
+ },
+ {
+  "id": "RL111",
+  "category": "address",
+  "prompt": "Create fictional delivery address note screenshot, \"24 Maple Grove, Indiranagar, Bengaluru 560038\", visit 16 Oct 2026 at 4 PM.",
+  "text": "elivery Address\n24 Maple Grove,\nLndiranagar,\nBengaluru 560038\nVisit Date : l6 Oct 2026\nVisit Time: 4 PM\nNotes:\n• Call 10 mins before arrival.\n• Gate is on the left side.",
+  "barcodes": []
+ },
+ {
+  "id": "RL112",
+  "category": "qr",
+  "prompt": "Create fictional event entry card with a stylized decorative QR-looking square, \"Garden Meetup\", 17 Oct 2026 at 10 AM, code RL512; QR need not encode a URL.",
+  "text": "RIVERDALE CO MMUNITY\nGREEN LIVING EVENTS\nGarden\nMeetup\nPlants• People• A Greener Tomorrow\nEvent Code\n17 Oct 2026\tRL512\n10:00 AM\nRiverside Community Garden\tare\twelcome!\nBengaluru",
+  "barcodes": []
+ },
+ {
+  "id": "RL113",
+  "category": "movie",
+  "prompt": "Create a realistic fictional cinema ticket, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"16 Oct 2026\", amount \"₹676\" where relevant, and reference \"RL113\" where relevant.",
+  "text": "SCREEN 3\ncinevista\tCINE MA S\tPeople Closer\tMovies Bring\nThe Lost Horizon\nFri, 16 Oct 2026\n07:15 PM\tBooking Ref:\nRL113\nScreen 3\nAudi 3| Gold Class\tFri, 16 Oct 2026\n07:15 PM\nRow F\tSeats 11 - 12\nScreen 3\nTicket Price (2 x 299)\t598\tF11 - F12\nConvenience Fee\tZ78\t7676\nTotal Amount\t7676",
+  "barcodes": []
+ },
+ {
+  "id": "RL114",
+  "category": "book",
+  "prompt": "Create a realistic fictional paperback product page, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"17 Oct 2026\", amount \"₹705\" where relevant, and reference \"RL114\" where relevant.",
+  "text": "Riverbend Books\tINVOICE\nInvoice No:\tRL114\nGood Stories Brighter Days\tOrder Date: 17 Oct 2026\n12, Green Park Road, Kothapet,\tPayment Mode: UPI\nHyderabad - 500035, Telangana\tDelivery:\tHome Delivery\nItem\nQty\tPrice\tTotal\nA Brighter\tA Brighter Tomorrow\nTomorrow\t1\t7705\t705\nby Kavya Menon\nPaperback\nISBN: 9789365227810\nSubtotal\t705\nShipping Charges\nTotal Paid\t705\nThank you for\tRead\nshopping with us!\tMore\nGrow\nWe hope this book brings\tBrighter\nnew perspectives to your day.\nFor any queries, please contact:\nX support@riverbendbooks.in\n+91 98765 43210 (Mon - Sat, 10 AM - 6 PM)",
+  "barcodes": []
+ },
+ {
+  "id": "RL115",
+  "category": "receipt",
+  "prompt": "Create a realistic grocery receipt, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"18 Oct 2026\", amount \"₹734\" where relevant, and reference \"RL115\" where relevant.",
+  "text": "Freshkart\nDaily Needs, Brighter Days\n12 Green Park Road, Vadapal ani\nChennai 600026\nPh: 044-2789 4455\nBill No: RL115\tDate: 18 0ct 2026\nCashier: Kavya S\tTime: 11:24 AM\nItem\tQty\tRate () Amount ()\n135.00\t135.00\nBasmati Rice (1 kg)\n1\t89.00\t89.00\nToor Dal (500 g)\n1\t165.00\t165.00\nSunflower 0il (1 L)\n1\t32.00\t32.00\nTomato (1 kg)\n28.00\t28.00\nOnion (1 kg)\n1\t45.00\t45.00\nBanana (1 kg)\n2\t24.00\t48.00\nMilk (1 L)\nBread (400 g)\t1\t32.00\t32.00\n1\t60.00\t60.00\nEggs (6 pcs)\nCoriander Leaves\t1\t20.00\t20.00\nGreen Chilli (100 g)\t1\t12.00\t12.00\nGinger (100 g)\t1\t16.00\t16.00\n682.00\nSubtotal\n17.05\nCGST (2.5%)\nSGST (2.5%)\t17.05\nTotal\t{734.00\nPayment Mode: UPI\nAmount Paid: 734.00\nThank you for shopping with Freshkart!\nKeep supporting local.",
+  "barcodes": []
+ },
+ {
+  "id": "RL116",
+  "category": "travel",
+  "prompt": "Create a realistic train itinerary, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"19 Oct 2026\", amount \"₹763\" where relevant, and reference \"RL116\" where relevant.",
+  "text": "ll 5G\n10:24\nRailMitra Express\nTravel Made Simpler\nBooking Confirmed\nYour train ticket has been booked successfully.\nTotal Amount Paid\nBooking Reference\nRL116\t7763\nvia UPI\nTrain Itinerary\nConfirmed\nSuryanagari Express (12987)\nSleeper Class (SL)\tCNF S5, 36\nMon, 19 Oct 2026\tMon, 19 Oct 2026\n06:20\t15:00\n8h 40m\tVishalgarh (VSH)\nNayapuri (NYP)\nPlatform 3\tPlatform 1\nPassenger Details\nName\tAge\tGender\tBerth\tStatus\n1\tArjun Mehta\t28\tM\tS5/ 36\tConfirmed\n2 Kavya Mehta\t26\tF\tS5 / 37\tConfirmed\nJourney Date\tTotal Fare\n19 Oct 2026\t7763",
+  "barcodes": []
+ },
+ {
+  "id": "RL117",
+  "category": "product",
+  "prompt": "Create a realistic linen tote bag, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"20 Oct 2026\", amount \"₹792\" where relevant, and reference \"RL117\" where relevant.",
+  "text": "GreenHabitat\nSustainable Living Store\n12 Lakeview Road, Bengaluru - 560076\tPh: 080 4455 7788\nSALES RECEIPT\nDate: 20 Oct 2026\nBill No: RL117\nCashier: Asha\nPayment: UPI\tAmount\nQty\nItem\tF792\nLinen Tote Bag\t792\nSubtotal\n792\nTotal\nThank you for supporting\ta greener tomorrow!",
+  "barcodes": []
+ },
+ {
+  "id": "RL118",
+  "category": "ticket",
+  "prompt": "Create a realistic bus ticket, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"21 Oct 2026\", amount \"₹821\" where relevant, and reference \"RL118\" where relevant.",
+  "text": "5\nSuryanagar Travels\tBUS TICKET\nJourneys for a Brighter Tomorrow\nTO\nFROM\nPune\tNashik\nSEAT NO.\tBUS TYPE\nDEPARTURE\nDATE\n07:30 AM\t12A\tAC Sleeper\n21 Oct 2026\nFARE\nPASSENGER NAME\nRohan Mehta\t7821\nPAYMENT MODE\nBOOKING REF.\nUPI (Paid)\nRL118\nHave a safe and pleasant journey!",
+  "barcodes": []
+ },
+ {
+  "id": "RL119",
+  "category": "event",
+  "prompt": "Create a realistic pottery class poster, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"22 Oct 2026\", amount \"₹850\" where relevant, and reference \"RL119\" where relevant.",
+  "text": "MittiManch\tGet your\ncommunity arts studio\thands dirty\nPEOPLE • CLAY• CREATIVE LIVING\nwith joy!\nPOTTERY\nCLASS\nLearn o Create e Take Home\nHands-on wheel\nand hand-building\nGuidance from\nexperienced artists\nAll materials included\nMake your own unique\npieces to take home\nFEE\nThursday\n22 Oct 2026\t7850\n10:00 AM - 1:00 PM\tper person\nMittiManch Studio\tUse code\n27, Lakeview Road, BTM Layout\tRL119\nBengaluru - 560076\tfor registration\nBook Your Spot Now\nSpaces are limited\tAll skill levels welcome!",
+  "barcodes": []
+ },
+ {
+  "id": "RL120",
+  "category": "message",
+  "prompt": "Create a realistic chat screenshot about a document deadline, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"23 Oct 2026\", amount \"₹879\" where relevant, and reference \"RL120\" where relevant.",
+  "text": "10:24\t.l O 78%\nSkyReach Solutions\n4 members\nPriya (HR)\nHi team,\nThis is a reminder to submit your\nID proof documents for the annual\ncompliance update.\nLast date: 23 Oct 2026\nProcessing fee: 879\nReference No: RL120\nPlease upload the documents on the\nemployee portal before the deadline\nto avoid any delay.\t9:12 AM\nThanks for the update, Priya.\nJust to confirm, is Aadhaar card\nenough or do we also need to submit\nPAN card?\n9:15 AM /\nPriya (HR)\nAadhaar is mandatory. PAN card is\noptional but recommended.\t9:17 AM\nGot it. Ill submit mine by 23 Oct 2026.\n9:18 AM\nMessage",
+  "barcodes": []
+ },
+ {
+  "id": "RL121",
+  "category": "restaurant",
+  "prompt": "Create a realistic café table booking, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"24 Oct 2026\", amount \"₹908\" where relevant, and reference \"RL121\" where relevant.",
+  "text": "10:15\nBean & Basil\nCAFÉ & KITCHEN\nGood Food Brings People Together\nTable Booked!\nYour reservation is confirmed.\nDate\t24 Oct 2026\nTime\t7:00 PM\nGuests\t4 People\nT Table No.\tT6\nReference No.\tRL121\nPayment Details\nAmount Paid\t7908\n(Includes taxes & service charge)\nPayment Mode\tUPI\nView Booking\nManage Reservation",
+  "barcodes": []
+ },
+ {
+  "id": "RL122",
+  "category": "job",
+  "prompt": "Create a realistic application deadline notice, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"25 Oct 2026\", amount \"₹937\" where relevant, and reference \"RL122\" where relevant.",
+  "text": ".l | 78%\n10:24\nSuryadeep Education Trust\nBright Students. Brighter Tomorrows.\nkAPPLICATION\nDEADLINE\nLast date to apply for the\nSuryadeep Merit Scholarship 2026\n25 Oct 2026\nReference Code\nApplication Fee\n7937\tRL122\nFor undergraduate students (all streams)\nMerit-based selection\nV Apply online and complete payment before the deadline\nApply Now",
+  "barcodes": []
+ },
+ {
+  "id": "RL123",
+  "category": "bill",
+  "prompt": "Create a realistic internet bill, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"26 Oct 2026\", amount \"₹966\" where relevant, and reference \"RL123\" where relevant.",
+  "text": ".lO78%\n10:24\nBharatNet Homne\nFast Connections Brighter Homes\nInternet Bill\nResidential Broadband\nAccount Number\tRL123\nCustomer Name\tArjun Mehta\nService Address\tFlat 3B, Shanti Apartments,\nMG Road, Pune - 411001\nPlan\t100 Mbps Home Plan\nBill Date\nAmount Due\n26 Oct 2026\n7966\nDue Date\n10 Nov 2026\nPay Now\nBill Summary\nMonthly Plan Charges\t7899\nTaxes (GST 18%)\t767\nTotal Amount\t7966\nKeep enjoying uninterrupted internet.\nPlease pay by 26 Oct 2026 to avoid service interruption.",
+  "barcodes": []
+ },
+ {
+  "id": "RL124",
+  "category": "order",
+  "prompt": "Create a realistic return request confirmation, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"27 Oct 2026\", amount \"₹995\" where relevant, and reference \"RL124\" where relevant.",
+  "text": "10:24\n.i! 85%\nt ShopVerse\tD\nReturn Request Confirmed\nWe have received your return request\nand it is being processed.\nReturn Reference\tRL124\nOrder Amount\t995\nReturn Requested On\t27 Oct 2026\nItem\tMen's Casual Shirt\n(Blue, Size M)\nPickup Scheduled\nOur delivery partner will pick up the item\nfrom your address on 27 Oct 2026.\nYou will receive a confirmation call shortly.\nView Return Details",
+  "barcodes": []
+ },
+ {
+  "id": "RL125",
+  "category": "coupon",
+  "prompt": "Create a realistic bookstore voucher, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"3 Oct 2026\", amount \"₹1024\" where relevant, and reference \"RL125\" where relevant.",
+  "text": "PageTurner Books\tBRIGHTER TOMORROWS\nGOOD BOOKS\nRef No.\nGIFT VOUCHER\tRL125\nFor your next great read\tValid Until\n3 Oct 2026\n1024\tRedeem at any\tPageTurner Books store\nBOOKSTORE CREDIT\tor on our website.\nMore Stories\tBrightu Days\nArriyals",
+  "barcodes": []
+ },
+ {
+  "id": "RL126",
+  "category": "recipe",
+  "prompt": "Create a realistic screenshot of pasta recipe, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"4 Oct 2026\", amount \"₹1053\" where relevant, and reference \"RL126\" where relevant.",
+  "text": "10:24\nAnnapurna Kitchen\nSimple Recipes for Happier Homes\nCreamy Masala Pasta\nA quick and tasty pasta recipe with an Indian twist,\nperfect for family dinners.\nServes\nCook Time\nPrep Time\n4\n10 mins\t20 mins\nIngredients\n• 250 g pasta (penne or fusilli)\tShopping Note\n2 tbsp oil\t4 Oct 2026\n1 onion (chopped)\tPasta, fresh cream,\n•\t1 capsicum (chopped)\tcapsicum, tomato,\n• 1 tomato (chopped)\tgarlic, herbs\n• 2 cloves garlic (minced)\n•\t1 cup fresh cream\tRef: RL126\n•\t1 tsp red chilli flakes\n1 tsp mixed herbs\nEst. Cost:71053\n• Salt to taste\n• Grated cheese (optional)\nMethod\n1 Boil pasta in salted water until al dente. Drain and keep aside.\n2 Heat oil in a pan, add garlic and onions. Sauté until golden.\n3 Add capsicum and tomato. Cook for 5 minutes.\n4 Pour in fresh cream, add spices and mix well.\n5 Add boiled pasta and toss gently. Cook for 2-3 minutes.\n6 Serve hot with grated cheese on top.",
+  "barcodes": []
+ },
+ {
+  "id": "RL127",
+  "category": "address",
+  "prompt": "Create a realistic event venue directions, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"5 Oct 2026\", amount \"₹1082\" where relevant, and reference \"RL127\" where relevant.",
+  "text": "10:24\tll 5G\nMEADOWBROOK EVENTS\nM\nto me v\nEvent Confirmation\n& Venue Directions\nEvent: Autumn Fellowship 2026\nDate: 5 Oct 2026 (Mon)\nTime: 5:00 PM -9:30 PM\nVenue: The Riverside Banquet Hall\n12 Garden View Road,\nWhitefield, Bengaluru - 560066\nBooking Reference: RL127\nAmount Paid: 1082 (incl. taxes)\nNo. of Guests: 2\nHow to Reach\nBy Car: Take Outer Ring Road, exit at\nKadugodi Signal. Drive 1.2 km towards\nGarden View Road. The venue is on the left.\nBy Metro: Get down at Whitefield (Purple Line).\nTake an auto or cab (approx. 10 mins).\nLandmark: Opposite Greenwood Apartments,\nnext to the old water tank.\nThe Riverside\tOuter Ring Road\nBanquet Hall\nGreenwood\nApartments\nKadugodi\nSignal",
+  "barcodes": []
+ },
+ {
+  "id": "RL128",
+  "category": "qr",
+  "prompt": "Create a realistic fictional café loyalty card with decorative QR-style graphic, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"6 Oct 2026\", amount \"₹1111\" where relevant, and reference \"RL128\" where relevant.",
+  "text": "BeanNest Café\tBRIGHTER DAYS\nGOOD COFFEE\nLOYALTY CARD\nSIP • EARN• ENJOY\tSCAN TO COLLECT POINTS\nRef: RL128\nAmount: 1111\nValid till:6 Oct 2026\ntreat! v\n5 coffees = 1 feei",
+  "barcodes": []
+ },
+ {
+  "id": "RL129",
+  "category": "movie",
+  "prompt": "Create a realistic fictional film listing screenshot, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"7 Oct 2026\", amount \"₹1140\" where relevant, and reference \"RL129\" where relevant.",
+  "text": "10:24\tll 78%\nCineVerse\nMovies • Moments Together\nBooking Confirmed!\nYour movie tickets are ready.\nBooking Reference: RL129\nRaaste\tRaaste Phir Milenge\nPhir Milenge\tDrama UJA | 2h 18m\nWed, 7 Oct 2026\n06:45 PM\nSangam Cineplex\nBandra (W), Mumbai\nScreen\tSeats\tTickets\nScreen 2\tA12, A13, A14\t3 Adults\nPayment Summary\nTickets (3 x T350)\tT1,050\nConvenience Fee\tF90\nTotal Amount Paid\tF1,140\nView Ticket\tAdd to Calendar",
+  "barcodes": []
+ },
+ {
+  "id": "RL130",
+  "category": "book",
+  "prompt": "Create a realistic fictional library borrowing reminder, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"8 Oct 2026\", amount \"₹1169\" where relevant, and reference \"RL130\" where relevant.",
+  "text": "10:24\t.l l 78%\nRivermere\nCommunity Library\nRead Learn • Belong\nBorrowing Reminder\nHi Ananya,\nThis is a reminder that the following item\nis due sOon. Please return it by 8 Oct 2026\nto avoida late fee.\nThe\tThe Silent Valley\nSilent\nAuthor: Meera Krishnan\nValley\nLoan Ref: RL130\nDue Date: 8 Oct 2026\nLate Fee (if not returned): 1169\nYou can return the book at the library help desk or\nuse the self-service kiosk.\nQuestions? Contact us at O11-4567 8901 or\nhelp@rivermereclibrary.in.\nHappy Reading!\nRivermere Community Library\nGreen Park, New Delhi 110016",
+  "barcodes": []
+ },
+ {
+  "id": "RL131",
+  "category": "receipt",
+  "prompt": "Create a realistic pharmacy receipt, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"9 Oct 2026\", amount \"₹1198\" where relevant, and reference \"RL131\" where relevant.",
+  "text": "Swasthya Plus Pharmacy\nCare Today for a Healthier Tomorrow\n12, Green Park Road, Indiranagar\nBengaluru - 560038\nPh: 080-4123 7788\nBill No: RL131\tDate: 9 Oct 2026\nCashier: Meera S\tTime: 11:26 AM\nItem Name\tQty\tMRP ()\tDisc ()\tAmount ()\n1\tParacetamol 650 mg\t1\t45.00\t5.00\t40.00\n10 Tabs\n2\tVitamin D3 60K IU\t1\t160.00\t20.00\t140.00\n4 Caps\n3 Calcium + Vitamin K2\t1\t225.00\t25.00\t200.00\n10 Tabs\n4 Azithromycin 500 mg\t1\t90.00\t10.00\t80.00\n3 Tabs\n5 Cough Relief Syrup\t1\t180.00\t20.00\t160.00\n100 ml\n6\tORS Sachet\t2\t35.00\t5.00\t60.00\n5 Sachets\n7\tMultivitamin Tablets\t1\t150.00\t12.00\t138.00\n10 Tabs\n8\tAntacid Gel\t1\t120.00\t20.00\t100.00\n200 ml\n9\tDisposable Face Mask\t1\t50.00\t0.00\t50.00\n5 Pieces\n10 Hand Sanitizer\t1\t80.00\t0.00\t80.00\n100 ml\nSubtotal\tF1,148.00\nRound Off\t750.00\nTotal Amount\t71,198.00\nPayment Mode: UPI (Paid)\nReference No: RL131\nAmount Paid: 1,198.00\nThank you for choosing Swasthya Plus Pharmacy!\nStay Healthy, Stay Happy!",
+  "barcodes": []
+ },
+ {
+  "id": "RL132",
+  "category": "travel",
+  "prompt": "Create a realistic weekend trip plan, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"10 Oct 2026\", amount \"₹1227\" where relevant, and reference \"RL132\" where relevant.",
+  "text": "9:42\nWanderNest Travels\nShort Trips• Real Experiences\nBooking Confirmed!\nReference No: RL132\nWeekend Trip Plan\nMumbai to Lonavala\n10 Oct 2026 - 11 Oct 2026\n82 Travellers\nItinerary\n10 Oct 2026 (Sat)\n07:00 AM\nDepart from Mumbai (Borivali)\nVolvo AC Coach\n10 Oct 2026 (Sat)\n11:00 AM - 06:00 PM\nLocal Sightseeing\nBhushi Dam, Lion's Point, Karla Caves\nStay on 10 Oct 2026\nMeadow View Resort, Lonavala\nDeluxe Room • 1 Night\n11 Oct 2026 (Sun)\n04:00 PM\nReturn to Mumbai\nPayment Details\nTrip Cost (2 Adults)\t1,200\nTaxes & Fees\t727\nTotal Paid\t71227\nView Ticket (RL132)",
+  "barcodes": []
+ },
+ {
+  "id": "RL133",
+  "category": "product",
+  "prompt": "Create a realistic ceramic mug, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"11 Oct 2026\", amount \"₹1256\" where relevant, and reference \"RL133\" where relevant.",
+  "text": "Riverside Home Decor\tDecor for a Brighter Home\n14, Green Park Road, Bengaluru - 560034\nINVOICE\nDate:\tInvoice No: RL133\nCustomer:\t11 Oct 2026\nAnanya S.\nItem\nCeramic Mug\tQty\nPrice\n2\nAmount\nR628\n1,256\nTotal\nE1,256\nThank you for shoppinG with us\tHave a beautiful day!",
+  "barcodes": []
+ },
+ {
+  "id": "RL134",
+  "category": "ticket",
+  "prompt": "Create a realistic flight boarding pass, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"12 Oct 2026\", amount \"₹1285\" where relevant, and reference \"RL134\" where relevant.",
+  "text": "SkyWind Airlines\tEconomy Class\nBoarding Pass\nPNR: RL134\nPassenger Name\nRohan Mehta\tFrom\tTo\nBOM\tBLR\nFrom\tTo\nDate\nBOM\tBLR\t12 Oct 2026\nMumbai\tBengaluru\tFlight No.\tSeat\nSW712\t21C\nBoarding Time\tGate\tSeat\nFlight No.\tDate\nClass\nSW712\t12 Oct 2026\t14:20\tA8\t21C\nEconomy\nFare Paid\nease be at the gate 30 minutes before departure.\n71285",
+  "barcodes": []
+ },
+ {
+  "id": "RL135",
+  "category": "event",
+  "prompt": "Create a realistic community concert poster, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"13 Oct 2026\", amount \"₹1314\" where relevant, and reference \"RL135\" where relevant.",
+  "text": "Rivermist Cultural Association\npresents\nSuron\tKa\nSangam\nDifferent Voices\t4 Community Concert\tLive Music\nSame Roots\tLocal Artists\nA Greener, Kinder Tomorrow\tFood Stalls\nFamily Friendly\n13 Oct 2026\tRivermist Community Grounds\nTuesday | 6:30 PM onwards\tLakeview Road, Nandipur\nEarly Bird Pass\tUse code\nZ1314 e\tRL135\n(Includes entry + food coupon)\tfor special access\nScan to Book\nYour Tickets\nMusic Brings Us Closer",
+  "barcodes": []
+ },
+ {
+  "id": "RL136",
+  "category": "message",
+  "prompt": "Create a realistic chat screenshot with a grocery reminder, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"14 Oct 2026\", amount \"₹1343\" where relevant, and reference \"RL136\" where relevant.",
+  "text": "10:27\t.lO 78%\nHome Fam\nPapa, Mama, Me\nToday\nReminder: Grocery order for home\nDelivery date: 14 ct 2026\nOrder reference: RL136\nRice (5 kg)\t320\nWheat flour (5 kg)\t240\nToor dal(1 kg)\tT180\nCooking oil (2 L)\t7310\nSugar (2 kg)\t120\nTea leaves (500 g)\t90\nOnions (2 kg)\t783\nTotal: 1343\nPlease confirm if I should place this\norder for delivery on 14 Oct 2026.\n10:15 AM /\nMama\nYes, please go ahead. We're\nrunning low on dal and oil.\n14 Oct 2026 works.\n10:20 AM\nGreat! I\"Il place the order now\nusing reference RL136.\t10:21 AM !\nMessage",
+  "barcodes": []
+ },
+ {
+  "id": "RL137",
+  "category": "restaurant",
+  "prompt": "Create a realistic dinner booking message, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"15 Oct 2026\", amount \"₹1372\" where relevant, and reference \"RL137\" where relevant.",
+  "text": "6:24 PM\tllO78%\nSpice Willow\nBusiness Account\nYour Dinner Booking is Confirmed!\nWe're excited to host you at Spice Willow.\nDate\n15 Oct 2026 (Thu)\nTime\n7:30 PM\nGuests\n2 Adults\nLocation\nSpice Willow, Koramangala, Bengaluru\nBooking Reference\nRL137\nTotal Amount\n1372\n(Includes taxes and fees)\nThank you for choosing Spice Willow.\nLooking forward to a wonderful evening with you!\n6:24 PM\nMessage",
+  "barcodes": []
+ },
+ {
+  "id": "RL138",
+  "category": "job",
+  "prompt": "Create a realistic recruiter screening schedule, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"16 Oct 2026\", amount \"₹1401\" where relevant, and reference \"RL138\" where relevant.",
+  "text": "10:24\tll 078%\nYour Interview Schedule\nat BrightPath Solutions\nBrightPath Solutions 10:12 AM\nBS\nto me v\nHi Ananya,\nWe are pleased to share your interview schedule\nfor the Software Associate role at BrightPath\nSolutions. Please find the details below.\nDate\t16 Oct 2026 (Friday)\nTime\t10:30 AM - 12:00 PM (IST)\n9 Mode\tIn-person (Bengaluru Office)\nInterviewers\tHiring Manager & Team\nReference No. RL138\nAssessment Fee (if applicable)\n1401\nPay online to confirm your slot. The amount\nwill be adjusted in your joining formalities.\nConfirm Schedule\nIf you need to reschedule, please reply to this email\nat least 48 hours in advance.\nBest regards,\nTalent Acquisition Team\nBrightPath Solutions",
+  "barcodes": []
+ },
+ {
+  "id": "RL139",
+  "category": "bill",
+  "prompt": "Create a realistic water bill, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"17 Oct 2026\", amount \"₹1430\" where relevant, and reference \"RL139\" where relevant.",
+  "text": "Rivermist Water Supply Board\tWater Bill\nResidential\nClean Water Healthier Homes• Brighter Tomorrow\nCustomer ID\tRL139\nCustomer Name\nAmit Sharma\tConnection No.\tWSB204771\nService Address\tBilling Period\t01 Sep 2026 - 30 Sep 2026\nFlat 3B, Sunrise Apartments\tBill Date\t03 Oct 2026\nGreen Park Extension\nDue Date\t17 Oct 2026\nBhopal - 462016\nMeter Details\tConsumption (KL)\nMeter No.\tPrevious Reading\tCurrent Reading\tUsage\n1240\t1275\t35\nMTR55821\nCharge Details\nDescription\tAmount ()\nWater Usage Charge (35 KL@32)\t1, 120\nFixed Service Charge\t200\nEnvironmental Cess\t80\nOther Charges\t30\nTotal Amount Payable\t71430\nImportant Information\tAmount Payable\n• Please pay on or before 17 Oct 2026 to avoid\nlate fee charges.\t1430\n. Payments can be made online, at our service centre\nDue Date\nor through authorised collection points.\n• In case of any discrepancy, contact us within 7 days\t17 Oct 2026\nof bill date.\nFor enquiries: 1800 208 7171 | support@rivermistwater.in\nRivermist Water Supply Board, 12 Lakeview Road, Bhopal - 462016",
+  "barcodes": []
+ },
+ {
+  "id": "RL140",
+  "category": "order",
+  "prompt": "Create a realistic delivery tracking screenshot, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"18 Oct 2026\", amount \"₹1459\" where relevant, and reference \"RL140\" where relevant.",
+  "text": "10:24\tllO 78%\nTrack Order\nOrder ID: RL140\nOut for Delivery\nYour package is on the way and will\nbe delivered today.\nEstimated Delivery\n18 Oct 2026\nBefore 8:00 PM\nOrder Placed\n15 Oct 2026, 10:12 AM\nWe have received your order.\nPacked\n16 Oct 2026, 02:34 PM\nYour item has been packed securely.\nShipped\n17 Oct 2026, 09:18 AM\nYour item has left our facility.\nOut for Delivery\n18 Oct 2026, 08:11 AM\nYour package is out for delivery with our partner\nagent.\nDelivered\nPending\nEveryday Laptop Backpack\nQty: 1\n71459\nDelivery Partner\nRohan Singh\nDelivery Address\nFlat 3B, Shanti Residency, MG Road,\nIndore, Madhya Pradesh 452001",
+  "barcodes": []
+ },
+ {
+  "id": "RL141",
+  "category": "coupon",
+  "prompt": "Create a realistic café offer, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"19 Oct 2026\", amount \"₹1488\" where relevant, and reference \"RL141\" where relevant.",
+  "text": "Good Food\nBean & Bites\tBrighțer Days\nCAFÉ\nCombo for\nSpecial\t71488\n2 Main Dishes\nCafé Offer\t2 Beverages\t1 Dessert\nDelicious food, great company\nand a little extra happiness!\nValid on\n19 Oct 2026\nUse Code\nRL141\nGood Food\nBrings People\nTogether",
+  "barcodes": []
+ },
+ {
+  "id": "RL142",
+  "category": "recipe",
+  "prompt": "Create a realistic printed cake recipe, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"20 Oct 2026\", amount \"₹1517\" where relevant, and reference \"RL142\" where relevant.",
+  "text": "SweetNest\tOrder Ref: RL142\nDate: 20 Oct 2026\nCAKE STUDIO\nAmount: 71517\ntomemade Happiness, One Slice at a Time\nClassic Vanilla Cake\nRecipe\nSoft, fluffy and perfect for any celebration!\nIngredients (Serves 8)\n2 cups\tAll-purpose flour\n1 cup\tSugar\n1/2 cup\tUnsalted butter (softened)\n3\tEggs\n1 cup\tMilk (room temperature)\n2 tsp\tBaking powder\n1 tsp\tVanilla essence\n1/4 tsp\tSalt\nMethod\n1\tPreheat oven to 180°C. Grease and line a round cake tin.\n2.\tIn a bowl, cream together butter and sugar until light and fluffy.\n3. Add eggs one at a time, beating well after each addition.\n4\tMix in vanilla essence.\n5.\tIn another bowl, sift together flour, baking powder and salt.\n6.\tAdd dry ingredients to the wet mixture alternately with milk. Mix until just com-\ncombined.\n7.\tPour the batter into the prepared tin and smooth the top.\n8\tBake for 30-35 minutes or until a toothpick inserted in the centre comes out clean.\n9. Let the cake cool completely before frosting.\nTips\tBaking\nFor a richer taste, use fresh cream for frosting.\tBrings People\nYou can add fresh fruits like strawberries or mangoes for extra flavour.\tTogether 9\nStore in an airtight container for up to 3 days.",
+  "barcodes": []
+ },
+ {
+  "id": "RL143",
+  "category": "address",
+  "prompt": "Create a realistic handwritten address note, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"21 Oct 2026\", amount \"₹1546\" where relevant, and reference \"RL143\" where relevant.",
+  "text": "Sunrise Home Needs\t21 Oct 2026\nOrder Ref: RLI43\nAmount Paid: I546\tItems:\nDeliver To:\t- Kitchen Rack (1)\nMs. Priya Sharma\t- Storage Box (2)\nFlat B- 302, Palm Residency\t- Wall Hooks (1)\nNear Green Park Metro Station\nSector 12, Dwarka\nNew Delhi - ||0075\nContact: 48765 43210",
+  "barcodes": []
+ },
+ {
+  "id": "RL144",
+  "category": "qr",
+  "prompt": "Create a realistic fictional event entry pass with decorative QR-style graphic, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"22 Oct 2026\", amount \"₹1575\" where relevant, and reference \"RL144\" where relevant.",
+  "text": "RIVERFRONT CULTURAL FEST\nSuryodaya Arts Collective\nPresents\nRIVERFRONT\nCULTURAL FEST\nMUSIC | ART | FOOD | IDEAS\nENTRY PASS\tRef. No.\nGeneral Access\tRL144\nAmount\n22 Oct 2026\tZ1575\nThu, 4:00 PM onwards\nInclusive of all taxes\nRiverside Grounds\tNon-transferable\nNarmada Marg, Vadodara",
+  "barcodes": []
+ },
+ {
+  "id": "RL148",
+  "category": "travel",
+  "prompt": "Create a realistic hotel booking confirmation, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"26 Oct 2026\", amount \"₹1691\" where relevant, and reference \"RL148\" where relevant.",
+  "text": "10:24\t.l 78%\nHotel Booking Confirmed\nYour stay is all set! We wish you a pleasant trip.\nBooking Reference\nRL148\nA confirmation has been sent to your email\nand phone.\nMeadow Stay Hotel\n) 12 Lakeview Road, Koramangala,\nBengaluru, Karnataka 560034\nCheck-in\tCheck-out\n26 Oct 2026\t27 Oct 2026\nMon, 2:00 PM\tTue, 11:00 AM\nDeluxe Room\n1 Room, 2 Adults\n90 Breakfast Included\nComplimentary breakfast\nTotal Amount Paid\n1691\tConfirmed\nPaid via UPI",
+  "barcodes": []
+ },
+ {
+  "id": "RL149",
+  "category": "product",
+  "prompt": "Create a realistic running shoes, in an Indian everyday context, as a mobile screenshot or photographed paper document as appropriate. Fictional organization name, key date \"27 Oct 2026\", amount \"₹1720\" where relevant, and reference \"RL149\" where relevant.",
+  "text": "RUN FOR A BRIGHTER YOU\tStrideHub\n12, MGRoad, Indiranagar\nBengaluru, Karnataka 560038\nPh: 080-4950 2233\nSales Receipt\nInvoice No:\tRL149\n27 Oct 2026\nDate:\nCustomer:\tAmit Sharma\nPayment Mode: UPI\nPrice ()\tAmount ()\nQty\nItem\n1,720\t1,720\nMen's Running Shoes\t1\nGrey/Blue, Size 9\n1,720\nSubtotal\nDiscount\nF1720\nTotal\nThank you for shopping with StrideHub!\nKeep running. Keep growing.",
+  "barcodes": []
+ }
+]

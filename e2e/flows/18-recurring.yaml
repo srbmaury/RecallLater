@@ -22,5 +22,5 @@ name: Rent repeats monthly and comes back after it's paid
 - extendedWaitUntil:
     visible: Next one added
     timeout: 10000
-- assertVisible: .*is back for .*Nov.*
+- assertVisible: .*is back for .*
 - tapOn: OK

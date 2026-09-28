@@ -11,11 +11,12 @@ name: A mixed Hindi–English bill with Devanagari digits
 - tapOn: Share
 - tapOn: RecallLater
 - extendedWaitUntil:
-    visible: Oct 5
+    visible: Mobile Bill
     timeout: 30000
-# ₹४९९: Devanagari digits, and a rupee sign the Devanagari model misreads.
+# ₹४९९: Devanagari digits, and a rupee sign the Devanagari model misreads. The due date
+# (५ अक्टूबर) shows as a weekday or a date depending on the day; unit tests check it.
 - assertVisible: "499"
-- assertVisible: Mobile Bill
+- assertVisible: Due
 - tapOn: Save
 - extendedWaitUntil:
     visible: Everything you've shared, newest first

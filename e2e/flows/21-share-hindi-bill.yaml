@@ -14,8 +14,8 @@ name: A Hindi electricity bill is read on-device
     visible: बिजली बिल
     timeout: 30000
 - assertVisible: "2840"
-# Reminding until done is only suggested once the due date (देय तिथिः 28 सिंतंबर) is read.
-- assertVisible: Until done
+# The fixture's due date is fixed, so whether a reminder is suggested depends on the day the
+# suite runs; suggestions are covered by unit tests with a pinned date.
 - assertVisible: Billed on
 - tapOn: Save
 - extendedWaitUntil:

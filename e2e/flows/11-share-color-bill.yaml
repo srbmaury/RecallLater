@@ -16,7 +16,8 @@ name: A coloured bill with a header grid and charges table is read correctly
 # The total, not the largest line item or the energy charges.
 - assertVisible: "2840"
 - assertVisible: Billed on
-- assertVisible: Until done
+# The fixture's due date is fixed, so whether a reminder is suggested depends on the day the
+# suite runs; suggestions are covered by unit tests with a pinned date.
 - tapOn: Save
 # The same bill as flow 04 (same amount and due date): duplicate detection asks first.
 - extendedWaitUntil:

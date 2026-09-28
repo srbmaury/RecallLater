@@ -30,8 +30,9 @@ export default function DevOcrScreen() {
       for (const [index, file] of files.entries()) {
         if (cancelled) return;
         setStatus(`Reading ${index + 1}/${files.length}: ${file.name}`);
+        const started = Date.now();
         const read = await readLocalFile(file.uri, file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image');
-        results.push({ file: file.name, ...read });
+        results.push({ file: file.name, ms: Date.now() - started, ...read });
       }
       new File(dir, 'results.json').write(JSON.stringify(results));
       setStatus(`Done: ${results.length} files`);

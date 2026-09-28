@@ -22,7 +22,31 @@ const NOISE_LINE =
 const APP_BAR_WORD = /^(?:search|cart|bag|menu|home|account|profile|log ?in|sign ?in|wishlist|back|share|more|filters?|sort)$/i;
 const MAX_TITLE = 60;
 
+// Column headings of a bill or receipt table: "Item  Qty  Rate (₹)  Amount (₹)".
+const TABLE_HEADING = /^(?:items?|qty|quantity|rate|amount|price|total|mrp|disc(?:ount)?|hsn|description|s\.?\s?no\.?|sr\.?|unit|tax|\(\s*₹?\s*\))$/i;
+// A brand's tagline, not its name: "Decor for a Brighter Home", "RUN FOR A BRIGHTER YOU".
+const TAGLINE = /\b(?:for (?:a|an|the|your|you)|brighter|better|together|every ?day|since \d{4}|made with|trusted by)\b/i;
+// A label and what follows it, trailing a title: "Cook Time: 25 min", "Order Ref: RL142", "Invoice No:".
+const TRAILING_LABEL =
+  /[\s:]+(?:order\s*(?:ref(?:erence)?|id|no\.?|#)|invoice\s*(?:no\.?|#)|bill\s*no\.?|ref(?:erence)?\s*(?:no\.?)?|cook(?:ing)?\s*time|prep\s*time|serves|date|time|get your)\b\s*[:.#-]?.*$/i;
+
 export function buildTitle(type: ItemType, text: string, fields: ExtractedFields, domainTitle?: string): string {
+  const title = rawTitle(type, text, fields, domainTitle);
+  return cleanTitle(title) || title;
+}
+
+/** Trims what OCR glues onto a name: trailing labels and dates, stray letters, loose punctuation. */
+function cleanTitle(title: string): string {
+  return title
+    .replace(TRAILING_LABEL, '')
+    .replace(/\s+\d{1,2}\s+[a-z]{3,9}\.?,?\s+\d{4}$/i, '')
+    .replace(/^[a-z]\s+(?=[A-Z])/, '')
+    .replace(/(?<=[a-z]{3})\s+[A-Z]$/, '')
+    .replace(/[\s:·,-]+$/, '')
+    .trim();
+}
+
+function rawTitle(type: ItemType, text: string, fields: ExtractedFields, domainTitle?: string): string {
   switch (type) {
     case 'bill':
       return BILL_KINDS.find(([pattern]) => pattern.test(text))?.[1] ?? withSuffix(firstMeaningfulLine(text), 'bill', 'Bill');
@@ -35,7 +59,7 @@ export function buildTitle(type: ItemType, text: string, fields: ExtractedFields
       return taskTitle(text) ?? 'Follow up';
     case 'purchase':
     case 'receipt':
-      return (type === 'receipt' ? labelledValue(text, ['product', 'item']) ?? text.match(/(?:limited )?warranty certificate\s*\n([^\n]+)/i)?.[1]?.trim() ?? titleFromOrder(text) : undefined) ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? (type === 'receipt' ? 'Receipt' : 'Saved product');
+      return (type === 'receipt' ? usableName(labelledValue(text, ['product', 'item'])) ?? text.match(/(?:limited )?warranty certificate\s*\n([^\n]+)/i)?.[1]?.trim() ?? titleFromOrder(text) : undefined) ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? (type === 'receipt' ? 'Receipt' : 'Saved product');
     case 'event':
       return labelledValue(text, ['event name', 'event']) ?? firstMeaningfulLine(text) ?? 'Event';
     case 'job':
@@ -51,6 +75,11 @@ export function buildTitle(type: ItemType, text: string, fields: ExtractedFields
     case 'generic':
       return domainTitle ?? titleFromUrl(fields.urls?.[0]) ?? firstMeaningfulLine(text) ?? 'Saved item';
   }
+}
+
+/** A labelled value that is a name, not the rest of a table heading ("Item: Rate  Amount"). */
+function usableName(value: string | undefined): string | undefined {
+  return value && !value.split(/\s+|\t/).every((word) => TABLE_HEADING.test(word)) ? value : undefined;
 }
 
 function titleFromOrder(text: string): string | undefined {
@@ -112,7 +141,11 @@ export function titleFromUrl(url: string | undefined): string | undefined {
 }
 
 function firstMeaningfulLine(text: string): string | undefined {
-  for (const raw of text.split('\n')) {
+  for (const row of text.split('\n')) {
+    if (isTableHeading(row) || isOnlyCodesAndDates(row) || isAppChrome(row)) continue;
+    // Columns are separate things: take the first cell that isn't a tagline.
+    const cells = row.split('\t').map((cell) => cell.trim()).filter(Boolean);
+    const raw = cells.length > 1 ? cells.find((cell) => !TAGLINE.test(cell) && /(?:\p{L}\p{M}*){3}/u.test(cell)) ?? cells[0] : row;
     const line = raw.replace(/\s+/g, ' ').trim();
     if (line.length < 4 || NOISE_LINE.test(line) || isAppChrome(raw) || HANDLE.test(line) || ENGAGEMENT.test(line)) continue;
     // Skip status bars, bare dates/amounts/codes and links.
@@ -122,6 +155,20 @@ function firstMeaningfulLine(text: string): string | undefined {
     return truncate(line);
   }
   return undefined;
+}
+
+function isTableHeading(row: string): boolean {
+  const words = row.replace(/[()₹]/g, ' ').trim().split(/\s+/).filter(Boolean);
+  return words.length >= 2 && words.every((word) => TABLE_HEADING.test(word));
+}
+
+/** "RL408\t09 Oct 2026", "₹792": nothing a person would call it. */
+function isOnlyCodesAndDates(row: string): boolean {
+  const rest = row
+    .replace(/\b\d{1,2}\s+[a-z]{3,9}\.?,?\s+\d{2,4}\b/gi, '')
+    .replace(/\b[A-Z]{1,4}-?\d{2,}\b/g, '')
+    .replace(/[₹$]\s?[\d,.]+/g, '');
+  return !/(?:\p{L}\p{M}*){3}/u.test(rest);
 }
 
 /** A top bar: every cell after the app's name is a navigation word. */

@@ -16,9 +16,10 @@ import {
 } from './domains';
 import { findEntities } from './entities';
 import { pairLabelledCells } from './layout';
+import { looksAmerican } from './locale';
 import { findRepeat } from './repeat';
 import { normalizeOcr } from './normalize';
-import { type AmountMatch, findAmounts, findBarePrice, primaryAmount } from './money';
+import { type AmountMatch, findAmounts, findBarePrice, primaryAmount, receiptTotal } from './money';
 import { type CalendarSuggestion, type ReminderSuggestion, suggestCalendar, suggestReminder } from './suggest';
 import { buildTitle } from './title';
 
@@ -55,7 +56,8 @@ const DATE_FIELDS_TO_CHECK = ['dueDate', 'startsAt', 'expiresOn', 'returnBy'] as
 export function analyze({ text, barcodes = [], now = new Date(), type: forcedType }: AnalyzeInput): Analysis {
   const normalized = pairLabelledCells(normalizeOcr(text.replace(/\r\n?/g, '\n')));
   const dates = findDates(normalized, now);
-  const amounts = findAmounts(normalized);
+  const currency = looksAmerican(normalized) ? 'USD' : 'INR';
+  const amounts = findAmounts(normalized, currency);
   const entities = findEntities(normalized);
   const barcodeUrls = barcodes.map((b) => b.rawValue).filter((v) => /^https?:\/\//i.test(v));
 
@@ -70,11 +72,15 @@ export function analyze({ text, barcodes = [], now = new Date(), type: forcedTyp
 
   // A coupon's amount is its discount, already captured as `discount`.
   const barePrice = type === 'purchase' ? findBarePrice(normalized) : undefined;
+  // A till receipt's total from its own subtotal + tax, when the layout gives it away.
+  const tillTotal = type === 'receipt' ? receiptTotal(normalized) : undefined;
   const amount = type === 'coupon'
     ? undefined
-    : type === 'purchase'
-      ? (barePrice ?? amounts[0] ?? primaryAmount(amounts))
-      : (primaryAmount(amounts) ?? (type === 'receipt' ? findBarePrice(normalized) : undefined));
+    : tillTotal !== undefined
+      ? { amount: tillTotal, currency: amounts.find((a) => a.amount === tillTotal)?.currency ?? currency, index: -1, labelled: true }
+      : type === 'purchase'
+        ? (barePrice ?? amounts[0] ?? primaryAmount(amounts))
+        : (primaryAmount(amounts) ?? (type === 'receipt' ? findBarePrice(normalized, currency) : undefined));
   const urls = [...new Set([...entities.urls, ...barcodeUrls])];
   const domain = extractDomain(type, normalized, urls);
   const fields: ExtractedFields = compact({
@@ -170,7 +176,10 @@ function pickDates(
   // On a receipt a plain "Date" (or no label at all) is when it was bought.
   const purchasedOn =
     labelled('purchase') ??
-    (type === 'receipt' ? dates.find((d) => d.label === 'none' && parseLocalDateTime(d.date).getTime() < today.getTime() + DAY_MS) : undefined);
+    (type === 'receipt'
+      ? (dates.find((d) => d.label === 'none' && parseLocalDateTime(d.date).getTime() < today.getTime() + DAY_MS) ??
+        dates.find((d) => d.label === 'none'))
+      : undefined);
   const returnBy =
     labelled('return') ??
     (returnWindowDays && { date: toDateKey(addDays(purchasedOn ? parseLocalDateTime(purchasedOn.date) : today, returnWindowDays)) });

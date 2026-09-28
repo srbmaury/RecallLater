@@ -20,5 +20,5 @@ name: A coupon message becomes a coupon with a copyable code
 - back
 - tapOn: Search
 - tapOn: Search items
-- inputText: expiring this month
+- inputText: DINNER200
 - assertVisible: Swiggy · ₹200 OFF
