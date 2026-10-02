@@ -1,0 +1,23 @@
+appId: com.srbmaury.recalllater
+name: A blocked Android reminder channel cannot be reported as scheduled
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: Save & remind
+- extendedWaitUntil:
+    visible: Notifications are off
+    timeout: 15000
+- tapOn: OK
+- extendedWaitUntil:
+    visible: Saved without a reminder.
+    timeout: 15000
+- tapOn: Edit saved item
+- assertVisible: No reminder set.
+- back
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Notifications are off, so reminders cannot reach you.
+- scrollUntilVisible:
+    element: Turn on notifications
+- assertVisible: Turn on notifications

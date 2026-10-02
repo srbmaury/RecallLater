@@ -40,12 +40,7 @@ export async function setupNotifications(): Promise<void> {
       shouldSetBadge: false,
     }),
   });
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: 'Reminders',
-      importance: Notifications.AndroidImportance.HIGH,
-    });
-  }
+  await prepareReminderChannel();
   // Android shows at most three actions. Each opens the app so the change is applied
   // by JS even if the app was killed.
   const actions = (doneTitle: string): Notifications.NotificationAction[] => [
@@ -57,12 +52,35 @@ export async function setupNotifications(): Promise<void> {
   await Notifications.setNotificationCategoryAsync(BILL_CATEGORY_ID, actions('Paid'));
 }
 
+async function prepareReminderChannel(): Promise<void> {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+      name: 'Reminders',
+      importance: Notifications.AndroidImportance.HIGH,
+    });
+  }
+}
+
+/** Android can allow the app while its Reminders channel is switched off. */
+export async function notificationsEnabled(): Promise<boolean> {
+  if (!(await Notifications.getPermissionsAsync()).granted) return false;
+  if (Platform.OS === 'android' && Number(Platform.Version) >= 26) {
+    const channel = await Notifications.getNotificationChannelAsync(CHANNEL_ID);
+    return channel !== null && channel.importance !== Notifications.AndroidImportance.NONE;
+  }
+  return true;
+}
+
 /** Asks only when a reminder is actually being set, never on first launch. */
 export async function ensureNotificationPermission(): Promise<boolean> {
+  // A channel must exist before Android 13+ can show its permission prompt.
+  await prepareReminderChannel();
   const current = await Notifications.getPermissionsAsync();
-  if (current.granted) return true;
-  if (!current.canAskAgain) return false;
-  return (await Notifications.requestPermissionsAsync()).granted;
+  if (!current.granted) {
+    if (!current.canAskAgain) return false;
+    if (!(await Notifications.requestPermissionsAsync()).granted) return false;
+  }
+  return notificationsEnabled();
 }
 
 export async function scheduleReminders(
@@ -70,19 +88,21 @@ export async function scheduleReminders(
   item: Item,
   mode: ReminderMode,
   firstFireAt: Date | null,
-): Promise<void> {
+): Promise<Date | null> {
   await cancelReminders(db, item.id);
   await db.runAsync('UPDATE items SET reminder_mode = ? WHERE id = ?', mode, item.id);
-  if (mode === 'none' || !firstFireAt) return;
-  if (!(await Notifications.getPermissionsAsync()).granted) {
+  if (mode === 'none' || !firstFireAt) return null;
+  if (!(await notificationsEnabled())) {
     await db.runAsync('UPDATE items SET reminder_mode = \'none\' WHERE id = ?', item.id);
-    return;
+    return null;
   }
 
   const count = mode === 'until_done' ? UNTIL_DONE_QUEUE : 1;
   const times = Array.from({ length: count }, (_, i) => new Date(firstFireAt.getTime() + i * DAY));
   try {
-    await queue(db, item, times);
+    const firstQueued = await queue(db, item, times);
+    if (!firstQueued) await db.runAsync("UPDATE items SET reminder_mode = 'none' WHERE id = ?", item.id);
+    return firstQueued;
   } catch (error) {
     await cancelReminders(db, item.id).catch(console.warn);
     await db.runAsync("UPDATE items SET reminder_mode = 'none' WHERE id = ?", item.id).catch(console.warn);
@@ -164,7 +184,7 @@ export async function refreshSummaries(db: SQLiteDatabase, now = new Date()): Pr
 
   const ids: string[] = [];
   const time = digestTimeOf(await getSetting(db, DIGEST_SETTING));
-  if (time && (await Notifications.getPermissionsAsync()).granted) {
+  if (time && (await notificationsEnabled())) {
     const rows = await db.getAllAsync<{ title: string; due_at: number | null }>(
       "SELECT title, due_at FROM items WHERE status = 'active' AND due_at IS NOT NULL",
     );
@@ -208,7 +228,7 @@ export async function reconcileReminders(db: SQLiteDatabase, now = Date.now()): 
   );
   await Promise.all(stale.map((r) => Notifications.cancelScheduledNotificationAsync(r.notification_id)));
   await db.runAsync(`DELETE FROM reminders WHERE item_id IN (SELECT id FROM items WHERE status != 'active')`);
-  if (!(await Notifications.getPermissionsAsync()).granted) return;
+  if (!(await notificationsEnabled())) return;
   const needingTopUp = await db.getAllAsync<{ id: string; last_fire: number | null; pending: number }>(
     `SELECT i.id, MAX(r.fire_at) AS last_fire, SUM(CASE WHEN r.fire_at > ? THEN 1 ELSE 0 END) AS pending
      FROM items i LEFT JOIN reminders r ON r.item_id = i.id
@@ -269,9 +289,10 @@ export async function handleNotificationResponse(
   }
 }
 
-async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<void> {
+async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<Date | null> {
   const body = summarize(item) || 'Tap to open';
   const scheduled: string[] = [];
+  let firstQueued: Date | null = null;
   try {
     for (const fireAt of times) {
       if (fireAt.getTime() <= Date.now()) continue;
@@ -289,6 +310,7 @@ async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<voi
         },
       });
       scheduled.push(notificationId);
+      firstQueued ??= fireAt;
       await db.runAsync(
         'INSERT INTO reminders (id, item_id, fire_at, notification_id) VALUES (?, ?, ?, ?)',
         Crypto.randomUUID(),
@@ -302,6 +324,7 @@ async function queue(db: SQLiteDatabase, item: Item, times: Date[]): Promise<voi
     throw error;
   }
   await refreshNextReminder(db, item.id);
+  return firstQueued;
 }
 
 async function refreshNextReminder(db: SQLiteDatabase, itemId?: string): Promise<void> {

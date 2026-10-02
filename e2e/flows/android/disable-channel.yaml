@@ -1,0 +1,10 @@
+appId: com.android.settings
+name: Disable only the Reminders notification channel
+---
+- extendedWaitUntil:
+    visible: Reminders
+    timeout: 10000
+- tapOn:
+    id: android:id/switch_widget
+    index: 0
+- assertVisible: Reminders

@@ -19,7 +19,7 @@ name: The ＋ button adds typed text through the same review as a share
 - inputText: Pay rent by 5th October
 - tapOn: Continue
 - extendedWaitUntil:
-    visible: Save
+    visible: "Save & remind|Save only"
     timeout: 30000
 - assertVisible: (?i).*rent.*
 # The back arrow discards; nothing is saved.

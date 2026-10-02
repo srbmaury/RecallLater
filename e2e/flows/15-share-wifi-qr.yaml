@@ -14,7 +14,7 @@ name: A Wi-Fi QR code image is decoded on-device
     visible: "Wi-Fi: RecallLater-Guest"
     timeout: 30000
 - assertVisible: sharenow123
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

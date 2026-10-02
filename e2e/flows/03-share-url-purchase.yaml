@@ -5,8 +5,8 @@ name: A shop link becomes a Buy Later item without a reminder
     visible: Sony WH 1000XM6 Wireless Headphones
     timeout: 30000
 - assertVisible: .*amazon\.in.*
-- assertVisible: No reminder
-- tapOn: Save
+- assertVisible: Save only
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

@@ -138,6 +138,18 @@ export async function listToday(db: SQLiteDatabase, now = new Date()): Promise<I
   return rows.map(toItem);
 }
 
+/** Old unresolved items without a reminder already bringing them onto Today. */
+export async function listOlderOverdue(db: SQLiteDatabase, now = new Date()): Promise<Item[]> {
+  const rows = await db.getAllAsync<ItemRow>(
+    `SELECT * FROM items WHERE status = 'active' AND due_at < ?
+       AND (next_reminder_at IS NULL OR next_reminder_at > ?)
+     ORDER BY due_at ASC`,
+    overdueCutoff(now).getTime(),
+    endOfDay(now).getTime(),
+  );
+  return rows.map(toItem);
+}
+
 /** Active items with a date in the next `days` days, excluding those already on Today. */
 export async function listUpcoming(db: SQLiteDatabase, days = 7, now = new Date()): Promise<Item[]> {
   const tonight = endOfDay(now).getTime();

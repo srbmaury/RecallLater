@@ -14,7 +14,7 @@ name: A flight ticket PDF becomes a trip with a calendar action
 - assertVisible: X7K2QP
 - assertVisible: .*PDF saved privately.*
 - assertNotVisible: Amount
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

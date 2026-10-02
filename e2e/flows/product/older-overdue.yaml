@@ -1,0 +1,38 @@
+appId: com.srbmaury.recalllater
+name: An old unresolved bill stays accessible until completed
+---
+- extendedWaitUntil:
+    visible: .*Bill.*
+    timeout: 30000
+- tapOn: Title
+- eraseText
+- inputText: Old water bill
+- hideKeyboard
+- tapOn: No reminder
+- tapOn: Save only
+- extendedWaitUntil:
+    visible: Saved without a reminder.
+    timeout: 15000
+- tapOn: Today
+- assertVisible: .*OLDER OVERDUE.*1.*
+- assertNotVisible: Nothing needs you today
+- tapOn: Review older items
+- assertVisible: Old water bill
+- tapOn: Done
+- assertNotVisible: Old water bill
+- assertNotVisible: Review older items
+- tapOn: Collections
+- assertVisible: Done
+- assertVisible: Archived
+- assertVisible: Bills
+- assertNotVisible: Recipes
+- tapOn: Browse all collections
+- scrollUntilVisible:
+    element: Recipes
+- assertVisible: Recipes
+- scrollUntilVisible:
+    element: Done
+    direction: UP
+- tapOn: Done
+- assertVisible: Old water bill
+- back

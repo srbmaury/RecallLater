@@ -1,5 +1,6 @@
 import { type Candidate, isDuplicate } from '@/lib/duplicates';
 import { ITEM_TYPES, type Item } from '@/lib/types';
+import { assertAttachmentName } from './attachment-name';
 
 export const BACKUP_EXTENSION = '.recalllater';
 const BACKUP_VERSION = 1;
@@ -32,6 +33,20 @@ export function parseBackup(text: string): Backup {
   if (data?.app !== 'recalllater' || !Array.isArray(data.items)) throw new Error('This isn’t a RecallLater backup.');
   if (typeof data.version !== 'number' || data.version > BACKUP_VERSION) {
     throw new Error('This backup was made by a newer version of RecallLater. Update the app, then try again.');
+  }
+  // Validate the entire backup before restore can touch the filesystem, including
+  // files not referenced by an item. Never allow names to escape attachments/.
+  if (data.files !== undefined && (!data.files || typeof data.files !== 'object' || Array.isArray(data.files))) {
+    throw new Error('Invalid attachment files in backup.');
+  }
+  for (const [name, contents] of Object.entries(data.files ?? {})) {
+    assertAttachmentName(name);
+    if (typeof contents !== 'string') throw new Error('Invalid attachment contents in backup.');
+  }
+  for (const item of data.items) {
+    if (item?.attachments === undefined) continue;
+    if (!Array.isArray(item.attachments)) throw new Error('Invalid attachment list in backup.');
+    item.attachments.forEach(assertAttachmentName);
   }
   const items = data.items.filter(
     (item): item is Item =>

@@ -10,6 +10,7 @@ name: A new user can try the whole loop on a bundled sample bill
     timeout: 30000
 - assertVisible: "1284"
 - assertVisible: Due  # 15 Dec shows as a date or weekday depending on the day
+- tapOn: Change reminder…
 - scrollUntilVisible:
     element: Until done
 - tapOn: Discard

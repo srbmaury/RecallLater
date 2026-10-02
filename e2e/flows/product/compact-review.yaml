@@ -1,0 +1,30 @@
+appId: com.srbmaury.recalllater
+name: Fast review protects edits and confirms save-only
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- assertVisible: More options
+- assertVisible: No reminder
+- assertVisible: Save & remind
+- assertNotVisible: .*Improve with AI
+- assertNotVisible: Every month
+- tapOn: Title
+- eraseText
+- inputText: Corrected product bill
+- hideKeyboard
+- back
+- assertVisible: Discard your changes?
+- tapOn: KEEP EDITING
+- assertVisible: Corrected product bill
+- tapOn: No reminder
+- tapOn: Save only
+- extendedWaitUntil:
+    visible: Saved without a reminder.
+    timeout: 15000
+- tapOn: Edit saved item
+- extendedWaitUntil:
+    visible: Corrected product bill
+    timeout: 15000
+- assertVisible: No reminder set.
+- back

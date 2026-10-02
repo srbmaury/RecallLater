@@ -2,14 +2,15 @@ appId: com.srbmaury.recalllater
 name: Rent repeats monthly and comes back after it's paid
 ---
 - extendedWaitUntil:
-    visible: Repeats
+    visible: More options
     timeout: 30000
+- tapOn: More options
 - scrollUntilVisible:
     element: Every month
 - assertVisible:
     text: Every month
     selected: true
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

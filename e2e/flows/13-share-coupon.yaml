@@ -6,7 +6,7 @@ name: A coupon message becomes a coupon with a copyable code
     timeout: 30000
 - assertVisible: DINNER200
 - assertVisible: Expires
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

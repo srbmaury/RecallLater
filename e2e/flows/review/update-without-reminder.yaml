@@ -1,0 +1,20 @@
+appId: com.srbmaury.recalllater
+name: Updating a duplicate can explicitly remove its reminders
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: No reminder
+- tapOn: Save only
+- extendedWaitUntil:
+    visible: Already saved
+    timeout: 10000
+- tapOn: UPDATE IT
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 15000
+- tapOn: Electricity Bill
+- scrollUntilVisible:
+    element: No reminder set.
+- assertVisible: No reminder set.
+- back

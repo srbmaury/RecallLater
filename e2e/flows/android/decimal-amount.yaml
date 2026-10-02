@@ -1,0 +1,17 @@
+appId: com.srbmaury.recalllater
+name: A decimal comma entered on Android saves the correct amount
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: Amount
+- eraseText
+- inputText: "12,50"
+- hideKeyboard
+- tapOn: No reminder
+- tapOn: Save only
+- extendedWaitUntil:
+    visible: Saved without a reminder.
+    timeout: 15000
+- assertVisible: .*12\.5.*
+- assertNotVisible: .*1,250.*

@@ -1,0 +1,30 @@
+appId: com.srbmaury.recalllater
+name: Advanced options remain available and saving confirms the reminder
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: Change reminder…
+- assertVisible: No reminder
+- tapOn: Tomorrow 9 AM
+- tapOn: Remind once
+- tapOn: Fewer reminder options
+- assertNotVisible: In 3 days
+- assertVisible: No reminder
+- tapOn: More options
+- assertVisible: .*Improve with AI
+- scrollUntilVisible:
+    element: Every month
+- assertVisible: Every month
+- scrollUntilVisible:
+    element: Fewer options
+    direction: UP
+- tapOn: Fewer options
+- assertNotVisible: Every month
+- tapOn: Save & remind
+- extendedWaitUntil:
+    visible: Saved · Reminder.*
+    timeout: 15000
+- assertVisible: Edit saved item
+- tapOn: Dismiss confirmation
+- assertNotVisible: Dismiss confirmation

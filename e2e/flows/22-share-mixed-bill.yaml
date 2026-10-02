@@ -17,7 +17,7 @@ name: A mixed Hindi–English bill with Devanagari digits
 # (५ अक्टूबर) shows as a weekday or a date depending on the day; unit tests check it.
 - assertVisible: "499"
 - assertVisible: Due
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

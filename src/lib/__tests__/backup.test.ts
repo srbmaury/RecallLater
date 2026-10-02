@@ -64,3 +64,13 @@ describe('backup', () => {
     expect(resumeReminderAt(item({ status: 'done' }), NOW)).toBeNull();
   });
 });
+
+it.each(['../SQLite/recalllater.db', '/tmp/bill.jpg', 'folder/bill.jpg', '..\\bill.jpg', '.', '..', '%2e%2e%2fbill.jpg', 'file:///bill.jpg', ''])('rejects unsafe attachment name %s before restoring any item', (name) => {
+  const backup = buildBackup([item({ attachments: [name] })], {}, {}, NOW);
+  expect(() => parseBackup(JSON.stringify(backup))).toThrow('attachment');
+});
+
+it('rejects unsafe file keys even when no item references them', () => {
+  const backup = buildBackup([], {}, { '../database.db': 'AAAA' }, NOW);
+  expect(() => parseBackup(JSON.stringify(backup))).toThrow('attachment');
+});

@@ -1,0 +1,17 @@
+appId: com.srbmaury.recalllater
+name: Enable app lock and queue a synthetic bill notification
+---
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Lock RecallLater
+    direction: UP
+- tapOn: Lock RecallLater
+- extendedWaitUntil:
+    visible: Unlock RecallLater
+    timeout: 15000
+- inputText: "1234"
+- pressKey: Enter
+- scrollUntilVisible:
+    element: Remind about newest item in 5 s
+- tapOn: Remind about newest item in 5 s
+- tapOn: OK

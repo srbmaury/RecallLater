@@ -1,0 +1,19 @@
+appId: com.srbmaury.recalllater
+name: A crafted backup cannot access files outside attachments
+---
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Restore from a backup…
+- tapOn: Restore from a backup…
+- tapOn:
+    id: com.google.android.documentsui:id/option_menu_search
+- inputText: RecallLater-unsafe
+- pressKey: Enter
+- tapOn: RecallLater-unsafe.recalllater
+- extendedWaitUntil:
+    visible: Couldn’t restore
+    timeout: 15000
+- assertVisible: Invalid attachment file name.
+- tapOn: OK
+- tapOn: Inbox
+- assertVisible: Electricity Bill

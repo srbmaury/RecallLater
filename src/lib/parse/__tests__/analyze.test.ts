@@ -442,3 +442,12 @@ describe('fields worth a second look', () => {
     expect(analyze({ text: 'Pay gas bill ₹850 today', now }).unsure).toEqual([]);
   });
 });
+
+it('keeps the printed date and departure time of an already departed boarding pass', () => {
+  const text = [
+    'IndiGo\tBOARDING PASS', 'FROM\tTO', 'DEL\tBLR',
+    'FLIGHT\tDATE\tDEPARTURE\tGATE', '6E 6132\t20SEP\t06:20\t14',
+    'PASSENGER\tPNR\tSEAT\tBOARDING', 'TEST/USER\tX7K2QP\t12A\t05:35',
+  ].join('\n');
+  expect(analyze({ text, now: NOW }).fields.startsAt).toBe('2026-09-20T06:20');
+});

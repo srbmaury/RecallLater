@@ -1,0 +1,7 @@
+appId: com.srbmaury.recalllater
+---
+- extendedWaitUntil:
+    visible: Get started
+    timeout: 30000
+- tapOn: Get started
+- assertVisible: Nothing needs you today

@@ -2,6 +2,8 @@ import * as Crypto from 'expo-crypto';
 import { Directory, File, Paths } from 'expo-file-system';
 import { copyAsync } from 'expo-file-system/legacy';
 
+import { assertAttachmentName } from './attachment-name';
+
 const EXTENSIONS: Record<string, string> = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
@@ -24,6 +26,7 @@ export function attachmentsDirectoryUri(): string {
 }
 
 export function attachmentFile(name: string): File {
+  assertAttachmentName(name);
   return new File(attachmentsDir(), name);
 }
 

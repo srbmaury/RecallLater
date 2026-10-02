@@ -1,22 +1,24 @@
 import * as Notifications from 'expo-notifications';
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, useColorScheme } from 'react-native';
 
 import { LockGate } from '@/components/lock-gate';
 import { getSetting } from '@/lib/db/items';
 import { DatabaseProvider, useDatabase } from '@/lib/db/provider';
 import { handleNotificationResponse, reconcileReminders, refreshSummaries, setupNotifications } from '@/lib/reminders';
+import { createUnlockGate, type UnlockGate } from '@/lib/unlock-gate';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [access] = useState(createUnlockGate);
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <DatabaseProvider>
-        <Bootstrap />
+        <Bootstrap access={access} />
         <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="share" options={{ title: 'New item', gestureEnabled: false }} />
@@ -25,14 +27,14 @@ export default function RootLayout() {
           <Stack.Screen name="collection/[type]" options={{ title: '' }} />
           <Stack.Screen name="welcome" options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }} />
         </Stack>
-        <LockGate />
+        <LockGate onAccessChange={access.setOpen} />
       </DatabaseProvider>
     </ThemeProvider>
   );
 }
 
 /** App-wide side effects that need the database: notifications and first-run onboarding. */
-function Bootstrap() {
+function Bootstrap({ access }: { access: UnlockGate }) {
   const db = useDatabase();
   const pathname = usePathname();
   const initialPath = useRef(pathname);
@@ -55,6 +57,7 @@ function Bootstrap() {
       const key = `${response.notification.request.identifier}:${response.actionIdentifier}`;
       if (handled.current.has(key)) return;
       handled.current.add(key);
+      await access.waitUntilOpen();
       // The morning digest opens Today; item reminders open their item.
       if (response.notification.request.content.data?.digest) {
         router.navigate('/');
@@ -81,7 +84,7 @@ function Bootstrap() {
       responses.remove();
       appState.remove();
     };
-  }, [db]);
+  }, [db, access]);
 
   return null;
 }

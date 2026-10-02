@@ -1,0 +1,15 @@
+appId: com.srbmaury.recalllater
+name: Save a bill with notifications scheduled
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: Change reminder…
+- scrollUntilVisible:
+    element: Tomorrow 9 AM
+- tapOn: Tomorrow 9 AM
+- tapOn: Until done
+- tapOn: "Save & remind|Save only"
+- extendedWaitUntil:
+    visible: Everything you've shared, newest first
+    timeout: 15000

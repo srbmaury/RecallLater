@@ -1,0 +1,24 @@
+appId: com.srbmaury.recalllater
+name: A notification action waits through canceled authentication until unlock
+---
+- tapOn: Paid
+- extendedWaitUntil:
+    visible: Unlock RecallLater
+    timeout: 15000
+- back
+- back
+- assertVisible: RecallLater is locked
+- tapOn: Unlock
+- extendedWaitUntil:
+    visible: Unlock RecallLater
+    timeout: 15000
+- inputText: "1234"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: Today
+    timeout: 15000
+- tapOn: Collections
+- scrollUntilVisible:
+    element: Done
+- tapOn: Done
+- assertVisible: Electricity Bill

@@ -17,7 +17,7 @@ name: A coloured boarding pass with labels above values is read correctly
 - assertVisible: X7K2QP
 # Departure time from its own column, not the boarding time.
 - assertVisible: .*6:20.*
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 # No duplicate prompt: the PDF ticket with the same PNR was marked done in flow 09.
 - extendedWaitUntil:
     visible: Everything you've shared, newest first

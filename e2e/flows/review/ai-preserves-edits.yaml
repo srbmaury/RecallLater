@@ -1,0 +1,27 @@
+appId: com.srbmaury.recalllater
+name: A delayed AI reply preserves corrections made during the request
+---
+- extendedWaitUntil:
+    visible: Electricity Bill
+    timeout: 30000
+- tapOn: More options
+- tapOn: .*Improve with AI
+- tapOn: SEND ONCE
+- tapOn: Title
+- eraseText
+- inputText: Corrected regression bill
+- hideKeyboard
+- tapOn: Amount
+- eraseText
+- inputText: "3100"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: .*Improved with AI.*
+    timeout: 20000
+- assertVisible: Corrected regression bill
+- assertVisible: "3100"
+- tapOn: Undo
+- assertVisible: Corrected regression bill
+- assertVisible: "3100"
+- tapOn: Discard
+- tapOn: DISCARD

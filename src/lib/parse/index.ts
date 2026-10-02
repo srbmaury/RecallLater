@@ -200,7 +200,10 @@ function pickDates(
       break;
     }
     case 'travel': {
-      const departure = labelled('departure') ?? upcoming.find((d) => d.label !== 'purchase' && d.label !== 'arrival');
+      // A boarding pass's explicit DATE column remains its travel date after the
+      // flight has departed; filtering it out also loses the printed departure time.
+      const printedDate = dates.find((d) => /(?:^|\n)\s*(?:(?:flight|journey|travel)\s+)?date\s*:\s*$/i.test(text.slice(Math.max(0, d.index - 40), d.index)));
+      const departure = labelled('departure') ?? printedDate ?? upcoming.find((d) => d.label !== 'purchase' && d.label !== 'arrival');
       result.startsAt = departure && toLocal(withLabelledTime(departure, text, DEPARTURE_TIME));
       break;
     }

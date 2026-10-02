@@ -48,11 +48,14 @@ export function FieldEditor({
   type,
   fields,
   onChange,
+  onDraftChange,
   unsure = [],
 }: {
   type: ItemType;
   fields: ExtractedFields;
   onChange: (fields: ExtractedFields) => void;
+  /** Share review keeps drafts in memory; saved item details write only on blur. */
+  onDraftChange?: (fields: ExtractedFields) => void;
   /** Fields the parser guessed between candidates; marked "Check" until edited. */
   unsure?: UnsureField[];
 }) {
@@ -96,6 +99,12 @@ export function FieldEditor({
             onChange={(amount) =>
               amount === undefined ? clear('amount') : onChange({ ...fields, amount, currency: fields.currency ?? 'INR' })
             }
+            onDraftChange={onDraftChange ? (amount) => {
+              const next = { ...fields };
+              if (amount === undefined) { delete next.amount; delete next.currency; }
+              else { next.amount = amount; next.currency ??= 'INR'; }
+              onDraftChange(next);
+            } : undefined}
           />
         ) : (
           <EditableRow
@@ -157,18 +166,32 @@ function AmountRow({
   amount,
   currency,
   onChange,
+  onDraftChange,
   check,
 }: {
   check?: boolean;
   amount?: number;
   currency: string;
   onChange: (amount: number | undefined) => void;
+  onDraftChange?: (amount: number | undefined) => void;
 }) {
   const theme = useTheme();
-  const [text, setText] = useState(amount !== undefined ? String(amount) : '');
+  // A draft survives an asynchronous extraction update. When there's no draft,
+  // display the latest extracted amount directly rather than a stale state copy.
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? (amount !== undefined ? String(amount) : '');
+  const parseAmount = (value: string) => {
+    let numeric = value.replace(/[^\d.,]/g, '');
+    // Decimal-pad keyboards can emit commas; keep comma/dot grouping compatible.
+    numeric = /,\d{1,2}$/.test(numeric)
+      ? numeric.replace(/\./g, '').replace(/,(?=.*[,])/g, '').replace(',', '.')
+      : numeric.replace(/,/g, '');
+    const parsed = Number(numeric);
+    return value.trim() && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+  };
   const commit = () => {
-    const parsed = Number(text.replace(/[^\d.]/g, ''));
-    onChange(text.trim() && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined);
+    onChange(parseAmount(text));
+    setDraft(null);
   };
   return (
     <View style={styles.row}>
@@ -176,7 +199,10 @@ function AmountRow({
       <ThemedText type="smallBold">{currencySymbol(currency)}</ThemedText>
       <TextInput
         value={text}
-        onChangeText={setText}
+        onChangeText={(value) => {
+          setDraft(value);
+          onDraftChange?.(parseAmount(value));
+        }}
         onEndEditing={commit}
         keyboardType="decimal-pad"
         placeholder="Add amount"

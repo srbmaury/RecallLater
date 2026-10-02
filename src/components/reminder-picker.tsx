@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useDateTimePicker } from '@/components/date-time-picker';
 import { ThemedText } from '@/components/themed-text';
-import { Chip } from '@/components/ui';
+import { Button, Chip } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { addDays, atTime } from '@/lib/dates';
 import { formatReminder } from '@/lib/format';
@@ -18,11 +18,15 @@ export function ReminderPicker({
   value,
   onChange,
   suggestion,
+  compact = false,
 }: {
   value: ReminderChoice;
   onChange: (value: ReminderChoice) => void;
   suggestion?: ReminderSuggestion | null;
+  compact?: boolean;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const simple = compact && !expanded;
   const presets = useMemo(() => buildPresets(suggestion), [suggestion]);
   const { pick, element } = useDateTimePicker();
   const selectedKey =
@@ -42,8 +46,15 @@ export function ReminderPicker({
 
   return (
     <View style={styles.container}>
+      {simple ? (
+        <View style={styles.row}>
+          {suggestion ? <Chip label={formatReminder(suggestion.fireAt)} selected={selectedKey === 'suggested'} onPress={() => onChange({ mode: suggestion.mode, fireAt: suggestion.fireAt })} /> : null}
+          {value.fireAt && selectedKey !== 'suggested' ? <Chip label={formatReminder(value.fireAt)} selected onPress={() => {}} /> : null}
+          <Chip label="No reminder" selected={!value.fireAt} onPress={() => choose(null)} />
+        </View>
+      ) : (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-        {presets.map((preset) => (
+        {presets.filter((preset) => !compact || preset.key !== 'none').map((preset) => (
           <Chip key={preset.key} label={preset.label} selected={selectedKey === preset.key} onPress={() => choose(preset.fireAt)} />
         ))}
         <Chip
@@ -52,7 +63,10 @@ export function ReminderPicker({
           onPress={pickCustom}
         />
       </ScrollView>
-      {value.fireAt ? (
+      )}
+      {compact && !simple ? <Chip label="No reminder" selected={!value.fireAt} onPress={() => choose(null)} /> : null}
+      {compact ? <Button label={expanded ? 'Fewer reminder options' : 'Change reminder…'} variant="plain" size="small" onPress={() => setExpanded(!expanded)} /> : null}
+      {value.fireAt && !simple ? (
         <View style={styles.row}>
           <Chip label="Remind once" selected={value.mode === 'once'} onPress={() => onChange({ ...value, mode: 'once' })} />
           <Chip
@@ -62,9 +76,9 @@ export function ReminderPicker({
           />
         </View>
       ) : null}
-      {value.fireAt && value.mode === 'until_done' ? (
+      {value.fireAt ? (
         <ThemedText type="small" themeColor="textSecondary">
-          Reminds you daily from {formatReminder(value.fireAt)} until you mark it done.
+          {value.mode === 'until_done' ? `Reminds you daily from ${formatReminder(value.fireAt)} until you mark it done.` : `Reminds you once ${formatReminder(value.fireAt)}.`}
         </ThemedText>
       ) : null}
       {element}

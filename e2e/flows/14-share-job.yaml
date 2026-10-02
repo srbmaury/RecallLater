@@ -6,7 +6,7 @@ name: A job message becomes a job whose stage can be tracked
     timeout: 30000
 - assertVisible: Stripe
 - assertVisible: Bengaluru
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

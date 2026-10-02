@@ -17,7 +17,7 @@ name: A Hindi electricity bill is read on-device
 # The fixture's due date is fixed, so whether a reminder is suggested depends on the day the
 # suite runs; suggestions are covered by unit tests with a pinned date.
 - assertVisible: Billed on
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

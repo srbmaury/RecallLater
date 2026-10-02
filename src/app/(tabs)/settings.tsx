@@ -18,7 +18,7 @@ import { describeStats, STATS_SETTING, statsOf } from '@/lib/corrections';
 import { getSetting, setSetting } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
 import { DIGEST_SETTING, digestTimeOf } from '@/lib/digest';
-import { ensureNotificationPermission, fireNewestSoon, refreshSummaries } from '@/lib/reminders';
+import { ensureNotificationPermission, fireNewestSoon, notificationsEnabled, refreshSummaries } from '@/lib/reminders';
 
 const DIGEST_TIMES: { value: string | null; label: string }[] = [
   { value: null, label: 'Off' },
@@ -52,7 +52,7 @@ export default function SettingsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      Notifications.getPermissionsAsync().then((p) => setNotificationsOn(p.granted));
+      notificationsEnabled().then(setNotificationsOn);
       db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM items').then((r) => setItemCount(r?.count ?? 0));
       getSetting(db, AI_SETTING).then((value) => setAiMode(aiModeOf(value)));
       getSetting(db, DIGEST_SETTING).then((value) => setDigestTime(digestTimeOf(value)));

@@ -4,7 +4,7 @@ name: Sharing the same coupon again offers to update the saved one
 - extendedWaitUntil:
     visible: Swiggy · ₹200 OFF
     timeout: 30000
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Already saved
     timeout: 10000

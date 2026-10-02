@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -15,7 +15,7 @@ type State = 'checking' | 'locked' | 'open';
  * Covers the whole app until the person unlocks it, when App lock is on. It also covers
  * the app while it's in the background, so the app switcher never shows saved items.
  */
-export function LockGate() {
+export function LockGate({ onAccessChange }: { onAccessChange: (open: boolean) => void }) {
   const db = useDatabase();
   const theme = useTheme();
   const [state, setState] = useState<State>('checking');
@@ -24,45 +24,66 @@ export function LockGate() {
   const backgroundedAt = useRef<number | null>(null);
   // The system prompt itself makes the app inactive; that must not count as leaving.
   const prompting = useRef(false);
+  const authenticated = useRef(false);
+  const foreground = useRef(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
+  const transition = useRef(0);
 
-  const ask = async () => {
+  const ask = useCallback(async () => {
     if (prompting.current) return;
     prompting.current = true;
     try {
-      if (await unlock()) setState('open');
+      if (await unlock()) {
+        authenticated.current = true;
+        setState('open');
+        onAccessChange(foreground.current);
+      }
     } finally {
       prompting.current = false;
     }
-  };
+  }, [onAccessChange]);
 
   useEffect(() => {
+    onAccessChange(false);
     getSetting(db, LOCK_SETTING).then((value) => {
       enabled.current = lockEnabled(value);
-      if (!enabled.current) return setState('open');
+      if (!enabled.current) {
+        authenticated.current = true;
+        setState('open');
+        onAccessChange(foreground.current);
+        return;
+      }
       setState('locked');
       ask().catch(console.warn);
     });
 
     const subscription = AppState.addEventListener('change', (next) => {
+      foreground.current = next === 'active';
       if (prompting.current) return;
+      onAccessChange(false);
       if (next === 'active') {
+        transition.current += 1;
         setHidden(false);
         if (enabled.current && shouldRelock(backgroundedAt.current, Date.now())) {
+          authenticated.current = false;
           setState('locked');
           ask().catch(console.warn);
+        } else {
+          onAccessChange(authenticated.current);
         }
         backgroundedAt.current = null;
         return;
       }
       backgroundedAt.current ??= Date.now();
+      const currentTransition = ++transition.current;
       // Settings may have turned the lock on or off since launch.
       getSetting(db, LOCK_SETTING).then((value) => {
         enabled.current = lockEnabled(value);
+        if (currentTransition !== transition.current) return;
         setHidden(enabled.current);
       });
     });
-    return () => subscription.remove();
-  }, [db]);
+    return () => { subscription.remove(); onAccessChange(false); };
+  }, [db, onAccessChange, ask]);
 
   if (state === 'open' && !hidden) return null;
   return (

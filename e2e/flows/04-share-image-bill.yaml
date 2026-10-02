@@ -18,7 +18,7 @@ name: A bill screenshot shared from Files is read on-device
 - assertVisible: Billed on
 # The fixture's due date is fixed, so whether a reminder is suggested depends on the day the
 # suite runs; suggestions are covered by unit tests with a pinned date.
-- tapOn: Save
+- tapOn: "Save & remind|Save only"
 - extendedWaitUntil:
     visible: Everything you've shared, newest first
     timeout: 10000

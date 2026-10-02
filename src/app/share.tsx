@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { clearSharedPayloads, getSharedPayloads } from 'expo-sharing';
 import { SymbolView } from 'expo-symbols';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,7 +21,7 @@ import { addToCalendar } from '@/lib/calendar';
 import { formatDay, parseLocalDateTime } from '@/lib/dates';
 import { findDuplicate, getItem, getSetting, insertItem, listDueOn, setSetting, updateItem } from '@/lib/db/items';
 import { useDatabase } from '@/lib/db/provider';
-import { TYPE_META } from '@/lib/format';
+import { formatReminder, TYPE_META } from '@/lib/format';
 import { type Intake, processPayloads } from '@/lib/intake';
 import { recordCorrections } from '@/lib/corrections';
 import { clearPendingPayloads, getPendingPayloads } from '@/lib/pending';
@@ -117,6 +117,10 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
   }, [db, keyDate]);
   const alsoDue = keyDate && sameDay?.date === keyDate ? sameDay.titles : [];
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const dirty = useRef(false);
+  const discardPrompt = useRef(false);
+  const [moreOptions, setMoreOptions] = useState(false);
   const [showText, setShowText] = useState(false);
 
   // AI understanding (opt-in). `before` lets the user undo what the AI changed.
@@ -124,24 +128,44 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
   const [aiReading, setAiReading] = useState<Analysis | null>(null);
   const [ai, setAi] = useState<{ status: 'idle' | 'asking' | 'applied' | 'failed'; before?: Snapshot }>({ status: 'idle' });
   const [aiMode, setAiMode] = useState<AiMode | null>(null);
+  const latestReview = useRef({ type, title, fieldEdits, reminder, titleEdited, reminderTouched });
+  useLayoutEffect(() => {
+    latestReview.current = { type, title, fieldEdits, reminder, titleEdited, reminderTouched };
+  }, [type, title, fieldEdits, reminder, titleEdited, reminderTouched]);
+  const typeEdited = useRef(false);
+  const editedFields = useRef(new Set<keyof ExtractedFields>());
   const aiAlways = aiMode === 'always';
   const autoAsked = useRef(false);
+  const deferredAi = useRef<AiExtraction | null>(null);
   const canAskAi = isAiConfigured() && intake.text.trim() !== '';
   // Guessed fields stay marked until the user changes them.
   const reading = aiReading ?? analysis;
   const unsureFields = reading.unsure.filter((key) => fields[key] === reading.fields[key]);
 
   const applyAi = (extraction: AiExtraction) => {
-    const merged = mergeWithAi({ text: intake.text, barcodes: intake.barcodes, now }, extraction);
+    if (savingRef.current) { deferredAi.current = extraction; return; }
+    dirty.current = true;
+    const current = latestReview.current;
+    // Re-read using the user's type rather than replacing their classification.
+    const merged = mergeWithAi(
+      { text: intake.text, barcodes: intake.barcodes, now, ...(typeEdited.current ? { type: current.type } : {}) },
+      typeEdited.current ? { ...extraction, type: current.type } : extraction,
+    );
+    const mergedFields = { ...merged.fields };
+    for (const key of editedFields.current) {
+      delete mergedFields[key];
+      if (current.fieldEdits?.[key] !== undefined) Object.assign(mergedFields, { [key]: current.fieldEdits[key] });
+    }
     setAiReading(merged);
-    setAi({ status: 'applied', before: { type, title, fieldEdits, reminder } });
+    setAi({ status: 'applied', before: { type: current.type, title: current.title, fieldEdits: current.fieldEdits, reminder: current.reminder } });
     setType(merged.type);
-    setFieldEdits(merged.fields);
-    if (!titleEdited) setTitle(merged.title);
-    if (!reminderTouched) setReminder(fromSuggestion(merged.reminder));
+    setFieldEdits(mergedFields);
+    if (!current.titleEdited) setTitle(merged.title);
+    if (!current.reminderTouched) setReminder(fromSuggestion(suggestReminder(merged.type, mergedFields, now)));
   };
 
   const undoAi = () => {
+    dirty.current = true;
     const before = ai.before;
     if (!before) return;
     setType(before.type);
@@ -165,6 +189,7 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
   useEffect(() => {
     if (!aiAlways || autoAsked.current || !canAskAi) return;
     autoAsked.current = true;
+    setAi({ status: 'asking' });
     askAi(intake.text, now).then(applyAi, () => setAi({ status: 'failed' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once when the setting is known
   }, [aiAlways]);
@@ -191,25 +216,49 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
   };
 
   const changeType = (next: ItemType) => {
+    dirty.current = true;
+    typeEdited.current = true;
     const updated = analyze({ text: intake.text, barcodes: intake.barcodes, now, type: next });
     setType(next);
     setFieldEdits(null);
+    editedFields.current.clear();
     if (!titleEdited) setTitle(updated.title);
     setReminder(fromSuggestion(updated.reminder));
     setReminderTouched(false);
   };
 
   const changeFields = (next: ExtractedFields) => {
+    dirty.current = true;
+    // Editing a type-specific field anchors that type, including an amount draft
+    // that is still focused when the asynchronous AI answer arrives.
+    typeEdited.current = true;
+    const keys = new Set([...Object.keys(fields), ...Object.keys(next)] as (keyof ExtractedFields)[]);
+    for (const key of keys) {
+      if (fields[key] !== next[key]) editedFields.current.add(key);
+    }
     setFieldEdits(next);
     if (!reminderTouched) setReminder(fromSuggestion(suggestReminder(type, next, now)));
   };
 
   const changeReminder = (next: ReminderChoice) => {
+    dirty.current = true;
     setReminder(next);
     setReminderTouched(true);
   };
 
+  const resumeReview = () => {
+    savingRef.current = false;
+    setSaving(false);
+    if (deferredAi.current) {
+      const extraction = deferredAi.current;
+      deferredAi.current = null;
+      applyAi(extraction);
+    }
+  };
+
   const save = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     const candidate = {
       type,
@@ -226,17 +275,18 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
       'Already saved',
       `You saved “${existing.title}” ${savedWhen(existing.createdAt)}. Update it with these details, or keep both?`,
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => setSaving(false) },
+        { text: 'Cancel', style: 'cancel', onPress: resumeReview },
         { text: 'Save as new', onPress: () => persist(candidate, null) },
         { text: 'Update it', onPress: () => persist(candidate, existing) },
       ],
-      { cancelable: true, onDismiss: () => setSaving(false) },
+      { cancelable: true, onDismiss: resumeReview },
     );
   };
 
   /** Saves a new item, or folds this share into `existing` (new details, its files added). */
   const persist = async (candidate: Pick<Item, 'type' | 'title' | 'fields' | 'dueAt'>, existing: Item | null) => {
     let savedItem: Item | null = null;
+    let outcome = 'Saved without a reminder.';
     try {
       if (existing) {
         await updateItem(db, existing.id, {
@@ -254,22 +304,31 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
           confidence: analysis.confidence,
         });
       }
-      if (savedItem && reminder.fireAt && reminder.mode !== 'none') {
+      if (savedItem && (reminder.mode === 'none' || !reminder.fireAt)) {
+        await scheduleReminders(db, savedItem, 'none', null);
+      } else if (savedItem && reminder.fireAt && reminder.mode !== 'none') {
         const allowed = await ensureNotificationPermission();
         if (allowed) {
           try {
-            await scheduleReminders(db, savedItem, reminder.mode, reminder.fireAt);
+            const scheduled = await scheduleReminders(db, savedItem, reminder.mode, reminder.fireAt);
+            if (scheduled) outcome = reminder.mode === 'until_done'
+              ? `Saved · Daily from ${formatReminder(scheduled)} until done.`
+              : `Saved · Reminder ${formatReminder(scheduled)}.`;
+            else Alert.alert('Saved without a reminder', 'No future reminder was scheduled. Open the saved item to choose another time.');
           } catch (error) {
             console.warn('Item saved, but reminder scheduling failed', error);
             Alert.alert('Saved without a reminder', 'The item is in your inbox. You can set its reminder from the item details.');
           }
         }
-        else Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
+        else {
+          await scheduleReminders(db, savedItem, 'none', null);
+          Alert.alert('Notifications are off', 'Saved without a reminder. Turn on notifications in Settings to use reminders.');
+        }
       }
       recordCorrections(db, reading, { type, title: candidate.title, fields }).catch(console.warn);
       refreshSummaries(db).catch(console.warn);
       clearIncoming();
-      router.replace('/inbox');
+      router.replace({ pathname: '/inbox', params: { saved: savedItem?.id ?? '', outcome, savedAt: String(Date.now()) } });
     } catch (error) {
       // If anything fails after the insert, leave the item accessible and avoid a
       // retry creating a duplicate. Any reminder failure is handled above.
@@ -279,15 +338,26 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
         Alert.alert('Saved', 'Your item is in the inbox, but some follow-up step failed.');
         return;
       }
-      setSaving(false);
+      resumeReview();
       Alert.alert('Could not save', String(error));
     }
   };
 
-  const discard = () => {
+  const discardNow = () => {
+    if (savingRef.current) return;
     deleteAttachments(intake.attachments);
     clearIncoming();
     router.replace('/');
+  };
+
+  const discard = () => {
+    if (savingRef.current || discardPrompt.current) return;
+    if (!dirty.current) return discardNow();
+    discardPrompt.current = true;
+    Alert.alert('Discard your changes?', 'Your corrections have not been saved.', [
+      { text: 'Keep editing', style: 'cancel', onPress: () => { discardPrompt.current = false; } },
+      { text: 'Discard', style: 'destructive', onPress: () => { discardPrompt.current = false; discardNow(); } },
+    ], { cancelable: true, onDismiss: () => { discardPrompt.current = false; } });
   };
 
   // Leaving the review by any route (header, Android back) discards it, so copied
@@ -345,6 +415,7 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
             <TextInput
               value={title}
               onChangeText={(text) => {
+                dirty.current = true;
                 setTitle(text);
                 setTitleEdited(true);
               }}
@@ -353,10 +424,10 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
               accessibilityLabel="Title"
             />
           </View>
-          <FieldEditor key={type} type={type} fields={fields} onChange={changeFields} unsure={unsureFields} />
+          <FieldEditor key={type} type={type} fields={fields} onChange={changeFields} onDraftChange={changeFields} unsure={unsureFields} />
         </Card>
 
-        {ai.status === 'asking' || (aiAlways && canAskAi && ai.status === 'idle' && !ai.before) ? (
+        {ai.status === 'asking' ? (
           <View style={styles.aiRow}>
             <ActivityIndicator size="small" />
             <ThemedText type="small" themeColor="textSecondary">
@@ -375,30 +446,37 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
             AI couldn’t be reached. Showing what was found on this device.
           </ThemedText>
         ) : null}
-        {(unsure || aiMode === 'ask') && ai.status !== 'applied' && ai.status !== 'asking' ? (
-          <View style={styles.aiRow}>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
-              {unsure ? 'Not sure what this is. Pick a type if one fits.' : 'Something not right?'}
-            </ThemedText>
-            {canAskAi && aiMode === 'ask' ? (
-              <Button label="✨ Improve with AI" variant="plain" size="small" onPress={confirmAi} />
+        <Button label={moreOptions ? 'Fewer options' : 'More options'} variant="plain" size="small" onPress={() => setMoreOptions(!moreOptions)} />
+        {unsure && !moreOptions ? <ThemedText type="small" themeColor="textSecondary">Check these details. You can change the type in More options.</ThemedText> : null}
+        {moreOptions ? (
+          <>
+            {(unsure || aiMode === 'ask') && ai.status !== 'applied' && ai.status !== 'asking' ? (
+              <View style={styles.aiRow}>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+                  {unsure ? 'Not sure what this is. Pick a type if one fits.' : 'Something not right?'}
+                </ThemedText>
+                {canAskAi && aiMode === 'ask' ? (
+                  <Button label="✨ Improve with AI" variant="plain" size="small" onPress={confirmAi} />
+                ) : null}
+              </View>
             ) : null}
-          </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+              {ITEM_TYPES.map((t) => (
+                <Chip key={t} label={`${TYPE_META[t].emoji} ${TYPE_META[t].label}`} selected={t === type} onPress={() => changeType(t)} />
+              ))}
+            </ScrollView>
+
+          </>
         ) : null}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {ITEM_TYPES.map((t) => (
-            <Chip key={t} label={`${TYPE_META[t].emoji} ${TYPE_META[t].label}`} selected={t === type} onPress={() => changeType(t)} />
-          ))}
-        </ScrollView>
 
         <SectionHeader title="Remind me" />
-        <ReminderPicker value={reminder} onChange={changeReminder} suggestion={suggestion} />
+        <ReminderPicker compact value={reminder} onChange={changeReminder} suggestion={suggestion} />
         {alsoDue.length ? (
           <ThemedText type="small" themeColor="textSecondary">
             Also due {formatDay(parseLocalDateTime(keyDate!)).replace(/^(Today|Tomorrow)$/, (d) => d.toLowerCase())}: {alsoDue.join(', ')}
           </ThemedText>
         ) : null}
-        <RepeatPicker fields={fields} onChange={changeFields} />
+        {moreOptions ? <RepeatPicker fields={fields} onChange={changeFields} /> : null}
 
         {calendar ? (
           <Button
@@ -414,7 +492,7 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
           </ThemedText>
         ))}
 
-        {intake.text ? (
+        {moreOptions && intake.text ? (
           <>
             <SectionHeader
               title="Text we read"
@@ -431,7 +509,7 @@ function Review({ intake, sample }: { intake: Intake; sample: boolean }) {
 
       <View style={[styles.footer, { borderTopColor: theme.border }]}>
         <Button label="Discard" onPress={discard} style={styles.flex} disabled={saving} />
-        <Button label="Save" variant="primary" onPress={save} loading={saving} style={styles.save} />
+        <Button label={reminder.fireAt && reminder.mode !== 'none' ? 'Save & remind' : 'Save only'} variant="primary" onPress={save} loading={saving} style={styles.save} />
       </View>
     </SafeAreaView>
   );
